@@ -1,3 +1,12 @@
+mod lobby;
+mod utils;
+mod player;
+mod game;
+
+use crate::lobby::Lobby;
+
 fn main() {
-    println!("Hello, world!");
+    let lobby = Lobby::new();
+
+    println!("Lobby: {:?}", lobby);
 }
