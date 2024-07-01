@@ -1,3 +1,6 @@
 /target
 /client/build
 /node_modules
+package-lock.json
+/.idea
+/.vscode

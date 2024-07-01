@@ -9,16 +9,16 @@ pub enum GameLoopState {
 #[derive(Debug)]
 pub struct Game {
     id: u64,
-    participants: Vec<RefCell<Player>>,
-    target_player: Option<RefCell<Player>>,
-    turn_queue: Vec<RefCell<Player>>
+    participants: Vec<Player>,
+    target_player: Option<Player>,
+    turn_queue: Vec<Player>
 }
 
 impl Game {
-    pub fn new() -> Game {
+    pub fn new(players: Vec<Player>) -> Game {
         Game {
-            id: generate_id::<u64>(),
-            participants: vec![],
+            id: generate_id(),
+            participants: players,
             target_player: None,
             turn_queue: vec![]
         }

@@ -1,6 +1,6 @@
 use rand::Rng;
 
-pub fn generate_id<T>() -> T {
+pub fn generate_id() -> u64 {
     let mut rng = rand::thread_rng();
-    rng.gen::<T>()
+    rng.gen::<u64>()
 }
