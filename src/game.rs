@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use crate::player::Player;
 use crate::utils::generate_id;
 
 pub enum GameLoopState {
@@ -9,17 +8,17 @@ pub enum GameLoopState {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Game {
     id: u64,
-    participants: Vec<Player>,
-    target_player: Option<Player>,
-    turn_queue: Vec<Player>
+    participant_ids: Vec<u64>,
+    target_player_id: Option<u64>,
+    turn_queue: Vec<u64>
 }
 
 impl Game {
-    pub fn new(players: Vec<Player>) -> Game {
+    pub fn new(players: Vec<u64>) -> Game {
         Game {
             id: generate_id(),
-            participants: players,
-            target_player: None,
+            participant_ids: players,
+            target_player_id: None,
             turn_queue: vec![]
         }
     }

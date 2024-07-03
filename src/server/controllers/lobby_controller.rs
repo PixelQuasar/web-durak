@@ -5,25 +5,35 @@ use tokio::sync::RwLock;
 use crate::lobby::Lobby;
 use crate::server::AppState;
 
+pub struct NewLobbyData {
+    public: bool
+}
+
 pub async fn get_lobby_by_id(
     extract::Extension(state): extract::Extension<Arc<RwLock<AppState>>>,
     extract::Path(id): extract::Path<u64>
 ) -> Result<Json<Lobby>, StatusCode>
 {
-    let unwrapped_state = &state.read().await;
-    let lobby = unwrapped_state.game_data.lobby_pool.get(&id);
+    let awaited_state = &state.read().await;
+    let lobby = awaited_state.game_data.lobby_pool.get(&id);
 
     match lobby {
         None => Err(StatusCode::INTERNAL_SERVER_ERROR),
-        Some(result) => Ok(Json(result.clone()))
+        Some(result) => Ok(Json(result.to_owned()))
     }
 }
 
 pub async fn create_lobby(
     extract::Extension(mut state): extract::Extension<Arc<RwLock<AppState>>>,
+    payload: Option<Json<NewLobbyData>>
 ) -> Result<Json<Lobby>, StatusCode>
 {
-    let lobby = Lobby::new();
+    if let Some(payload) = payload {
+        return Err(StatusCode::BAD_REQUEST)
+    }
+
+    let payload = payload.unwrap();
+    let lobby = Lobby::new(payload.public);
 
     state.write().await.game_data.lobby_pool.insert(lobby.get_id(), lobby.clone());
 

@@ -7,6 +7,7 @@ use axum::{routing::get, Router};
 use tower_http::add_extension::AddExtensionLayer;
 use tokio::sync::RwLock;
 use crate::lobby::Lobby;
+use crate::player::Player;
 use crate::server::controllers::lobby_controller::{
     create_lobby,
     delete_lobby,
@@ -21,7 +22,8 @@ pub struct AppState {
 
 #[derive(Clone, Debug)]
 struct GameData {
-    lobby_pool: HashMap<u64, Lobby>
+    lobby_pool: HashMap<u64, Lobby>,
+    player_pool: HashMap<u64, Player>
 }
 
 pub async fn create_app(lobby_pool: HashMap<u64, Lobby>) {

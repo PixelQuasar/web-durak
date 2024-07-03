@@ -10,7 +10,7 @@ pub struct Player {
 }
 
 impl Player {
-    pub fn new(player_name: &str) -> Player {
+    pub fn new(player_name: String) -> Player {
         Player {
             id: generate_id(),
             name: player_name.parse().unwrap(),

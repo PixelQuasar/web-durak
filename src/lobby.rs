@@ -3,6 +3,7 @@ use crate::player::Player;
 use crate::game::Game;
 use crate::utils::generate_id;
 
+
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum LobbyStatus {
     INACTIVE, ACTIVE, STARTED
@@ -13,16 +14,16 @@ pub struct Lobby {
     id: u64,
     status: LobbyStatus,
     public: bool,
-    player_list: Vec<Player>,
+    player_list: Vec<u64>,
     game: Option<Game>
 }
 
 impl Lobby {
-    pub fn new() -> Lobby {
+    pub fn new(is_public: bool) -> Lobby {
         Lobby {
             id: generate_id(),
             status: LobbyStatus::INACTIVE,
-            public: false,
+            public: is_public,
             player_list: vec![],
             game: None
         }
@@ -33,13 +34,13 @@ impl Lobby {
     }
 
     pub fn player_add(&mut self, player: Player) {
-        self.player_list.push(player);
+        self.player_list.push(player.get_id());
     }
 
     pub fn player_remove(&mut self, id: u64) {
         let index = self.player_list
             .iter()
-            .position(|item| item.get_id() == id)
+            .position(|item| *item == id)
             .unwrap();
         self.player_list.remove(index);
     }
