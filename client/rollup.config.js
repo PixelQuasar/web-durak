@@ -1,13 +1,6 @@
 import { getBabelOutputPlugin } from '@rollup/plugin-babel';
 import scss from "rollup-plugin-scss";
-import postcss from "postcss";
-import autoprefixer from "autoprefixer";
-import path from "node:path";
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import terser from '@rollup/plugin-terser';
 
 export default [
     {
@@ -15,13 +8,14 @@ export default [
         input: './client/src/static/index.js',
         plugins: [
             scss({
-                output: "./client/public/build/style.css",
+                output: "./client/build/style.css",
                 failOnError: true,
                 outputStyle: 'compressed'
-            })
+            }),
+            terser()
         ],
         output: {
-            file: './client/public/build/bundle.js',
+            file: './client/build/bundle.js',
             format: 'es'
         },
     },
@@ -33,13 +27,14 @@ export default [
                 presets: ['@babel/preset-env']
             }),
             scss({
-                output: "./client/public/build/style.css",
+                output: "./client/build/style.css",
                 failOnError: true,
                 outputStyle: 'compressed'
             }),
+            terser()
         ],
         output: {
-            file: './client/public/build/bundle-es5.js',
+            file: './client/build/bundle-es5.js',
             format: 'cjs'
         }
     }

@@ -6,23 +6,18 @@ import serveStatic from "./serve-static.js"
 import path from "node:path";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import {raiseNotFoundErr} from "./error-handling.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const INDEX_HTML_PATH = path.join(__dirname, "..", "public/index.html");
 
-export const createApp = (appRouter) => {
-    const router = appRouter;
-
+export const createApp = () => {
     const requestHandler = function (request, response) {
         try {
-            if (request.url.includes("public")) {
+            if (request.url.includes("public") || request.url.includes("build")) {
                 return serveStatic(request, response);
             }
-            const page = router.getRoutes().find(item => item.name === request.url);
-            if (!page) raiseNotFoundErr();
 
             const html = fs.readFileSync(INDEX_HTML_PATH, 'utf8')
             return response.end( html, 'utf-8');
@@ -42,7 +37,6 @@ export const createApp = (appRouter) => {
     }
 
     const listen = function (port, host = "localhost") {
-        console.log(router);
         const server = http.createServer(requestHandler);
         server.listen(port, host, () => {
             console.log(`Server is running on http://${host}:${port}`);

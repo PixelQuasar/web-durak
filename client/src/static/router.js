@@ -1,3 +1,8 @@
+import {getParams} from "./get-params.js";
+import {NotFoundPage} from "./pages/not-found-page/not-found-page.js";
+
+const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
+
 export const createRouter = function (routesTree) {
     const routes = [];
     try {
@@ -11,9 +16,27 @@ export const createRouter = function (routesTree) {
         console.error("Error: unable to build router: ", error);
     }
 
-    const getRoutes = function () {
-        return routes
+    const render = function () {
+        let match = routes
+            .map(route => ({
+                route: route,
+                result: location.pathname.match(pathToRegex(route.name))
+            }))
+            .find(potentialMatch => potentialMatch.result !== null);
+
+        if (!match) {
+            match = {
+                route: {
+                    name: "404",
+                    page: NotFoundPage.bind({notFoundPage: location.pathname})
+                },
+                result: [location.pathname]
+            };
+        }
+
+        const root = document.querySelector("#root");
+        root.innerHTML = match.route.page.call(getParams(match));
     }
 
-    return { getRoutes };
+    return { render };
 }
