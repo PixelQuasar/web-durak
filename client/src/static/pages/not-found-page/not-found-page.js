@@ -5,7 +5,7 @@ export const NotFoundPage = function () {
     return `
 <div>
     <h1>
-        "${props.notFoundPage}" page not found.
+        "${props.notFoundPage}" instance is not found.
     </h1>
 </div>
     `

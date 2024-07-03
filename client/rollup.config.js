@@ -1,9 +1,19 @@
 import { getBabelOutputPlugin } from '@rollup/plugin-babel';
+import scss from "rollup-plugin-scss";
+import terser from '@rollup/plugin-terser';
 
 export default [
     {
         // ES6
         input: './client/src/static/index.js',
+        plugins: [
+            scss({
+                output: "./client/build/style.css",
+                failOnError: true,
+                outputStyle: 'compressed'
+            }),
+            terser()
+        ],
         output: {
             file: './client/build/bundle.js',
             format: 'es'
@@ -15,7 +25,13 @@ export default [
         plugins: [
             getBabelOutputPlugin({
                 presets: ['@babel/preset-env']
-            })
+            }),
+            scss({
+                output: "./client/build/style.css",
+                failOnError: true,
+                outputStyle: 'compressed'
+            }),
+            terser()
         ],
         output: {
             file: './client/build/bundle-es5.js',
