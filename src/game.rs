@@ -1,12 +1,12 @@
+use serde::{Deserialize, Serialize};
 use crate::player::Player;
-use std::cell::RefCell;
-use crate::utils::generate_id::generate_id;
+use crate::utils::generate_id;
 
 pub enum GameLoopState {
     START, PAUSE, FINISH, TURN,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Game {
     id: u64,
     participants: Vec<Player>,

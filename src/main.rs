@@ -2,23 +2,24 @@ mod lobby;
 mod utils;
 mod player;
 mod game;
+mod server;
+mod routes;
 
-use std::cell::RefCell;
+use std::collections::HashMap;
 use crate::lobby::Lobby;
 use crate::player::Player;
+use crate::server::create_app;
 
-fn main() {
+
+#[tokio::main]
+async fn main() {
     let mut lobby = Lobby::new();
-    let players = vec![
-        Player::new("name1"),
-        Player::new("name2"),
-        Player::new("name3")
-    ];
+    // lobby.player_add(Player::new("name1"));
+    // lobby.player_add(Player::new("name2"));
+    // lobby.player_add(Player::new("name3"));
 
-    players.iter().for_each(|item| {
-       lobby.player_add(item.clone());
-    });
+    let mut lobby_pool = HashMap::new();
+    lobby_pool.insert(lobby.get_id(), lobby);
 
-    lobby.init_game();
-    println!("Lobby: {:#?}", lobby);
+    create_app(lobby_pool).await;
 }

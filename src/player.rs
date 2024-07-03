@@ -1,6 +1,7 @@
-use crate::utils::generate_id::generate_id;
+use serde::{Deserialize, Serialize};
+use crate::utils::generate_id;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
     id: u64,
     name: String,

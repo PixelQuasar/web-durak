@@ -1,14 +1,14 @@
-use std::cell::RefCell;
+use serde::{Deserialize, Serialize};
 use crate::player::Player;
 use crate::game::Game;
-use crate::utils::generate_id::generate_id;
+use crate::utils::generate_id;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum LobbyStatus {
     INACTIVE, ACTIVE, STARTED
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Lobby {
     id: u64,
     status: LobbyStatus,
@@ -26,6 +26,10 @@ impl Lobby {
             player_list: vec![],
             game: None
         }
+    }
+
+    pub fn get_id(&self) -> u64 {
+        self.id
     }
 
     pub fn player_add(&mut self, player: Player) {
