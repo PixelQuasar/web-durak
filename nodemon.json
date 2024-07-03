@@ -1,0 +1,6 @@
+{
+  "watch": ["client/src"],
+  "ext": ".html,.css,.scss,.js",
+  "ignore": ["client/build"],
+  "exec": "npm run serve"
+}
