@@ -3,7 +3,7 @@ import { getBabelOutputPlugin } from '@rollup/plugin-babel';
 export default [
     {
         // ES6
-        input: './client/src/main.js',
+        input: './client/src/static/index.js',
         output: {
             file: './client/build/bundle.js',
             format: 'es'
@@ -11,7 +11,7 @@ export default [
     },
     {
         // ES5
-        input: './client/src/main.js',
+        input: './client/src/static/index.js',
         plugins: [
             getBabelOutputPlugin({
                 presets: ['@babel/preset-env']
