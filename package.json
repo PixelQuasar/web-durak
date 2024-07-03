@@ -6,11 +6,13 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "rollup-build": "npx rollup --config client/rollup.config.mjs",
+    "rollup-build": "npx rollup --config client/rollup.config.js",
+    "rollup-watch": "npx rollup --config client/rollup.config.js --watch",
     "dev_old": "npm-run-all --parallel start watch",
-    "serve": "node main.js",
+    "serve": "node client/src/main.js",
+    "serve-dev": "nodemon",
     "start": "npm-run-all --parallel rollup-build serve",
-    "dev": "nodemon"
+    "dev": "npm-run-all --parallel serve-dev rollup-watch"
   },
   "keywords": [],
   "author": "",
@@ -22,9 +24,13 @@
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.7",
+    "autoprefixer": "^10.4.19",
     "http": "^0.0.1-security",
     "nodemon": "^3.1.4",
     "npm-run-all": "^4.1.5",
-    "rollup": "^4.18.0"
+    "postcss": "^8.4.39",
+    "rollup": "^4.18.0",
+    "rollup-plugin-scss": "^3.0.0",
+    "sass": "^1.77.6"
   }
 }

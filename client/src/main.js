@@ -1,5 +1,5 @@
 import {createApp} from "./app.js";
-import {createRouter} from "./router.js";
+import {createRouter} from "./static/router.js";
 import {Homepage} from "./static/pages/homepage/homepage.js";
 import {JoinLobby} from "./static/pages/join-lobby/join-lobby.js";
 import {CreateLobby} from "./static/pages/create-lobby/create-lobby.js";
