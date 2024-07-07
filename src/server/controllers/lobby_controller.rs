@@ -1,64 +1,65 @@
-use std::sync::Arc;
-use axum::{extract, Json};
+use axum::{extract::Path, extract::State, extract::Json};
 use axum::http::StatusCode;
-use tokio::sync::RwLock;
+use serde::{Deserialize, Serialize};
 use crate::lobby::Lobby;
 use crate::server::AppState;
+use crate::server::errors::{error_msg_to_server_error};
+use crate::server::redis_service::{
+    delete_struct_from_redis,
+    get_struct_from_redis,
+    set_struct_to_redis
+};
 
+#[derive(Deserialize, Serialize)]
 pub struct NewLobbyData {
     public: bool
 }
 
 pub async fn get_lobby_by_id(
-    extract::Extension(state): extract::Extension<Arc<RwLock<AppState>>>,
-    extract::Path(id): extract::Path<u64>
-) -> Result<Json<Lobby>, StatusCode>
+    State(state): State<AppState>,
+    Path(id): Path<String>
+) -> Result<Json<Lobby>, (StatusCode, String)>
 {
-    let awaited_state = &state.read().await;
-    let lobby = awaited_state.game_data.lobby_pool.get(&id);
-
-    match lobby {
-        None => Err(StatusCode::INTERNAL_SERVER_ERROR),
-        Some(result) => Ok(Json(result.to_owned()))
-    }
-}
-
-pub async fn create_lobby(
-    extract::Extension(mut state): extract::Extension<Arc<RwLock<AppState>>>,
-    payload: Option<Json<NewLobbyData>>
-) -> Result<Json<Lobby>, StatusCode>
-{
-    if let Some(payload) = payload {
-        return Err(StatusCode::BAD_REQUEST)
-    }
-
-    let payload = payload.unwrap();
-    let lobby = Lobby::new(payload.public);
-
-    state.write().await.game_data.lobby_pool.insert(lobby.get_id(), lobby.clone());
+    let lobby = get_struct_from_redis::<Lobby>(state.redis_pool, id.as_str())
+       .await.map_err(error_msg_to_server_error)?;
 
     Ok(Json(lobby))
 }
 
-pub async fn get_lobby(
-    extract::Extension(state): extract::Extension<Arc<RwLock<AppState>>>,
-) -> Result<Json<Vec<Lobby>>, StatusCode>
+pub async fn create_lobby(
+    State(state): State<AppState>,
+    payload: Option<Json<NewLobbyData>>
+) -> Result<Json<Lobby>, (StatusCode, String)>
 {
-    let lobbies = &state.read().await.game_data.lobby_pool;
-    let lobbies: Vec<Lobby> = lobbies.values().cloned().collect();
+    if payload.is_none() {
+        return Err((StatusCode::INTERNAL_SERVER_ERROR, "Body is empty".to_string()));
+    }
+
+    let payload = payload.unwrap();
+
+    let lobby = Lobby::new(payload.public);
+
+    set_struct_to_redis::<Lobby>(state.redis_pool, lobby.get_id(), lobby.clone())
+        .await.map_err(error_msg_to_server_error)?;
+    Ok(Json(lobby))
+}
+
+pub async fn get_lobby(
+    State(state): State<AppState>,
+) -> Result<Json<Vec<Lobby>>, (StatusCode, String)>
+{
+    let lobbies = vec![Lobby::new_private(), Lobby::new_private()];
 
     Ok(Json(lobbies))
 }
 
 pub async fn delete_lobby(
-    extract::Extension(mut state): extract::Extension<Arc<RwLock<AppState>>>,
-    extract::Path(mut id): extract::Path<u64>
-) -> Result<Json<Lobby>, StatusCode>
+    State(state): State<AppState>,
+    Path(id): Path<String>
+) -> Result<(), (StatusCode, String)>
 {
-    let lobby = state.write().await.game_data.lobby_pool.remove(&id);
+    delete_struct_from_redis::<Lobby>(state.redis_pool, id.as_str())
+        .await.map_err(error_msg_to_server_error)?;
 
-    match lobby {
-        None => Err(StatusCode::INTERNAL_SERVER_ERROR),
-        Some(result) =>  Ok(Json(result.clone()))
-    }
+    Ok(())
 }

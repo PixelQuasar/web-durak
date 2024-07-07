@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use crate::player::Player;
 use crate::game::Game;
-use crate::utils::generate_id;
+use crate::utils::{gen_special_id, generate_id};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -11,7 +11,7 @@ pub enum LobbyStatus {
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Lobby {
-    id: u64,
+    id: String,
     status: LobbyStatus,
     public: bool,
     player_list: Vec<u64>,
@@ -21,7 +21,7 @@ pub struct Lobby {
 impl Lobby {
     pub fn new(is_public: bool) -> Lobby {
         Lobby {
-            id: generate_id(),
+            id: gen_special_id("LOBBY"),
             status: LobbyStatus::INACTIVE,
             public: is_public,
             player_list: vec![],
@@ -29,8 +29,18 @@ impl Lobby {
         }
     }
 
-    pub fn get_id(&self) -> u64 {
-        self.id
+    pub fn new_private() -> Lobby {
+        Lobby {
+            id: gen_special_id("LOBBY"),
+            status: LobbyStatus::INACTIVE,
+            public: false,
+            player_list: vec![],
+            game: None
+        }
+    }
+
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
 
     pub fn player_add(&mut self, player: Player) {
