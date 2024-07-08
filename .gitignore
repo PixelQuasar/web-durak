@@ -1,5 +1,5 @@
 /target
-/client/public/build
+/client/build
 /node_modules
 package-lock.json
 /.idea
