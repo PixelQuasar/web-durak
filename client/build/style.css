@@ -1,1 +1,1 @@
-body{margin:0;padding:0}
+.create-lobby-wrapper{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:32px;width:100vw;height:300px}.create-lobby-wrapper .title{font-size:2em;font-weight:bold;text-align:center}.create-lobby-wrapper .subtitle{font-size:1em;font-weight:lighter;opacity:.8;text-align:center}.create-lobby-wrapper .create-button{outline:none;border:none;padding:16px;border-radius:16px;width:200px}body{margin:0;padding:0;display:flex;font-family:Inter}

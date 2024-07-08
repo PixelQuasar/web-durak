@@ -1,0 +1,28 @@
+.create-lobby-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+  width: 100vw;
+  height: 300px;
+
+  .title {
+    font-size: 2em;
+    font-weight: bold;
+    text-align: center;
+  }
+  .subtitle {
+    font-size: 1em;
+    font-weight: lighter;
+    opacity: 0.8;
+    text-align: center;
+  }
+  .create-button {
+    outline: none;
+    border: none;
+    padding: 16px;
+    border-radius: 16px;
+    width: 200px;
+  }
+}

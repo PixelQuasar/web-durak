@@ -1,4 +1,13 @@
+@import "../static/pages/create-lobby/style";
+@import "../static/pages/homepage/style";
+@import "../static/pages/join-lobby/style";
+@import "pages/not-found-page/style";
+@import "../static/pages/error-page/style";
+
 body {
   margin: 0;
   padding: 0;
+  display: flex;
+
+  font-family: Inter;
 }

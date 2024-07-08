@@ -1,6 +1,7 @@
 pub mod controllers;
 pub mod redis_service;
 pub mod errors;
+mod websocket;
 
 use dotenv;
 use redis::AsyncCommands;
@@ -19,6 +20,7 @@ use crate::server::controllers::player_controller::{
     create_player,
     get_player_by_id
 };
+use crate::server::websocket::websocket_handler;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -30,6 +32,8 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
 
     let app = Router::new()
         .fallback(fallback)
+        // WEBSOCKET
+        .route("/ws", get(websocket_handler))
         // LOBBY
         .route(
             "/lobby",
