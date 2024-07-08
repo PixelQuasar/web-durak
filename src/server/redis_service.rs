@@ -4,23 +4,24 @@ use bb8_redis::RedisConnectionManager;
 use redis::AsyncCommands;
 use serde::{Serialize};
 use serde::de::DeserializeOwned;
+use tower::ServiceExt;
 use crate::server::errors::error_message;
 
 
-pub async fn get_struct_from_redis<T: DeserializeOwned + 'static>(
-    pool: Pool<RedisConnectionManager>, id: &str) -> Result<T, String>
+pub async fn get_struct_from_redis<T: DeserializeOwned>(
+    pool: &Pool<RedisConnectionManager>, id: &str) -> Result<T, String>
 {
     let mut conn = pool.get().await.map_err(error_message)?;
 
     let stored_string = conn.get::<String, String>(id.to_string()).await.map_err(error_message)?;
 
-    let parsed_struct = serde_json::from_str::<T>(stored_string.as_str()).map_err(error_message)?;
+    let parsed_struct = serde_json::from_str::<T>(&stored_string).map_err(error_message)?;
 
     Ok(parsed_struct)
 }
 
-pub async fn set_struct_to_redis<T: Serialize + 'static>(
-    pool: Pool<RedisConnectionManager>, id: &str, payload: T) -> Result<(), String>
+pub async fn set_struct_to_redis<T: Serialize>(
+    pool: &Pool<RedisConnectionManager>, id: &str, payload: T) -> Result<(), String>
 {
     let mut conn = pool.get().await.map_err(error_message)?;
 
@@ -31,8 +32,25 @@ pub async fn set_struct_to_redis<T: Serialize + 'static>(
     Ok(())
 }
 
-pub async fn delete_struct_from_redis<T: DeserializeOwned + Serialize + 'static>(
-    pool: Pool<RedisConnectionManager>, id: &str) -> Result<(), String>
+pub async fn get_vector_from_redis<T: DeserializeOwned>(
+    pool: &Pool<RedisConnectionManager>, prefix: &str) -> Result<Vec<T>, String>
+{
+    let mut conn = pool.get().await.map_err(error_message)?;
+
+    // Some bad code here. But sadly I didn't figure out how to make it better.
+    //TODO: rewrite later.
+    let mut raw_values = conn.scan_match::<&str, String>(prefix).await.map_err(error_message)?;
+    let mut result: Vec<T> = vec![];
+
+    while let Some(element) = raw_values.next_item().await {
+        result.push(get_struct_from_redis(&pool, &element).await?)
+    }
+
+    Ok(result)
+}
+
+pub async fn delete_struct_from_redis<T: DeserializeOwned + Serialize>(
+    pool: &Pool<RedisConnectionManager>, id: &str) -> Result<(), String>
 {
     let mut conn = pool.get().await.map_err(error_message)?;
 

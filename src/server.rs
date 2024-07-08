@@ -7,7 +7,12 @@ use redis::AsyncCommands;
 use axum::{routing::get, Router};
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
-use crate::server::controllers::lobby_controller::{create_lobby, delete_lobby, get_lobby, get_lobby_by_id};
+use crate::server::controllers::lobby_controller::{
+    create_lobby,
+    delete_lobby,
+    get_lobbies,
+    get_lobby_by_id
+};
 
 #[derive(Clone)]
 pub struct AppState {
@@ -21,7 +26,7 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
         .fallback(fallback)
         .route(
             "/lobby",
-                get(get_lobby)
+                get(get_lobbies)
                 .post(create_lobby)
 
         )

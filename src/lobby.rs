@@ -1,7 +1,8 @@
+use std::ops::Deref;
 use serde::{Deserialize, Serialize};
 use crate::player::Player;
 use crate::game::Game;
-use crate::utils::{gen_special_id, generate_id};
+use crate::utils::{gen_special_id};
 
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -14,7 +15,7 @@ pub struct Lobby {
     id: String,
     status: LobbyStatus,
     public: bool,
-    player_list: Vec<u64>,
+    player_list: Vec<String>,
     game: Option<Game>
 }
 
@@ -44,13 +45,13 @@ impl Lobby {
     }
 
     pub fn player_add(&mut self, player: Player) {
-        self.player_list.push(player.get_id());
+        self.player_list.push(player.get_id().to_string());
     }
 
-    pub fn player_remove(&mut self, id: u64) {
+    pub fn player_remove(&mut self, id: String) {
         let index = self.player_list
             .iter()
-            .position(|item| *item == id)
+            .position(|item| item.deref() == id)
             .unwrap();
         self.player_list.remove(index);
     }

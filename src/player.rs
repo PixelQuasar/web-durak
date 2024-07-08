@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use crate::utils::generate_id;
+use crate::utils::{gen_special_id};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Player {
-    id: u64,
+    id: String,
     name: String,
     active: bool,
     ready: bool
@@ -12,14 +12,14 @@ pub struct Player {
 impl Player {
     pub fn new(player_name: String) -> Player {
         Player {
-            id: generate_id(),
+            id: gen_special_id("PLAYER"),
             name: player_name.parse().unwrap(),
             active: false,
             ready: false
         }
     }
 
-    pub fn get_id(&self) -> u64 {
-        self.id
+    pub fn get_id(&self) -> &str {
+        &self.id
     }
 }
