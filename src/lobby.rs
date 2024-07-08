@@ -44,14 +44,14 @@ impl Lobby {
         &self.id
     }
 
-    pub fn player_add(&mut self, player: Player) {
-        self.player_list.push(player.get_id().to_string());
+    pub fn player_add(&mut self, player_id: &str) {
+        self.player_list.push(player_id.to_string());
     }
 
-    pub fn player_remove(&mut self, id: String) {
+    pub fn player_remove(&mut self, id: &str) {
         let index = self.player_list
             .iter()
-            .position(|item| item.deref() == id)
+            .position(|item| item == id)
             .unwrap();
         self.player_list.remove(index);
     }

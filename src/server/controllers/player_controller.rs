@@ -5,7 +5,7 @@ use serde::Deserialize;
 use crate::player::Player;
 use crate::server::AppState;
 use crate::server::errors::error_msg_to_server_error;
-use crate::server::redis_service::set_struct_to_redis;
+use crate::server::redis_service::{get_struct_from_redis, set_struct_to_redis};
 
 #[derive(Deserialize)]
 pub struct NewPlayerData {
@@ -27,5 +27,16 @@ pub async fn create_player(
 
     set_struct_to_redis::<Player>(&state.redis_pool, player.get_id(), player.clone())
         .await.map_err(error_msg_to_server_error)?;
+    Ok(Json(player))
+}
+
+pub async fn get_player_by_id(
+    State(state): State<AppState>,
+    id: String
+) -> Result<Json<Player>, (StatusCode, String)>
+{
+    let player = get_struct_from_redis::<Player>(&state.redis_pool, id.as_str())
+        .await.map_err(error_msg_to_server_error)?;
+
     Ok(Json(player))
 }

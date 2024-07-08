@@ -4,14 +4,20 @@ pub mod errors;
 
 use dotenv;
 use redis::AsyncCommands;
-use axum::{routing::get, Router};
+use axum::{routing::get, routing::patch, routing::post, Router};
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 use crate::server::controllers::lobby_controller::{
+    add_player_to_lobby,
     create_lobby,
     delete_lobby,
+    delete_player_from_lobby,
     get_lobbies,
     get_lobby_by_id
+};
+use crate::server::controllers::player_controller::{
+    create_player,
+    get_player_by_id
 };
 
 #[derive(Clone)]
@@ -24,6 +30,7 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
 
     let app = Router::new()
         .fallback(fallback)
+        // LOBBY
         .route(
             "/lobby",
                 get(get_lobbies)
@@ -35,6 +42,20 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
              get(get_lobby_by_id)
                  .delete(delete_lobby)
          )
+        .route(
+            "/lobby/:lobby_id/:player_id",
+            patch(add_player_to_lobby)
+                .delete(delete_player_from_lobby)
+        )
+        // PLAYER
+        .route(
+            "/player",
+            post(create_player)
+        )
+        .route(
+            "/player/:id",
+            get(get_player_by_id)
+        )
         .with_state(state);
 
     let port = dotenv::var("SERVER_PORT")
@@ -43,7 +64,8 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
     let host = dotenv::var("SERVER_HOST")
         .expect("SERVER_HOST environment variable not defined.");
 
-    let listener = tokio::net::TcpListener::bind(format!("{}:{}", host, port)).await.unwrap();
+    let listener = tokio::net::TcpListener::bind(format!("{}:{}", host, port))
+        .await.unwrap();
     println!("Serving at http://{}:{}", host, port);
 
     axum::serve(listener, app).await.unwrap();
