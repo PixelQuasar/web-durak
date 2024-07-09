@@ -1,6 +1,6 @@
 export const Homepage = function () {
     return `
-<div>
+<div class="homepage-wrapper">
     Homepage
     <button class="demo-button">hello</button>
 </div>
