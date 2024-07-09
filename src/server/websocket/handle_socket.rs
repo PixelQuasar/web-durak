@@ -6,13 +6,12 @@ use futures::{sink::SinkExt, stream::StreamExt};
 use crate::server::websocket::process_message::process_message;
 
 pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
-    // send a ping (unsupported by some browsers) just to kick things off and get a response
+    // send a ping
     if socket.send(Message::Ping(vec![1, 2, 3])).await.is_ok() {
         println!("Pinged {who}...");
     } else {
         println!("Could not send ping {who}!");
-        // no Error here since the only thing we can do is to close the connection.
-        // If we can not send messages, there is no way to salvage the statemachine anyway.
+        // Close connection if we can't ping client
         return;
     }
 

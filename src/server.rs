@@ -3,11 +3,14 @@ pub mod redis_service;
 pub mod errors;
 mod websocket;
 
+use std::net::SocketAddr;
 use dotenv;
 use redis::AsyncCommands;
 use axum::{routing::get, routing::patch, routing::post, Router};
+use axum::http::Method;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
+use tower_http::cors::{Any, CorsLayer};
 use crate::server::controllers::lobby_controller::{
     add_player_to_lobby,
     create_lobby,
@@ -28,7 +31,13 @@ pub struct AppState {
 }
 
 pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
-    let state = AppState{ redis_pool };
+    let state = AppState{
+        redis_pool
+    };
+
+    let cors = CorsLayer::new()
+        .allow_origin(Any)
+        .allow_methods(vec![Method::GET]);
 
     let app = Router::new()
         .fallback(fallback)
@@ -45,7 +54,7 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
              "/lobby/:id",
              get(get_lobby_by_id)
                  .delete(delete_lobby)
-         )
+        )
         .route(
             "/lobby/:lobby_id/:player_id",
             patch(add_player_to_lobby)
@@ -60,7 +69,8 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
             "/player/:id",
             get(get_player_by_id)
         )
-        .with_state(state);
+        .with_state(state)
+        .layer(cors);
 
     let port = dotenv::var("SERVER_PORT")
         .expect("SERVER_PORT environment variable not defined.");
@@ -72,7 +82,10 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
         .await.unwrap();
     println!("Serving at http://{}:{}", host, port);
 
-    axum::serve(listener, app).await.unwrap();
+    axum::serve(
+        listener,
+        app.into_make_service_with_connect_info::<SocketAddr>(),
+    ).await.unwrap();
 }
 
 pub async fn fallback(
