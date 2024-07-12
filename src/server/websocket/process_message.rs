@@ -17,7 +17,7 @@ pub fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
                     who, cf.code, cf.reason
                 );
             } else {
-                println!(">>> {who} somehow sent close message without CloseFrame");
+                println!(">>> {who} sent close message without CloseFrame");
             }
             return ControlFlow::Break(());
         }

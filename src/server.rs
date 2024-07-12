@@ -1,4 +1,5 @@
 pub mod controllers;
+pub mod routes;
 pub mod redis_service;
 pub mod errors;
 mod websocket;
@@ -11,17 +12,17 @@ use axum::http::Method;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 use tower_http::cors::{Any, CorsLayer};
-use crate::server::controllers::lobby_controller::{
-    add_player_to_lobby,
-    create_lobby,
-    delete_lobby,
-    delete_player_from_lobby,
-    get_lobbies,
-    get_lobby_by_id
+use crate::server::routes::lobby_routes::{
+    route_add_player_to_lobby,
+    route_create_lobby,
+    route_delete_lobby,
+    route_delete_player_from_lobby,
+    route_get_lobbies,
+    route_get_lobby_by_id
 };
-use crate::server::controllers::player_controller::{
-    create_player,
-    get_player_by_id
+use crate::server::routes::player_routes::{
+    route_create_player,
+    route_get_player_by_id
 };
 use crate::server::websocket::websocket_handler;
 
@@ -46,28 +47,28 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
         // LOBBY
         .route(
             "/lobby",
-                get(get_lobbies)
-                .post(create_lobby)
+                get(route_get_lobbies)
+                .post(route_create_lobby)
 
         )
         .route(
              "/lobby/:id",
-             get(get_lobby_by_id)
-                 .delete(delete_lobby)
+             get(route_get_lobby_by_id)
+                 .delete(route_delete_lobby)
         )
         .route(
             "/lobby/:lobby_id/:player_id",
-            patch(add_player_to_lobby)
-                .delete(delete_player_from_lobby)
+            patch(route_add_player_to_lobby)
+                .delete(route_delete_player_from_lobby)
         )
         // PLAYER
         .route(
             "/player",
-            post(create_player)
+            post(route_create_player)
         )
         .route(
             "/player/:id",
-            get(get_player_by_id)
+            get(route_get_player_by_id)
         )
         .with_state(state)
         .layer(cors);

@@ -1,10 +1,7 @@
-use axum::extract::State;
-use axum::http::StatusCode;
-use axum::Json;
+use bb8::Pool;
+use bb8_redis::RedisConnectionManager;
 use serde::Deserialize;
 use crate::player::Player;
-use crate::server::AppState;
-use crate::server::errors::error_msg_to_server_error;
 use crate::server::redis_service::{get_struct_from_redis, set_struct_to_redis};
 
 #[derive(Deserialize)]
@@ -12,31 +9,16 @@ pub struct NewPlayerData {
     name: String
 }
 
-pub async fn create_player(
-    State(state): State<AppState>,
-    payload: Option<Json<NewPlayerData>>
-) -> Result<Json<Player>, (StatusCode, String)>
-{
-    if payload.is_none() {
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, "Body is empty".to_string()));
-    }
-
-    let payload = payload.unwrap();
-
+pub async fn create_player(redis_pool: &Pool<RedisConnectionManager>, payload: NewPlayerData) -> Result<(), String> {
     let player = Player::new(payload.name.clone());
 
-    set_struct_to_redis::<Player>(&state.redis_pool, player.get_id(), player.clone())
-        .await.map_err(error_msg_to_server_error)?;
-    Ok(Json(player))
+    set_struct_to_redis::<Player>(&redis_pool, player.get_id(), player.clone()).await?;
+    Ok(())
 }
 
-pub async fn get_player_by_id(
-    State(state): State<AppState>,
-    id: String
-) -> Result<Json<Player>, (StatusCode, String)>
+pub async fn get_player_by_id(redis_pool: &Pool<RedisConnectionManager>, id: String) -> Result<Player, String>
 {
-    let player = get_struct_from_redis::<Player>(&state.redis_pool, id.as_str())
-        .await.map_err(error_msg_to_server_error)?;
+    let player = get_struct_from_redis::<Player>(&redis_pool, id.as_str()).await?;
 
-    Ok(Json(player))
+    Ok(player)
 }

@@ -1,10 +1,11 @@
 use axum::{extract::Path, extract::State, extract::Json};
 use axum::http::StatusCode;
+use bb8::Pool;
+use bb8_redis::RedisConnectionManager;
 use serde::{Deserialize};
 use crate::lobby::Lobby;
 use crate::player::Player;
 use crate::server::AppState;
-use crate::server::errors::{error_msg_to_server_error};
 use crate::server::redis_service::{
     delete_struct_from_redis,
     get_struct_from_redis,
@@ -17,94 +18,69 @@ pub struct NewLobbyData {
     public: bool
 }
 
-pub async fn get_lobby_by_id(
-    State(state): State<AppState>,
-    Path(id): Path<String>
-) -> Result<Json<Lobby>, (StatusCode, String)>
+pub async fn get_lobby_by_id(id: &str, redis_pool: &Pool<RedisConnectionManager>) -> Result<Lobby, String>
 {
-    let lobby = get_struct_from_redis::<Lobby>(&state.redis_pool, id.as_str())
-       .await.map_err(error_msg_to_server_error)?;
+    let lobby = get_struct_from_redis::<Lobby>(redis_pool, id.as_str()).await?;
 
     Ok(Json(lobby))
 }
 
-pub async fn create_lobby(
-    State(state): State<AppState>,
-    payload: Option<Json<NewLobbyData>>
-) -> Result<Json<Lobby>, (StatusCode, String)>
+pub async fn create_lobby(redis_pool: &Pool<RedisConnectionManager>, payload: NewLobbyData) -> Result<(), String>
 {
-    if payload.is_none() {
-        return Err((StatusCode::INTERNAL_SERVER_ERROR, "Body is empty".to_string()));
-    }
-
-    let payload = payload.unwrap();
-
     let lobby = Lobby::new(payload.public);
 
-    set_struct_to_redis::<Lobby>(&state.redis_pool, lobby.get_id(), lobby.clone())
-        .await.map_err(error_msg_to_server_error)?;
-    Ok(Json(lobby))
+    set_struct_to_redis::<Lobby>(redis_pool, lobby.get_id(), lobby.clone()).await?;
+    Ok(())
 }
 
-pub async fn get_lobbies(
-    State(state): State<AppState>,
-) -> Result<Json<Vec<Lobby>>, (StatusCode, String)>
+pub async fn get_lobbies(redis_pool: &Pool<RedisConnectionManager>) -> Result<Vec<Lobby>, String>
 {
-    let lobbies = get_vector_from_redis(&state.redis_pool, "LOBBY*")
-        .await.map_err(error_msg_to_server_error)?;
+    let lobbies = get_vector_from_redis(redis_pool, "LOBBY*")
+        .await?;
 
-    Ok(Json(lobbies))
+    Ok(lobbies)
 }
 
-pub async fn delete_lobby(
-    State(state): State<AppState>,
-    Path(id): Path<String>
-) -> Result<(), (StatusCode, String)>
+pub async fn delete_lobby(redis_pool: &Pool<RedisConnectionManager>, id: String
+) -> Result<(), String>
 {
-    delete_struct_from_redis::<Lobby>(&state.redis_pool, id.as_str())
-        .await.map_err(error_msg_to_server_error)?;
+    delete_struct_from_redis::<Lobby>(redis_pool, id.as_str()).await?;
 
     Ok(())
 }
 
 pub async fn add_player_to_lobby(
-    State(state): State<AppState>,
-    Path(lobby_id): Path<String>,
-    Path(player_id): Path<String>
-) -> Result<(), (StatusCode, String)>
+    redis_pool: &Pool<RedisConnectionManager>,
+    lobby_id: String,
+    player_id: String
+) -> Result<(), String>
 {
-    let mut lobby = get_struct_from_redis::<Lobby>(&state.redis_pool, lobby_id.as_str())
-        .await.map_err(error_msg_to_server_error)?;
+    let mut lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id.as_str()).await?;
 
     // check if player exists
-    get_struct_from_redis::<Player>(&state.redis_pool, player_id.as_str())
-        .await.map_err(error_msg_to_server_error)?;
+    get_struct_from_redis::<Player>(redis_pool, player_id.as_str()).await?;
 
     lobby.player_add(&player_id);
 
-    set_struct_to_redis::<Lobby>(&state.redis_pool, lobby_id.as_str(), lobby)
-        .await.map_err(error_msg_to_server_error)?;
+    set_struct_to_redis::<Lobby>(redis_pool, lobby_id.as_str(), lobby).await?;
 
     Ok(())
 }
 
 pub async fn delete_player_from_lobby(
-    State(state): State<AppState>,
-    Path(lobby_id): Path<String>,
-    Path(player_id): Path<String>
-) -> Result<(), (StatusCode, String)>
+    redis_pool: &Pool<RedisConnectionManager>,
+    lobby_id: String,
+    player_id: String
+) -> Result<(), String>
 {
-    let mut lobby = get_struct_from_redis::<Lobby>(&state.redis_pool, lobby_id.as_str())
-        .await.map_err(error_msg_to_server_error)?;
+    let mut lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id.as_str()).await?;
 
     // check if player exists
-    get_struct_from_redis::<Player>(&state.redis_pool, player_id.as_str())
-        .await.map_err(error_msg_to_server_error)?;
+    get_struct_from_redis::<Player>(redis_pool, player_id.as_str()).await?;
 
     lobby.player_remove(&player_id);
 
-    set_struct_to_redis::<Lobby>(&state.redis_pool, lobby_id.as_str(), lobby)
-        .await.map_err(error_msg_to_server_error)?;
+    set_struct_to_redis::<Lobby>(redis_pool, lobby_id.as_str(), lobby).await?;
 
     Ok(())
 }

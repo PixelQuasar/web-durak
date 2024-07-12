@@ -1,3 +1,5 @@
+pub mod deck_manager;
+
 use serde::{Deserialize, Serialize};
 use crate::utils::{gen_special_id};
 
