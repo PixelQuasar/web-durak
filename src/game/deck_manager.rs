@@ -40,7 +40,7 @@ pub struct DeckManager {
     deck: Vec<Card>,
     discard: Vec<Card>,
     hands: Vec<Vec<Card>>,
-    trump_card: Card,
+    trump_suit: i32,
 }
 
 impl DeckManager {
@@ -50,12 +50,13 @@ impl DeckManager {
             deck: generate_deck(4, 13),
             discard: vec![],
             hands: vec![],
-            trump_card: Card{suit: 0, rank: 0}
+            trump_suit: 0
         }
     }
 
     pub fn deal(&mut self, players_num: i32, hand_size: i32) {
         self.deck.shuffle(&mut thread_rng());
+        self.trump_suit = self.deck[self.deck.len() - 1].suit;
         for _ in 0..players_num {
             let mut new_hand = vec![];
             for _ in 0..hand_size {
@@ -63,7 +64,6 @@ impl DeckManager {
             }
             self.hands.push(new_hand);
         }
-        self.trump_card = self.deck.pop().unwrap();
     }
 
     pub fn deal_six(&mut self, players_num: i32) {
