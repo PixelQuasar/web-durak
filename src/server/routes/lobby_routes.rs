@@ -1,24 +1,17 @@
 use axum::{extract::Path, extract::State, extract::Json};
 use axum::http::StatusCode;
-use serde::{Deserialize};
 use crate::lobby::Lobby;
-use crate::player::Player;
 use crate::server::AppState;
 use crate::server::controllers::lobby_controller::{
     add_player_to_lobby,
     create_lobby,
+    delete_lobby,
     delete_player_from_lobby,
     get_lobbies,
     get_lobby_by_id,
     NewLobbyData
 };
 use crate::server::errors::{error_msg_to_server_error};
-use crate::server::redis_service::{
-    delete_struct_from_redis,
-    get_struct_from_redis,
-    get_vector_from_redis,
-    set_struct_to_redis
-};
 
 pub async fn route_get_lobby_by_id(
     State(state): State<AppState>, Path(id): Path<String>
@@ -50,7 +43,7 @@ pub async fn route_delete_lobby(
     Path(id): Path<String>
 ) -> Result<(), (StatusCode, String)>
 {
-    Ok(delete_struct_from_redis(&state.redis_pool, &id).await.map_err(error_msg_to_server_error)?)
+    Ok(delete_lobby(&state.redis_pool, &id).await.map_err(error_msg_to_server_error)?)
 }
 
 pub async fn route_add_player_to_lobby(

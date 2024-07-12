@@ -7,7 +7,7 @@ pub async fn message_body_handler (msg: &str) {
 
     let command = parsed_array[0];
 
-    match command {
-        "JOIN" =>
-    }
+    // match command {
+    //     "JOIN" =>
+    // }
 }

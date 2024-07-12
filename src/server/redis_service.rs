@@ -4,9 +4,7 @@ use bb8_redis::RedisConnectionManager;
 use redis::AsyncCommands;
 use serde::{Serialize};
 use serde::de::DeserializeOwned;
-use tower::ServiceExt;
 use crate::server::errors::error_message;
-
 
 pub async fn get_struct_from_redis<T: DeserializeOwned>(
     pool: &Pool<RedisConnectionManager>, id: &str) -> Result<T, String>
