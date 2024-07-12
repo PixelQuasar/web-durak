@@ -1,5 +1,6 @@
 use rand::thread_rng;
 
+#[derive(Debug, Clone, Copy)]
 pub struct Card {
     suit: i32,
     rank: i32
@@ -18,6 +19,7 @@ pub fn generate_cards_list(suit_num: i32, cards_num: i32) -> Vec<Card> {
     cards
 }
 
+#[derive(Debug, Clone)]
 pub struct Deck {
     full_cards: Vec<Card>,
     cards: Vec<Card>,
@@ -47,5 +49,9 @@ impl Deck {
             self.hands.push(new_hand);
         }
         self.trump_suit = self.cards.pop().unwrap().suit;
+    }
+
+    pub fn deal_six(&mut self, players_num: i32) {
+        self.deal(players_num, 6);
     }
 }
