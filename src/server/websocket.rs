@@ -1,17 +1,42 @@
 pub mod handle_socket;
 pub mod process_message;
 pub mod message_body_handler;
-use axum::{
-    extract::ws::{WebSocketUpgrade},
-    response::IntoResponse,
-};
+pub mod websocket_service;
+use axum::{extract, extract::ws::{WebSocketUpgrade}, response::IntoResponse};
 use axum_extra::TypedHeader;
 use std::net::SocketAddr;
+use std::sync::Arc;
 use axum::extract::connect_info::ConnectInfo;
+use axum::extract::ws::{Message, WebSocket};
+use futures_util::SinkExt;
+use futures_util::stream::SplitSink;
+use serde::Deserialize;
+use crate::server::AppState;
 use crate::server::websocket::handle_socket::handle_socket;
+
+#[derive(Deserialize, Clone, Debug)]
+pub enum  WSGameTurnRequestType {
+    GameCreate, GameTurn,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct WSGameTurnBody {
+    req_type: WSGameTurnRequestType,
+    sender_id: String,
+    lobby_id: Option<String>,
+    content: Option<String>
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct WSLobbyBody {
+    sender_id: String,
+    lobby_id: Option<String>,
+    content: Option<String>
+}
 
 pub async fn websocket_handler(
     ws: WebSocketUpgrade,
+    extract::State(state): extract::State<Arc<AppState>>,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
     ConnectInfo(addr): ConnectInfo<SocketAddr>,
 ) -> impl IntoResponse {
@@ -22,5 +47,12 @@ pub async fn websocket_handler(
         String::from("Unknown browser")
     };
     println!("`{user_agent}` at {addr} connected.");
-    ws.on_upgrade(move |socket| handle_socket(socket, addr))
+    ws.on_upgrade(move |socket| {
+        handle_socket(socket, addr, state)
+    })
+}
+
+pub async fn handle_error(ws_sender: &mut SplitSink<WebSocket, Message>, msg: &str) {
+    println!("Websocket error: {}", msg);
+    let _ = ws_sender.send(Message::Text("Websocket error".to_string())).await;
 }

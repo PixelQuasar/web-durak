@@ -4,13 +4,16 @@ pub mod redis_service;
 pub mod errors;
 mod websocket;
 
+use std::collections::HashMap;
 use std::net::SocketAddr;
+use std::sync::Arc;
 use dotenv;
 use redis::AsyncCommands;
 use axum::{routing::get, routing::patch, routing::post, Router};
 use axum::http::Method;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
+use tokio::sync::{broadcast, Mutex, RwLock};
 use tower_http::cors::{Any, CorsLayer};
 use crate::server::routes::lobby_routes::{
     route_add_player_to_lobby,
@@ -27,14 +30,28 @@ use crate::server::routes::player_routes::{
 use crate::server::websocket::websocket_handler;
 
 #[derive(Clone)]
+pub struct LobbyConnection {
+    tx: broadcast::Sender<String>
+}
+
+impl LobbyConnection {
+    pub fn new() -> LobbyConnection {
+        LobbyConnection {
+            tx: broadcast::channel(64).0
+        }
+    }
+}
+
 pub struct AppState {
-    redis_pool: Pool<RedisConnectionManager>
+    redis_pool: Pool<RedisConnectionManager>,
+    lobby_connections: Mutex<HashMap<String, LobbyConnection>>
 }
 
 pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
-    let state = AppState{
-        redis_pool
-    };
+    let state = Arc::new(AppState{
+        redis_pool,
+        lobby_connections: Mutex::new(HashMap::new())
+    });
 
     let cors = CorsLayer::new()
         .allow_origin(Any)

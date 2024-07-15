@@ -1,3 +1,4 @@
+use axum::extract::ws::WebSocket;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 use serde::{Deserialize};
@@ -19,7 +20,7 @@ pub async fn get_lobby_by_id(
     redis_pool: &Pool<RedisConnectionManager>, id: &str
 ) -> Result<Lobby, String>
 {
-    Ok( get_struct_from_redis::<Lobby>(redis_pool, id).await?)
+    Ok(get_struct_from_redis::<Lobby>(redis_pool, id).await?)
 }
 
 pub async fn create_lobby(
@@ -57,6 +58,7 @@ pub async fn add_player_to_lobby(
     get_struct_from_redis::<Player>(redis_pool, player_id).await?;
 
     lobby.player_add(&player_id);
+
 
     Ok(set_struct_to_redis::<Lobby>(redis_pool, lobby_id, lobby).await?)
 }

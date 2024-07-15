@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use axum::extract::State;
 use axum::http::StatusCode;
 use axum::Json;
@@ -13,7 +14,7 @@ pub struct NewPlayerData {
 }
 
 pub async fn route_create_player(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     payload: Option<Json<NewPlayerData>>
 ) -> Result<Json<Player>, (StatusCode, String)>
 {
@@ -31,7 +32,7 @@ pub async fn route_create_player(
 }
 
 pub async fn route_get_player_by_id(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     id: String
 ) -> Result<Json<Player>, (StatusCode, String)>
 {

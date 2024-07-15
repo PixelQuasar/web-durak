@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use axum::{extract::Path, extract::State, extract::Json};
 use axum::http::StatusCode;
 use crate::lobby::Lobby;
@@ -14,14 +15,14 @@ use crate::server::controllers::lobby_controller::{
 use crate::server::errors::{error_msg_to_server_error};
 
 pub async fn route_get_lobby_by_id(
-    State(state): State<AppState>, Path(id): Path<String>
+    State(state): State<Arc<AppState>>, Path(id): Path<String>
 ) -> Result<Json<Lobby>, (StatusCode, String)>
 {
     Ok(Json(get_lobby_by_id(&state.redis_pool, &id).await.map_err(error_msg_to_server_error)?))
 }
 
 pub async fn route_create_lobby(
-    State(state): State<AppState>, payload: Option<Json<NewLobbyData>>
+    State(state): State<Arc<AppState>>, payload: Option<Json<NewLobbyData>>
 ) -> Result<Json<Lobby>, (StatusCode, String)>
 {
     if payload.is_none() {
@@ -32,14 +33,14 @@ pub async fn route_create_lobby(
 }
 
 pub async fn route_get_lobbies(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
 ) -> Result<Json<Vec<Lobby>>, (StatusCode, String)>
 {
     Ok(Json(get_lobbies(&state.redis_pool).await.map_err(error_msg_to_server_error)?))
 }
 
 pub async fn route_delete_lobby(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     Path(id): Path<String>
 ) -> Result<(), (StatusCode, String)>
 {
@@ -47,7 +48,7 @@ pub async fn route_delete_lobby(
 }
 
 pub async fn route_add_player_to_lobby(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     Path(lobby_id): Path<String>,
     Path(player_id): Path<String>
 ) -> Result<(), (StatusCode, String)>
@@ -56,7 +57,7 @@ pub async fn route_add_player_to_lobby(
 }
 
 pub async fn route_delete_player_from_lobby(
-    State(state): State<AppState>,
+    State(state): State<Arc<AppState>>,
     Path(lobby_id): Path<String>,
     Path(player_id): Path<String>
 ) -> Result<(), (StatusCode, String)>

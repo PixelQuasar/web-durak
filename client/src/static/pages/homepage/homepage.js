@@ -2,8 +2,13 @@ const demoAction = function () {
     window.socket = new WebSocket("ws://localhost:3500/ws");
 
     window.socket.addEventListener("open", (event) => {
-        socket.send("Hello Server!");
+        //socket.send("Hello Server!");
+        console.log("Connection opened.");
     });
+
+    window.socket.addEventListener("close", (event) => {
+        console.log("Connection closed.");
+    })
 
     window.socket.addEventListener("message", (event) => {
         console.log("Message from server ", event.data);
@@ -12,7 +17,16 @@ const demoAction = function () {
 
 const wsAction = function () {
     if (!window.socket) return;
-    window.socket.send("Hello Server!");
+
+    const content = JSON.stringify({
+        req_type: "LobbyCreate",
+        sender_id: "123123",
+        content: JSON.stringify({public: true})
+    });
+
+    console.log(content);
+
+    window.socket.send(content);
 };
 
 export const Homepage = function () {

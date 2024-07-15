@@ -1,47 +1,92 @@
 use axum::extract::ws::{Message, WebSocket};
 use std::net::SocketAddr;
+use std::sync::Arc;
 use futures::{sink::SinkExt, stream::StreamExt};
-use crate::server::websocket::process_message::process_message;
+use serde_json::from_str;
+use tokio::sync::broadcast;
+use crate::server::AppState;
+use crate::server::websocket::{WSLobbyBody};
+use crate::server::websocket::websocket_service::ws_create_lobby;
 
-pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr) {
-    // send a ping
-    if socket.send(Message::Ping(vec![1, 2, 3])).await.is_ok() {
-        println!("Pinged {who}...");
-    } else {
-        println!("Could not send ping {who}!");
-        // Close connection if we can't ping client
-        return;
-    }
+pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Arc<AppState>) {
+    // start connection handler (join or create lobby)
+    let (mut sender, mut receiver) = socket.split();
+    let mut tx = None::<broadcast::Sender<String>>;
 
-    // receive single message from a client (we can either receive or send with socket).
-    // this will likely be the Pong for our Ping or a hello message from client.
-    // waiting for message from a client will block this task, but will not block other client's
-    // connections.
-    if let Some(msg) = socket.recv().await {
-        if let Ok(msg) = msg {
-            if process_message(msg, who).is_break() {
-                return;
-            }
+    while let Some(Ok(msg)) = receiver.next().await {
+        if let Message::Text(content) = msg {
+            println!("{:#?}", content);
+            let request: WSLobbyBody = match from_str(&content) {
+                Ok(req) => req,
+                Err(err) => {
+                    println!("Connection request parsing error: {}", err);
+                    let _ = sender.send(Message::from("Failed to connect to lobby!")).await;
+                    break
+                }
+            };
+            match request.lobby_id.clone() {
+                Some(lobby_id) => {},
+                None => {
+                    let (result, new_tx) = match ws_create_lobby(&request, &app_state).await {
+                        Ok(result) => result,
+                        Err(err) => {
+                            println!("Websocket message handling error: {}", err);
+                            let _ = sender.send(Message::Text(err));
+                            return;
+                        }
+                    };
+                    tx = Some(new_tx.clone());
+                }
+            };
         } else {
-            println!("client {who} abruptly disconnected");
-            return;
+            println!("Wrong format.");
+            break;
         }
     }
 
-    let (mut sender, mut receiver) = socket.split();
 
-    // This second task will receive messages from client and print them on server console
+    // websocket state handler
+    let tx = tx.unwrap();
+    let mut rx = tx.subscribe();
+
+    let _ = tx.send("player joined the lobby".to_string());
+
     let mut recv_task = tokio::spawn(async move {
-        let mut cnt = 0;
-        while let Some(Ok(msg)) = receiver.next().await {
-            cnt += 1;
-            // print message and break if instructed to do so
-            if process_message(msg, who).is_break() {
+        while let Ok(msg) = rx.recv().await {
+            if sender.send(Message::Text(msg)).await.is_err() {
                 break;
             }
         }
-        cnt
+        // while let Ok(msg) = rx.recv().await {
+        //     let request: WSGameTurnBody = match from_str(&msg) {
+        //         Ok(req) => req,
+        //         Err(err) => {
+        //             println!("Connection request parsing error: {}", err);
+        //             let _ = sender.send(Message::from("Failed to connect to room!")).await;
+        //             break
+        //         }
+        //     };
+        //     println!("{:#?}", request);
+        //     message_body_handler(&request, &mut sender, app_state.clone()).await;
+        // }
     });
+
+    let mut send_task = {
+        let tx = tx.clone();
+        tokio::spawn(async move {
+            while let Some(Ok(Message::Text(text))) = receiver.next().await {
+                let _ = tx.send("test".to_string());
+            }
+        })
+    };
+
+
+    tokio::select! {
+        _ = (&mut send_task) => recv_task.abort(),
+        _ = (&mut recv_task) => send_task.abort(),
+    }
+
+    let _ = tx.send("player left the lobby".to_string());
 
     // If any one of the tasks exit, abort the other.
 

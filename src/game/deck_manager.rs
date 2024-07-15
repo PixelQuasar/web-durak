@@ -25,10 +25,7 @@ pub fn generate_deck(suit_num: i32, cards_num: i32) -> Vec<Card> {
     let mut cards = vec![];
     for i in 1..cards_num+1 {
         for j in 1..suit_num+1 {
-            cards.push(Card{
-                suit: j,
-                rank: i
-            });
+            cards.push(Card{ suit: j, rank: i });
         }
     }
     cards
