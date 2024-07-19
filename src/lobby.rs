@@ -59,4 +59,8 @@ impl Lobby {
     pub fn init_game(&mut self) {
         self.game = Some(Game::new(self.player_list.clone()));
     }
+
+    pub fn players_num(&self) -> usize {
+        return self.player_list.len()
+    }
 }
