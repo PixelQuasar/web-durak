@@ -1,7 +1,8 @@
-const createLobbyAction = function () {
-    console.log("CREATE LOBBY");
-}
+import {wsCreateLobby} from "../../websocket/index.js";
 
+const createLobbyAction = function () {
+    wsCreateLobby(true);
+}
 
 export const CreateLobby = function () {
     return `
@@ -13,14 +14,14 @@ export const CreateLobby = function () {
         The layout is not final.
     </div>
     
-   <button class="create-button">CREATE LOBBY</button>
-</div>
-    `
+    
+   <button class="create-lobby-button">CREATE LOBBY</button>
+</div>`
 }
 
 document.querySelector("body").addEventListener("click", (event) => {
     switch (event.target.className) {
-        case "create-button": createLobbyAction(); break;
+        case "create-lobby-button": createLobbyAction(); break;
         default: break;
     }
-})
+});

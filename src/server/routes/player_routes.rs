@@ -24,6 +24,10 @@ pub async fn route_create_player(
 
     let payload = payload.unwrap();
 
+    if payload.name.len() == 0 {
+        return Err((StatusCode::INTERNAL_SERVER_ERROR, "Name is empty".to_string()));
+    }
+
     let player = Player::new(payload.name.clone());
 
     set_struct_to_redis::<Player>(&state.redis_pool, player.get_id(), player.clone())

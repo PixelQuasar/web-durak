@@ -1,8 +1,7 @@
 import './style.scss';
 import {createRouter} from "./router.js";
-import {Homepage} from "./pages/homepage/homepage.js";
-import {JoinLobby} from "./pages/join-lobby/join-lobby.js";
-import {CreateLobby} from "./pages/create-lobby/create-lobby.js";
+import {CreateLobby, CreateUser, Homepage, JoinLobby, LobbyPage} from "./pages/index.js";
+import {PAGE_CHANGE_EVENT_ID} from "./utils/index.js";
 
 const router = createRouter([
     {
@@ -10,13 +9,25 @@ const router = createRouter([
         page: Homepage
     },
     {
-        name: "/join",
+        name: "/join-lobby",
         page: JoinLobby
     },
     {
-        name: "/create",
+        name: "/create-lobby",
         page: CreateLobby
+    },
+    {
+        name: "/create-user",
+        page: CreateUser
+    },
+    {
+        name: "/lobby",
+        page: LobbyPage
     }
 ]);
 
 router.render();
+
+window.addEventListener(PAGE_CHANGE_EVENT_ID, () => {
+    router.render();
+});

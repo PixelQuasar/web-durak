@@ -1,6 +1,5 @@
 pub mod handle_socket;
 pub mod process_message;
-pub mod message_body_handler;
 pub mod websocket_service;
 use axum::{extract, extract::ws::{WebSocketUpgrade}, response::IntoResponse};
 use axum_extra::TypedHeader;
@@ -14,21 +13,14 @@ use serde::Deserialize;
 use crate::server::AppState;
 use crate::server::websocket::handle_socket::handle_socket;
 
-#[derive(Deserialize, Clone, Debug)]
-pub enum  WSGameTurnRequestType {
-    GameCreate, GameTurn,
+#[derive(Deserialize, Clone, PartialEq, Debug)]
+pub enum  WSRequestType {
+    LobbyCreate, LobbyJoin, GameCreate, GameTurn,
 }
 
 #[derive(Deserialize, Clone, Debug)]
-pub struct WSGameTurnBody {
-    req_type: WSGameTurnRequestType,
-    sender_id: String,
-    lobby_id: Option<String>,
-    content: Option<String>
-}
-
-#[derive(Deserialize, Clone, Debug)]
-pub struct WSLobbyBody {
+pub struct WSBody {
+    req_type: WSRequestType,
     sender_id: String,
     lobby_id: Option<String>,
     content: Option<String>

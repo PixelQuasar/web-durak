@@ -45,6 +45,7 @@ pub async fn delete_lobby(
     redis_pool: &Pool<RedisConnectionManager>, id: &str
 ) -> Result<(), String>
 {
+    println!("dsfdgsfgsdf");
     Ok(delete_struct_from_redis::<Lobby>(redis_pool, id).await?)
 }
 
@@ -54,11 +55,12 @@ pub async fn add_player_to_lobby(
 {
     let mut lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
 
+    let player = get_struct_from_redis::<Player>(redis_pool, player_id).await?;
+
     // check if player exists
     get_struct_from_redis::<Player>(redis_pool, player_id).await?;
 
     lobby.player_add(&player_id);
-
 
     Ok(set_struct_to_redis::<Lobby>(redis_pool, lobby_id, lobby).await?)
 }

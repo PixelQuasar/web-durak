@@ -31,6 +31,7 @@
     "npm-run-all": "^4.1.5",
     "postcss": "^8.4.39",
     "rollup": "^4.18.0",
+    "rollup-plugin-dotenv": "^0.5.1",
     "rollup-plugin-scss": "^3.0.0",
     "sass": "^1.77.6"
   }

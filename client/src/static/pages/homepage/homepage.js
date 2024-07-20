@@ -19,8 +19,9 @@ const wsAction = function () {
     if (!window.socket) return;
 
     const content = JSON.stringify({
-        req_type: "LobbyCreate",
-        sender_id: "123123",
+        req_type: "LobbyJoin",
+        sender_id: "PLAYER1034438148",
+        lobby_id: "LOBBY2458306941",
         content: JSON.stringify({public: true})
     });
 

@@ -1,4 +1,4 @@
-export const JoinLobby = function () {
+export const LobbyPage = function () {
     return `
 <div class="lobby-page-wrapper">
    <div class="title">

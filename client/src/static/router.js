@@ -1,5 +1,5 @@
 import {getParams} from "./get-params.js";
-import {NotFoundPage} from "./pages/not-found-page/not-found-page.js";
+import {NotFoundPage} from "./pages/index.js";
 
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 

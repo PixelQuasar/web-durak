@@ -1,6 +1,7 @@
 import { getBabelOutputPlugin } from '@rollup/plugin-babel';
 import scss from "rollup-plugin-scss";
 import terser from '@rollup/plugin-terser';
+import dotenv from "rollup-plugin-dotenv";
 
 export default [
     {
@@ -12,7 +13,8 @@ export default [
                 failOnError: true,
                 outputStyle: 'compressed'
             }),
-            terser()
+            terser(),
+            dotenv()
         ],
         output: {
             file: './client/build/bundle.js',
@@ -31,7 +33,8 @@ export default [
                 failOnError: true,
                 outputStyle: 'compressed'
             }),
-            terser()
+            terser(),
+            dotenv()
         ],
         output: {
             file: './client/build/bundle-es5.js',

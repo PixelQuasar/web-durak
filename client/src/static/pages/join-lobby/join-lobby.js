@@ -1,5 +1,8 @@
+import {wsCreateLobby, wsJoinLobby} from "../../websocket/index.js";
+
 const joinLobbyAction = function () {
-    console.log("Join lobby");
+    let lobbyId = document.querySelector("#join-lobby-input").value;
+    wsJoinLobby(lobbyId);
 }
 
 export const JoinLobby = function () {
@@ -12,7 +15,7 @@ export const JoinLobby = function () {
         The layout is not final.
     </div>
     
-    <input type="text" class="join-lobby-textbox" placeholder="enter lobby code"/>
+    <input type="text" id="join-lobby-input" class="large-textbox" placeholder="enter lobby code"/>
    <button class="join-button">JOIN LOBBY</button>
    <div class="error-msg"></div>
 </div>

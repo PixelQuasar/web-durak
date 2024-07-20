@@ -10,6 +10,7 @@ use std::sync::Arc;
 use dotenv;
 use redis::AsyncCommands;
 use axum::{routing::get, routing::patch, routing::post, Router};
+use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
@@ -54,8 +55,9 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
     });
 
     let cors = CorsLayer::new()
+        .allow_methods([Method::GET, Method::POST])
         .allow_origin(Any)
-        .allow_methods(vec![Method::GET]);
+        .allow_headers([CONTENT_TYPE]);
 
     let app = Router::new()
         .fallback(fallback)
