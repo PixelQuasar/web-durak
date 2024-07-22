@@ -1,4 +1,4 @@
-import {wsCreateLobby, wsJoinLobby} from "../../websocket/index.js";
+import {initWebsocketConnection, wsCreateLobby, wsJoinLobby} from "../../websocket/index.js";
 
 const joinLobbyAction = function () {
     let lobbyId = document.querySelector("#join-lobby-input").value;
@@ -6,6 +6,7 @@ const joinLobbyAction = function () {
 }
 
 export const JoinLobby = function () {
+    initWebsocketConnection();
     return `
 <div class="join-lobby-wrapper">
    <div class="title">

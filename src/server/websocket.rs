@@ -1,6 +1,8 @@
 pub mod handle_socket;
 pub mod process_message;
 pub mod websocket_service;
+pub mod client_request;
+
 use axum::{extract, extract::ws::{WebSocketUpgrade}, response::IntoResponse};
 use axum_extra::TypedHeader;
 use std::net::SocketAddr;

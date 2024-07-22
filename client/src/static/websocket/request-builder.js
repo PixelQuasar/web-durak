@@ -1,8 +1,8 @@
 import {getUser} from "../state/index.js";
 
 export const ReqTypes = {
-    JoinLobby: "JoinLobby",
-    CreateLobby: "CreateLobby"
+    JoinLobby: "LobbyJoin",
+    CreateLobby: "LobbyCreate"
 }
 
 export const buildWebsocketRequest = function (type, lobbyId, content) {

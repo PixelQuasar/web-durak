@@ -11,8 +11,9 @@ pub struct Player {
 
 impl Player {
     pub fn new(player_name: String) -> Player {
+        dotenv::dotenv().ok();
         Player {
-            id: gen_special_id("PLAYER"),
+            id: gen_special_id(&dotenv::var("PREFIX_PLAYER").unwrap()),
             name: player_name.parse().unwrap(),
             active: false,
             ready: false

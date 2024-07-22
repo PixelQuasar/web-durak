@@ -14,13 +14,11 @@ use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
-use tokio::sync::{broadcast, Mutex, RwLock};
+use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
 use crate::server::routes::lobby_routes::{
-    route_add_player_to_lobby,
     route_create_lobby,
     route_delete_lobby,
-    route_delete_player_from_lobby,
     route_get_lobbies,
     route_get_lobby_by_id
 };
@@ -74,11 +72,6 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
              "/lobby/:id",
              get(route_get_lobby_by_id)
                  .delete(route_delete_lobby)
-        )
-        .route(
-            "/lobby/:lobby_id/:player_id",
-            patch(route_add_player_to_lobby)
-                .delete(route_delete_player_from_lobby)
         )
         // PLAYER
         .route(

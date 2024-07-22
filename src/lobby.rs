@@ -21,8 +21,9 @@ pub struct Lobby {
 
 impl Lobby {
     pub fn new(is_public: bool) -> Lobby {
+        dotenv::dotenv().ok();
         Lobby {
-            id: gen_special_id("LOBBY"),
+            id: gen_special_id(&dotenv::var("PREFIX_LOBBY").unwrap()),
             status: LobbyStatus::INACTIVE,
             public: is_public,
             player_list: vec![],
@@ -31,13 +32,8 @@ impl Lobby {
     }
 
     pub fn new_private() -> Lobby {
-        Lobby {
-            id: gen_special_id("LOBBY"),
-            status: LobbyStatus::INACTIVE,
-            public: false,
-            player_list: vec![],
-            game: None
-        }
+        dotenv::dotenv().ok();
+        Lobby::new(false)
     }
 
     pub fn get_id(&self) -> &str {

@@ -46,21 +46,3 @@ pub async fn route_delete_lobby(
 {
     Ok(delete_lobby(&state.redis_pool, &id).await.map_err(error_msg_to_server_error)?)
 }
-
-pub async fn route_add_player_to_lobby(
-    State(state): State<Arc<AppState>>,
-    Path(lobby_id): Path<String>,
-    Path(player_id): Path<String>
-) -> Result<(), (StatusCode, String)>
-{
-    Ok(add_player_to_lobby(&state.redis_pool, &lobby_id, &player_id).await.map_err(error_msg_to_server_error)?)
-}
-
-pub async fn route_delete_player_from_lobby(
-    State(state): State<Arc<AppState>>,
-    Path(lobby_id): Path<String>,
-    Path(player_id): Path<String>
-) -> Result<(), (StatusCode, String)>
-{
-    Ok(delete_player_from_lobby(&state.redis_pool, &lobby_id, &player_id).await.map_err(error_msg_to_server_error)?)
-}

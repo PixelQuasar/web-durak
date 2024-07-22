@@ -22,7 +22,7 @@ pub async fn ws_create_lobby (
 
     let lobby = create_lobby(&app_state.redis_pool, lobby_data).await?;
 
-    add_player_to_lobby(&app_state.redis_pool, lobby.get_id(), &req_body.sender_id).await?;
+    let lobby = add_player_to_lobby(&app_state.redis_pool, lobby.get_id(), &req_body.sender_id).await?;
 
     let lobby_connection = LobbyConnection::new();
 
@@ -51,7 +51,7 @@ pub async fn ws_join_lobby (
         None => return Err("Invalid lobby id".to_string())
     };
 
-    add_player_to_lobby(&app_state.redis_pool, &lobby_id, &player_id).await?;
+    let lobby = add_player_to_lobby(&app_state.redis_pool, &lobby_id, &player_id).await?;
 
     Ok((lobby, tx))
 }

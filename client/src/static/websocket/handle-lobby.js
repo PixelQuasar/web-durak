@@ -7,6 +7,7 @@ export const wsJoinLobby = function (lobbyId) {
     if (!window.websocket) return initWebsocketConnection();
     if (!getUser()) return goToSignup();
 
+    window.lobbyData = null;
     window.websocket.send(buildWebsocketRequest(ReqTypes.JoinLobby, lobbyId, {}));
 }
 
@@ -14,5 +15,6 @@ export const wsCreateLobby = function (isPublic) {
     if (!window.websocket) return initWebsocketConnection();
     if (!getUser()) return goToSignup();
 
+    window.lobbyData = null;
     window.websocket.send(buildWebsocketRequest(ReqTypes.CreateLobby, "", { public: isPublic }));
 }

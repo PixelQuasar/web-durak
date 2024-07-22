@@ -7,6 +7,7 @@ use tokio::sync::broadcast;
 use crate::lobby::Lobby;
 use crate::server::AppState;
 use crate::server::websocket::{WSBody, WSRequestType};
+use crate::server::websocket::client_request::{ClientRequest, ClientRequestType};
 use crate::server::websocket::websocket_service::{
     ws_create_lobby, ws_join_lobby, ws_leave_lobby
 };
@@ -32,8 +33,14 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
     // start connection handler (join or create lobby)
     let (mut sender, mut receiver) = socket.split();
     let mut tx = None::<broadcast::Sender<String>>;
-    let mut client_game_id = None::<String>;
+
+    // current player id, generated during the first client query (join or create lobby)
+    let mut current_player_id = None::<String>;
+
+    // current lobby id, generated during the first client query (join or create lobby)
     let mut current_lobby_id = None::<String>;
+
+    // container for message to client generated during message from client handling
     let mut raw_response = String::new();
 
     while let Some(Ok(msg)) = receiver.next().await {
@@ -50,7 +57,7 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
             let req_type = request.clone().req_type;
 
             if req_type == WSRequestType::LobbyCreate || req_type == WSRequestType::LobbyJoin {
-                client_game_id = Some(request.sender_id.clone());
+                current_player_id = Some(request.sender_id.clone());
 
                 let (result, new_tx) = match handle_player_join(&app_state, request).await {
                     Ok(res) => res,
@@ -61,10 +68,12 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
                     }
                 };
 
+                println!("{:#?}", result);
+
                 current_lobby_id = Some(result.get_id().to_string());
 
                 tx = Some(new_tx.clone());
-                raw_response = to_string(&result).unwrap();
+                raw_response = result.get_id().to_string();
                 break;
             }
 
@@ -82,7 +91,12 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
 
         let mut recv_task = tokio::spawn(async move {
             while let Ok(msg) = rx.recv().await {
-                if sender.send(Message::Text(raw_response.clone())).await.is_err() {
+                println!("{raw_response}");
+                let req_to_client = ClientRequest::new(
+                    ClientRequestType::LobbyUpdate,
+                    to_string(&raw_response).unwrap()
+                );
+                if sender.send(req_to_client.to_msg()).await.is_err() {
                     break;
                 }
             }
@@ -97,7 +111,6 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
             })
         };
 
-
         tokio::select! {
             _ = (&mut send_task) => recv_task.abort(),
             _ = (&mut recv_task) => send_task.abort(),
@@ -109,8 +122,8 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
     // If any one of the tasks exit, abort the other.
 
     // returning from the handler closes the websocket connection
-    if current_lobby_id.is_some() && client_game_id.is_some() {
-        match ws_leave_lobby(&app_state, &current_lobby_id.unwrap(), &client_game_id.unwrap()).await {
+    if current_lobby_id.is_some() && current_player_id.is_some() {
+        match ws_leave_lobby(&app_state, &current_lobby_id.unwrap(), &current_player_id.unwrap()).await {
             Ok(_) => (),
             Err(err) => {
                 println!("Error occurred while leaving lobby by player: {}", err);

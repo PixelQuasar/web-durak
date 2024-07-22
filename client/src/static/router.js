@@ -16,7 +16,7 @@ export const createRouter = function (routesTree) {
         console.error("Error: unable to build router: ", error);
     }
 
-    const render = function () {
+    const render = function (globalProps = {}) {
         let match = routes
             .map(route => ({
                 route: route,
@@ -35,7 +35,7 @@ export const createRouter = function (routesTree) {
         }
 
         const root = document.querySelector("#root");
-        root.innerHTML = match.route.page.call(getParams(match));
+        root.innerHTML = match.route.page.bind(globalProps).call(getParams(match));
     }
 
     return { render };

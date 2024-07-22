@@ -1,10 +1,11 @@
-import {wsCreateLobby} from "../../websocket/index.js";
+import {initWebsocketConnection, wsCreateLobby} from "../../websocket/index.js";
 
 const createLobbyAction = function () {
     wsCreateLobby(true);
 }
 
 export const CreateLobby = function () {
+    initWebsocketConnection();
     return `
 <div class="create-lobby-wrapper">
    <div class="title">
