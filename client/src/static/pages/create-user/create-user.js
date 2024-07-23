@@ -27,6 +27,5 @@ export const CreateUser = function () {
 document.querySelector("body").addEventListener("click", async (event) => {
     switch (event.target.className) {
         case "create-user-button": await createUserAction(); break;
-        default: break;
     }
 });

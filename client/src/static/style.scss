@@ -1,6 +1,7 @@
 @import "../static/pages/create-lobby/style";
 @import "../static/pages/homepage/style";
 @import "../static/pages/join-lobby/style";
+@import "../static/pages/lobby-page/style";
 @import "pages/not-found-page/style";
 @import "../static/pages/error-page/style";
 
@@ -9,7 +10,11 @@ body {
   padding: 0;
   display: flex;
 
-  font-family: Inter;
+  font-family: sans-serif;
+}
+
+#root {
+  width: 100%;
 }
 
 .page-wrapper {
@@ -17,6 +22,6 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  width: 100vw;
+  width: 100%;
   gap: 32px;
 }

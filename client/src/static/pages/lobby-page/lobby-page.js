@@ -7,7 +7,6 @@ const leaveLobby = function () {
 }
 
 export const LobbyPage = function () {
-    console.log(window.lobbyData);
     const lobbyData = window.lobbyData ?? {
             id: "UNKNOWN",
             status: "INACTIVE",
@@ -15,9 +14,6 @@ export const LobbyPage = function () {
             player_list: [],
             game: null
     };
-
-    console.log(lobbyData["id"]);
-    console.log(lobbyData.player_list);
 
     return `
 <div class="lobby-page-wrapper page-wrapper">
@@ -27,11 +23,25 @@ export const LobbyPage = function () {
         </div>
         <button class="leave-button"> LEAVE </button>
     </div>
-   
-    <div class="subtitle">
-        The layout is not final.
-        Lobby id: ${lobbyData.id}.
-        Players: ${lobbyData.player_list.join(" ")}.
+    
+    <div class="lobby-title">
+        LOBBY ${lobbyData.id} (public: ${lobbyData.public})
+    </div>
+    
+    
+    <div class="lobby-wrapper">
+        <div class="player-list">
+            <div class="title">
+                Players:
+            </div>
+            ${lobbyData.player_list.map(item => `
+                <div class="player-list-item"> ${item.name} </div>
+            `).join("")}
+        </div>
+        
+        <div class="game-info">
+            <button class="create-game-button"> CREATE GAME </button>
+        </div>
     </div>
 </div>`
 }
@@ -40,6 +50,5 @@ document.querySelector("body").addEventListener("click", (event) => {
     const className = event.target.className
     switch (true) {
         case /leave-button/.test(className): leaveLobby(); break;
-        default: break;
     }
 });

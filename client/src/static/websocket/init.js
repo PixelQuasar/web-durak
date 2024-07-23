@@ -19,6 +19,7 @@ export const initWebsocketConnection = function () {
     window.websocket.addEventListener("close", (event) => {
         // handle connection close
         console.log("Connection closed.");
+        window.websocket = null;
     });
 }
 

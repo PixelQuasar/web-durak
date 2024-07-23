@@ -23,6 +23,5 @@ export const CreateLobby = function () {
 document.querySelector("body").addEventListener("click", (event) => {
     switch (event.target.className) {
         case "create-lobby-button": createLobbyAction(); break;
-        default: break;
     }
 });

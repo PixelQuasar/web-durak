@@ -16,6 +16,5 @@ document.querySelector("body").addEventListener("click", (event) => {
     switch (true) {
         case /join-lobby-button/.test(className): navigate("/join-lobby"); break;
         case /create-lobby-button/.test(className): navigate("/create-lobby"); break;
-        default: break;
     }
 });

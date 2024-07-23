@@ -35,6 +35,5 @@ document.querySelector("body").addEventListener("keypress", (event) => {
 
     switch (event.target.className) {
         case "join-lobby-textbox": joinLobbyAction(); break;
-        default: break;
     }
 })

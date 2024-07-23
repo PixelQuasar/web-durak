@@ -1,0 +1,57 @@
+.lobby-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+.lobby-header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  .title {
+    margin: 32px;
+  }
+  .leave-button {
+    margin: 32px;
+  }
+}
+
+.lobby-title {
+  font-weight: bold;
+  font-size: 30px;
+  width: 100%;
+  margin: 24px;
+}
+
+.lobby-wrapper {
+  width: 100%;
+  display: flex;
+
+  .player-list {
+    width: 40%;
+    .title {
+      font-weight: bold;
+    }
+
+    .player-list-item {
+
+    }
+  }
+
+  .game-info {
+    width: 60%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 64px;
+    min-height: 60vh;
+
+    background: #aaaaaa;
+
+    .create-game-button {
+      padding: 48px;
+    }
+  }
+}
