@@ -1,4 +1,10 @@
-import {initWebsocketConnection} from "../../websocket/index.js";
+import {navigate} from "../../utils/index.js";
+import {disconnectWebsocket} from "../../websocket/index.js";
+
+const leaveLobby = function () {
+    disconnectWebsocket();
+    navigate("/");
+}
 
 export const LobbyPage = function () {
     console.log(window.lobbyData);
@@ -14,10 +20,14 @@ export const LobbyPage = function () {
     console.log(lobbyData.player_list);
 
     return `
-<div class="lobby-page-wrapper">
-   <div class="title">
-        WEB DURAK
+<div class="lobby-page-wrapper page-wrapper">
+    <div class="lobby-header">
+        <div class="title">
+            WEB DURAK
+        </div>
+        <button class="leave-button"> LEAVE </button>
     </div>
+   
     <div class="subtitle">
         The layout is not final.
         Lobby id: ${lobbyData.id}.
@@ -25,3 +35,11 @@ export const LobbyPage = function () {
     </div>
 </div>`
 }
+
+document.querySelector("body").addEventListener("click", (event) => {
+    const className = event.target.className
+    switch (true) {
+        case /leave-button/.test(className): leaveLobby(); break;
+        default: break;
+    }
+});

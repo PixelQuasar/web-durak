@@ -1,24 +1,19 @@
 use std::sync::Arc;
 use axum::{extract::Path, extract::State, extract::Json};
 use axum::http::StatusCode;
-use crate::lobby::Lobby;
+use crate::lobby::{Lobby, PopulatedLobby};
 use crate::server::AppState;
 use crate::server::controllers::lobby_controller::{
-    add_player_to_lobby,
-    create_lobby,
-    delete_lobby,
-    delete_player_from_lobby,
-    get_lobbies,
-    get_lobby_by_id,
-    NewLobbyData
+    create_lobby, delete_lobby, get_lobbies,
+    get_populated_lobby, NewLobbyData
 };
 use crate::server::errors::{error_msg_to_server_error};
 
 pub async fn route_get_lobby_by_id(
     State(state): State<Arc<AppState>>, Path(id): Path<String>
-) -> Result<Json<Lobby>, (StatusCode, String)>
+) -> Result<Json<PopulatedLobby>, (StatusCode, String)>
 {
-    Ok(Json(get_lobby_by_id(&state.redis_pool, &id).await.map_err(error_msg_to_server_error)?))
+    Ok(Json( get_populated_lobby(&state.redis_pool, &id).await.map_err(error_msg_to_server_error)?))
 }
 
 pub async fn route_create_lobby(

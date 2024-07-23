@@ -11,3 +11,12 @@ body {
 
   font-family: Inter;
 }
+
+.page-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  width: 100vw;
+  gap: 32px;
+}

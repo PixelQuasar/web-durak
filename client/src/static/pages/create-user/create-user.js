@@ -10,7 +10,7 @@ const createUserAction = async function () {
 
 export const CreateUser = function () {
     return `
-<div class="create-lobby-wrapper">
+<div class="create-lobby-wrapper page-wrapper">
    <div class="title">
         WEB DURAK
     </div>

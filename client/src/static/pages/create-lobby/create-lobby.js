@@ -7,7 +7,7 @@ const createLobbyAction = function () {
 export const CreateLobby = function () {
     initWebsocketConnection();
     return `
-<div class="create-lobby-wrapper">
+<div class="create-lobby-wrapper page-wrapper">
    <div class="title">
         WEB DURAK
     </div>

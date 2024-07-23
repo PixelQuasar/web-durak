@@ -8,7 +8,7 @@ const joinLobbyAction = function () {
 export const JoinLobby = function () {
     initWebsocketConnection();
     return `
-<div class="join-lobby-wrapper">
+<div class="join-lobby-wrapper page-wrapper">
    <div class="title">
         WEB DURAK
     </div>

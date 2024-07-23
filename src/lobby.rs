@@ -19,6 +19,15 @@ pub struct Lobby {
     game: Option<Game>
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct PopulatedLobby {
+    id: String,
+    status: LobbyStatus,
+    public: bool,
+    player_list: Vec<Option<Player>>,
+    game: Option<Game>
+}
+
 impl Lobby {
     pub fn new(is_public: bool) -> Lobby {
         dotenv::dotenv().ok();
@@ -40,6 +49,22 @@ impl Lobby {
         &self.id
     }
 
+    pub fn status(&self) -> &LobbyStatus {
+        &self.status
+    }
+
+    pub fn is_public(&self) -> &bool {
+        &self.public
+    }
+
+    pub fn player_list(&self) -> &Vec<String> {
+        &self.player_list
+    }
+
+    pub fn game(&self) -> &Option<Game> {
+        &self.game
+    }
+
     pub fn player_add(&mut self, player_id: &str) {
         self.player_list.push(player_id.to_string());
     }
@@ -58,5 +83,17 @@ impl Lobby {
 
     pub fn players_num(&self) -> usize {
         return self.player_list.len()
+    }
+}
+
+impl PopulatedLobby {
+    pub fn from_lobby(lobby: Lobby, players: Vec<Option<Player>>) -> PopulatedLobby {
+        PopulatedLobby {
+            id: lobby.id,
+            status: lobby.status,
+            public: lobby.public,
+            player_list: players,
+            game: lobby.game
+        }
     }
 }

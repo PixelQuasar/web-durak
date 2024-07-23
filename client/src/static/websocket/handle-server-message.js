@@ -1,4 +1,4 @@
-import {goToLobby, WEBSOCKET_UPDATE_ID} from "../utils/index.js";
+import {navigate, WEBSOCKET_UPDATE_ID} from "../utils/index.js";
 import {getLobbyQuery} from "../state/lobby-handler.js";
 
 export const handleServerMessage = async function (data) {
@@ -15,7 +15,7 @@ export const handleServerMessage = async function (data) {
             window.lobbyData = await getLobbyQuery(JSON.parse(data.content));
             const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
             window.dispatchEvent(websocketEvent);
-            if (firstLobbyMsg) goToLobby();
+            if (firstLobbyMsg) navigate("/lobby");
             break;
         }
     }

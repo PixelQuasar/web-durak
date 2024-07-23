@@ -1,8 +1,8 @@
-use axum::extract::ws::WebSocket;
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
+use futures_util::future::join_all;
 use serde::{Deserialize};
-use crate::lobby::Lobby;
+use crate::lobby::{Lobby, PopulatedLobby};
 use crate::player::Player;
 use crate::server::redis_service::{
     delete_struct_from_redis,
@@ -79,4 +79,19 @@ pub async fn delete_player_from_lobby(
     lobby.player_remove(&player_id);
 
     Ok(set_struct_to_redis::<Lobby>(redis_pool, lobby_id, lobby).await?)
+}
+
+pub async fn get_populated_lobby(
+    redis_pool: &Pool<RedisConnectionManager>, lobby_id: &str
+) -> Result<PopulatedLobby, String> {
+    let lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
+
+    let players: Vec<Option<Player>> = join_all(lobby.player_list().into_iter().map(|item: &String| async move {
+        match get_struct_from_redis::<Player>(&redis_pool, &item).await {
+            Ok(result) => Some(result),
+            Err(e) => None
+        }
+    })).await;
+
+    Ok(PopulatedLobby::from_lobby(lobby, players))
 }

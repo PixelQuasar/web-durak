@@ -9,10 +9,10 @@ export const initWebsocketConnection = function () {
         console.log("Connection opened.");
     });
 
-    window.websocket.addEventListener("message", (event) => {
+    window.websocket.addEventListener("message", async (event) => {
         console.log("WebSocket message: ", event.data);
         if (event.data[0] === "{") {
-            handleServerMessage(event.data);
+            await handleServerMessage(event.data);
         }
     });
 
@@ -20,4 +20,10 @@ export const initWebsocketConnection = function () {
         // handle connection close
         console.log("Connection closed.");
     });
+}
+
+export const disconnectWebsocket = function () {
+    if (!window.websocket) return;
+
+    window.websocket.close();
 }
