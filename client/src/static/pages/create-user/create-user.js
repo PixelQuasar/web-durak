@@ -1,4 +1,5 @@
 import {createUserQuery, setUser} from "../../state/index.js";
+import {navigate} from "../../utils/index.js";
 
 const createUserAction = async function () {
     const userName = document.querySelector("#user-name-input").value;
@@ -6,6 +7,8 @@ const createUserAction = async function () {
     const userData = await createUserQuery(userName);
 
     setUser(userData.id);
+
+    navigate("/");
 }
 
 export const CreateUser = function () {

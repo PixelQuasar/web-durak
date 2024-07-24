@@ -4,12 +4,10 @@ use std::sync::Arc;
 use futures::{sink::SinkExt, stream::StreamExt};
 use serde_json::{from_str, to_string};
 use tokio::sync::broadcast;
-use crate::lobby::{Lobby, PopulatedLobby};
+use crate::lobby::PopulatedLobby;
 use crate::server::AppState;
-use crate::server::controllers::lobby_controller::get_populated_lobby;
 use crate::server::websocket::{WSBody, WSRequestType};
 use crate::server::websocket::client_request::{ClientRequest, ClientRequestType};
-use crate::server::websocket::websocket_service::ws_leave_lobby;
 use crate::server::websocket::process_message::{disconnect_message, handle_message, handle_player_join};
 
 pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Arc<AppState>) {

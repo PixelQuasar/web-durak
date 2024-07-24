@@ -33,4 +33,6 @@ impl Game {
             turn_queue: vec![]
         }
     }
+
+    //pub fn init_turn
 }
