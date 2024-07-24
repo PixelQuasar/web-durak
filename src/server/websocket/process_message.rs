@@ -1,7 +1,7 @@
 use std::sync::Arc;
 use serde_json::to_string;
 use tokio::sync::broadcast;
-use crate::lobby::{Lobby, PopulatedLobby};
+use crate::lobby::{PopulatedLobby};
 use crate::server::AppState;
 use crate::server::controllers::lobby_controller::get_populated_lobby;
 use crate::server::websocket::{WSBody, WSRequestType};

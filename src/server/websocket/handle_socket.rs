@@ -71,8 +71,6 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
 
         let mut recv_task = tokio::spawn(async move {
             while let Ok(msg) = rx.recv().await {
-                println!("MSG: {msg}");
-
                 if sender.send(Message::Text(msg)).await.is_err() {
                     break;
                 }
@@ -83,8 +81,6 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
             let tx = tx.clone();
             tokio::spawn(async move {
                 while let Some(Ok(Message::Text(text))) = receiver.next().await {
-                    println!("{text}");
-
                     let request = match from_str::<WSBody>(&text) {
                         Ok(res) => res,
                         Err(err) => {
@@ -125,10 +121,6 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
         }
 
     }
-
-    // If any one of the tasks exit, abort the other.
-
-    // returning from the handler closes the websocket connection
 
     println!("Websocket context {who} destroyed");
 }
