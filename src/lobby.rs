@@ -49,20 +49,8 @@ impl Lobby {
         &self.id
     }
 
-    pub fn status(&self) -> &LobbyStatus {
-        &self.status
-    }
-
-    pub fn is_public(&self) -> &bool {
-        &self.public
-    }
-
     pub fn player_list(&self) -> &Vec<String> {
         &self.player_list
-    }
-
-    pub fn game(&self) -> &Option<Game> {
-        &self.game
     }
 
     pub fn player_add(&mut self, player_id: &str) {
@@ -95,5 +83,27 @@ impl PopulatedLobby {
             player_list: players,
             game: lobby.game
         }
+    }
+
+    pub fn get_id(&self) -> &str {
+        &self.id
+    }
+
+    pub fn players_num(&self) -> usize {
+        self.player_list.len()
+    }
+
+    pub fn player_add(&mut self, player: Player) {
+        self.player_list.push(Some(player));
+    }
+
+    pub fn player_remove(&mut self, id: &str) {
+        let index = self.player_list
+            .iter()
+            .position(|item| {
+                item.clone().unwrap_or_else(|| Player::new(String::new())).get_id() == id
+            })
+            .unwrap();
+        self.player_list.remove(index);
     }
 }

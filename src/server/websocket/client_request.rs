@@ -21,6 +21,10 @@ impl ClientRequest {
     }
 
     pub fn to_msg(&self) -> Message {
-        Message::Text(to_string(&self).unwrap_or_else(|_| { "Serialize error".to_string() }))
+        Message::Text(self.to_string())
+    }
+
+    pub fn to_string(&self) -> String {
+        to_string(&self).unwrap_or_else(|_| { "Serialize error".to_string() })
     }
 }

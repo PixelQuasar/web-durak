@@ -95,3 +95,18 @@ pub async fn get_populated_lobby(
 
     Ok(PopulatedLobby::from_lobby(lobby, players))
 }
+
+pub async fn add_player_to_populated_lobby(
+    redis_pool: &Pool<RedisConnectionManager>, lobby_id: &str, player_id: &str
+) -> Result<PopulatedLobby, String>
+{
+    let mut lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
+
+    let lobby = add_player_to_lobby(&redis_pool, lobby_id.clone(), player_id).await?;
+
+    set_struct_to_redis::<Lobby>(redis_pool, lobby_id, lobby.clone()).await?;
+
+    let populated_lobby = get_populated_lobby(&redis_pool, lobby_id).await?;
+
+    Ok(populated_lobby)
+}

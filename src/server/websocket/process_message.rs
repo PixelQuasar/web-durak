@@ -1,36 +1,60 @@
-use axum::extract::ws::Message;
-use std::ops::ControlFlow;
-use std::{net::SocketAddr};
+use std::sync::Arc;
+use serde_json::to_string;
+use tokio::sync::broadcast;
+use crate::lobby::{Lobby, PopulatedLobby};
+use crate::server::AppState;
+use crate::server::controllers::lobby_controller::get_populated_lobby;
+use crate::server::websocket::{WSBody, WSRequestType};
+use crate::server::websocket::client_request::{ClientRequest, ClientRequestType};
+use crate::server::websocket::websocket_service::{ws_create_lobby, ws_join_lobby, ws_leave_lobby};
 
-pub fn process_message(msg: Message, who: SocketAddr) -> ControlFlow<(), ()> {
-    match msg {
-        Message::Text(t) => {
-            println!(">>> {who} sent str: {t:?}");
+pub async fn handle_player_join(
+    app_state: &Arc<AppState>,
+    request: WSBody
+) -> Result<(PopulatedLobby, broadcast::Sender<String>), String> {
+    let (lobby, sender) = match request.req_type {
+        WSRequestType::LobbyJoin => {
+            ws_join_lobby(&app_state, request.clone()).await?
+        },
+        WSRequestType::LobbyCreate => {
+            ws_create_lobby(&app_state, request.clone()).await?
+        },
+        _ => {
+            return Err("Lobby connection error: wrong request type".to_string())
         }
-        Message::Binary(d) => {
-            println!(">>> {} sent {} bytes: {:?}", who, d.len(), d);
-        }
-        Message::Close(c) => {
-            if let Some(cf) = c {
-                println!(
-                    ">>> {} sent close with code {} and reason `{}`",
-                    who, cf.code, cf.reason
-                );
-            } else {
-                println!(">>> {who} sent close message without CloseFrame");
-            }
-            return ControlFlow::Break(());
-        }
+    };
 
-        Message::Pong(v) => {
-            println!(">>> {who} sent pong with {v:?}");
+    let lobby = get_populated_lobby(&app_state.redis_pool, lobby.get_id()).await?;
+
+    Ok((lobby, sender))
+}
+
+pub async fn handle_message(
+    request: WSBody
+) -> Result<String, String> {
+    Ok(match request.req_type {
+        WSRequestType::GameTurn => {
+            "hi!".to_string()
+        },
+        _ => {
+            "idk what is that".to_string()
         }
-        // You should never need to manually handle Message::Ping, as axum's websocket library
-        // will do so for you automagically by replying with Pong and copying the v according to
-        // spec. But if you need the contents of the pings you can see them here.
-        Message::Ping(v) => {
-            println!(">>> {who} sent ping with {v:?}");
-        }
+    })
+}
+
+pub async fn disconnect_message(
+    app_state: &Arc<AppState>,
+    current_lobby_id: Option<String>,
+    current_player_id: Option<String>
+) -> Result<String, String> {
+    if current_lobby_id.is_some() && current_player_id.is_some() {
+        let lobby = ws_leave_lobby(&app_state, &current_lobby_id.unwrap(), &current_player_id.unwrap()).await?;
+        let lobby = get_populated_lobby(&app_state.redis_pool, lobby.get_id()).await?;
+        Ok(ClientRequest::new(
+            ClientRequestType::LobbyUpdate, to_string::<PopulatedLobby>(&lobby).unwrap()
+        ).to_string())
+    } else {
+        println!("Websocket connection closing error:");
+        Err("Websocket connection closing error: invalid player or lobby".to_string())
     }
-    ControlFlow::Continue(())
 }

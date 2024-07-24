@@ -12,7 +12,7 @@ export const handleServerMessage = async function (data) {
         case "LobbyUpdate": {
             let firstLobbyMsg = false;
             if (!window.lobbyData) firstLobbyMsg = true;
-            window.lobbyData = await getLobbyQuery(JSON.parse(data.content));
+            window.lobbyData = JSON.parse(data.content);
             const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
             window.dispatchEvent(websocketEvent);
             if (firstLobbyMsg) navigate("/lobby");
