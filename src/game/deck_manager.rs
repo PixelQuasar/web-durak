@@ -1,10 +1,13 @@
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
+use std::ops::Deref;
 use rand::rngs::StdRng;
 use rand::{SeedableRng};
 use rand::seq::SliceRandom;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Card {
     pub suit: i32,
     pub rank: i32
@@ -31,7 +34,7 @@ impl fmt::Debug for Card {
     }
 }
 
-pub fn generate_deck(suit_num: i32, cards_num: i32) -> Vec<Card> {
+fn generate_deck(suit_num: i32, cards_num: i32) -> Vec<Card> {
     let mut cards = vec![];
     for i in 1..cards_num+1 {
         for j in 1..suit_num+1 {
@@ -41,13 +44,14 @@ pub fn generate_deck(suit_num: i32, cards_num: i32) -> Vec<Card> {
     cards
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeckManager {
     full_deck: Vec<Card>,
     deck: Vec<Card>,
     discard: Vec<Card>,
     hands: HashMap<String, Vec<Card>>,
     hands_amount: usize,
+    hands_order: Vec<String>,
     trump_suit: i32,
     table: Vec<(Card, Option<Card>)>
 }
@@ -59,6 +63,7 @@ impl DeckManager {
             deck: generate_deck(4, 13),
             discard: vec![],
             hands: HashMap::new(),
+            hands_order: vec![],
             hands_amount: 0,
             trump_suit: 0,
             table: vec![]
@@ -68,16 +73,22 @@ impl DeckManager {
     pub fn deal(&mut self, players_vec: Vec<String>, hand_size: i32) {
         let players_num = players_vec.len();
         self.hands_amount = players_num;
+
         self.deck.shuffle(&mut StdRng::seed_from_u64(1234));
-        //self.deck.shuffle(&mut thread_rng());
+
         self.trump_suit = self.deck[self.deck.len() - 1].suit;
+
         for player_id in players_vec {
             let mut new_hand = vec![];
+
             for _ in 0..hand_size {
                 new_hand.push(self.deck.pop().unwrap());
             }
+
             self.hands.insert(player_id, new_hand);
         }
+
+        self.init_order()
     }
 
     pub fn deal_six(&mut self, players_vec: Vec<String>) {
@@ -155,9 +166,27 @@ impl DeckManager {
         self.table = vec![];
     }
 
+    pub fn deal_more(&self) {
+
+    }
+
     pub fn can_beat(&self, beating: Card, beatable: Card) -> bool {
         (beating.suit == beatable.suit && beating.rank > beatable.rank) ||
         (beating.suit == self.trump_suit && beatable.suit != self.trump_suit)
+    }
+
+    fn init_order(&mut self) {
+        let mut hands_in_order = Vec::<(String)>::new();
+
+        for key in self.hands.keys().into_iter() {
+            hands_in_order.push(key.to_string());
+        }
+
+        hands_in_order.sort_by(|a, b| {
+            self.get_min_trump(a).rank.cmp(&self.get_min_trump(b).rank)
+        });
+
+        self.hands_order = hands_in_order;
     }
 
     fn flatten_table(&self) -> Vec<Card> {
@@ -215,5 +244,19 @@ impl DeckManager {
             }
         }
         false
+    }
+
+    pub fn get_min_trump(&self, player_id: &str) -> Card {
+        let hand = self.hands.get(player_id).unwrap();
+
+        let min_trump = hand
+            .iter()
+            .filter(|x| { x.suit == self.trump_suit })
+            .reduce(|a, b| {if a.suit > b.suit {a} else {b}});
+
+        match min_trump {
+            Some(card) => *card,
+            None => Card::new(0, self.trump_suit)
+        }
     }
 }
