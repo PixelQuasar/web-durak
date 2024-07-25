@@ -1,11 +1,11 @@
-use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fmt;
-use std::ops::Deref;
 use rand::rngs::StdRng;
 use rand::{SeedableRng};
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
+use serde::de::Unexpected::Str;
+
 
 #[derive(Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Card {
@@ -52,6 +52,7 @@ pub struct DeckManager {
     hands: HashMap<String, Vec<Card>>,
     hands_amount: usize,
     hands_order: Vec<String>,
+    hand_size: usize,
     trump_suit: i32,
     table: Vec<(Card, Option<Card>)>
 }
@@ -65,12 +66,13 @@ impl DeckManager {
             hands: HashMap::new(),
             hands_order: vec![],
             hands_amount: 0,
+            hand_size: 0,
             trump_suit: 0,
             table: vec![]
         }
     }
 
-    pub fn deal(&mut self, players_vec: Vec<String>, hand_size: i32) {
+    pub fn deal(&mut self, players_vec: Vec<String>, hand_size: usize) {
         let players_num = players_vec.len();
         self.hands_amount = players_num;
 
@@ -78,14 +80,11 @@ impl DeckManager {
 
         self.trump_suit = self.deck[self.deck.len() - 1].suit;
 
+        self.hand_size = hand_size;
+
         for player_id in players_vec {
-            let mut new_hand = vec![];
-
-            for _ in 0..hand_size {
-                new_hand.push(self.deck.pop().unwrap());
-            }
-
-            self.hands.insert(player_id, new_hand);
+            self.hands.insert(player_id.clone(), vec![]);
+            self.deal_to_hand_until_full(&player_id).unwrap();
         }
 
         self.init_order()
@@ -166,8 +165,29 @@ impl DeckManager {
         self.table = vec![];
     }
 
-    pub fn deal_more(&self) {
+    pub fn deal_more(&mut self, defending_player_id: &str) -> Result<(), ()> {
+        let defending_player_num = match self
+            .hands_order.iter()
+            .position(|x| {x == defending_player_id}) {
+            Some(res) => res,
+            None => {
+                return Err(());
+            }
+        };
 
+        let attacking_player_num = if defending_player_num > 0
+            {defending_player_num - 1} else {self.hands_order.len() - 1};
+
+        let dealing_order: Vec<String> = [
+            &self.hands_order[defending_player_num..],
+            &self.hands_order[..=attacking_player_num]
+        ].concat().into_iter().rev().collect();
+
+        for player_id in dealing_order {
+            self.deal_to_hand_until_full(&player_id).unwrap();
+        }
+
+        Ok(())
     }
 
     pub fn can_beat(&self, beating: Card, beatable: Card) -> bool {
@@ -187,6 +207,21 @@ impl DeckManager {
         });
 
         self.hands_order = hands_in_order;
+    }
+
+    fn deal_to_hand_until_full(&mut self, player_id: &str) -> Result<(), ()> {
+        let hand = match self.hands.get_mut(player_id) {
+            Some(res) => res,
+            None => {
+                return Err(());
+            }
+        };
+
+        while hand.len() < self.hand_size && self.deck.len() > 0 {
+            hand.push(self.deck.pop().unwrap());
+        }
+
+        Ok(())
     }
 
     fn flatten_table(&self) -> Vec<Card> {
