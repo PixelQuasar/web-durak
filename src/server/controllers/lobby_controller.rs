@@ -45,7 +45,6 @@ pub async fn delete_lobby(
     redis_pool: &Pool<RedisConnectionManager>, id: &str
 ) -> Result<(), String>
 {
-    println!("dsfdgsfgsdf");
     Ok(delete_struct_from_redis::<Lobby>(redis_pool, id).await?)
 }
 

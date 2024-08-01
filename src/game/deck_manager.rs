@@ -4,7 +4,6 @@ use rand::rngs::StdRng;
 use rand::{SeedableRng};
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize};
-use serde::de::Unexpected::Str;
 
 
 #[derive(Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -36,8 +35,8 @@ impl fmt::Debug for Card {
 
 fn generate_deck(suit_num: i32, cards_num: i32) -> Vec<Card> {
     let mut cards = vec![];
-    for i in 1..cards_num+1 {
-        for j in 1..suit_num+1 {
+    for i in 1..=cards_num {
+        for j in 1..=suit_num {
             cards.push(Card{ suit: j, rank: i });
         }
     }
@@ -167,8 +166,7 @@ impl DeckManager {
 
     pub fn deal_more(&mut self, defending_player_id: &str) -> Result<(), ()> {
         let defending_player_num = match self
-            .hands_order.iter()
-            .position(|x| {x == defending_player_id}) {
+            .hands_order.iter().position(|x| {x == defending_player_id}) {
             Some(res) => res,
             None => {
                 return Err(());
@@ -176,11 +174,10 @@ impl DeckManager {
         };
 
         let attacking_player_num = if defending_player_num > 0
-            {defending_player_num - 1} else {self.hands_order.len() - 1};
+            { defending_player_num - 1 } else { self.hands_order.len() - 1 };
 
         let dealing_order: Vec<String> = [
-            &self.hands_order[defending_player_num..],
-            &self.hands_order[..=attacking_player_num]
+            &self.hands_order[defending_player_num..], &self.hands_order[..=attacking_player_num]
         ].concat().into_iter().rev().collect();
 
         for player_id in dealing_order {
@@ -193,6 +190,37 @@ impl DeckManager {
     pub fn can_beat(&self, beating: Card, beatable: Card) -> bool {
         (beating.suit == beatable.suit && beating.rank > beatable.rank) ||
         (beating.suit == self.trump_suit && beatable.suit != self.trump_suit)
+    }
+
+    pub fn get_min_trump(&self, player_id: &str) -> Card {
+        let hand = self.hands.get(player_id).unwrap();
+
+        let min_trump = hand.iter()
+            .filter(|x| { x.suit == self.trump_suit })
+            .reduce(|a, b| { if a.suit > b.suit {a} else {b} });
+
+        match min_trump {
+            Some(card) => *card,
+            None => Card::new(0, self.trump_suit)
+        }
+    }
+
+    pub fn is_table_beaten(&self) -> bool {
+        for (_, top_card) in &self.table {
+            if top_card.is_none() {
+                return false;
+            }
+        }
+        true
+    }
+
+    pub fn player_after(&self, player_id: &str) -> Option<String> {
+        let player_index = self.hands_order.iter().position(|item| {item == player_id});
+        if player_index.is_none() {
+            return None
+        }
+        let next_index = (player_index.unwrap() + 1) % &self.hands_amount;
+        Some(self.hands_order[next_index].clone())
     }
 
     fn init_order(&mut self) {
@@ -236,13 +264,12 @@ impl DeckManager {
     }
 
     fn player_has_card(&self, player_id: &str, card: Card) -> bool {
-        let hand = self.hands.get(player_id);
-
-        if hand.is_none() {
-            return false;
-        }
-
-        hand.unwrap().contains(&card)
+        match self.hands.get(player_id) {
+            Some(res) => res,
+            None => {
+                return false;
+            }
+        }.contains(&card)
     }
 
     fn pick_card(&mut self, player_id: &str, card: Card) -> Result<(), ()> {
@@ -279,19 +306,5 @@ impl DeckManager {
             }
         }
         false
-    }
-
-    pub fn get_min_trump(&self, player_id: &str) -> Card {
-        let hand = self.hands.get(player_id).unwrap();
-
-        let min_trump = hand
-            .iter()
-            .filter(|x| { x.suit == self.trump_suit })
-            .reduce(|a, b| {if a.suit > b.suit {a} else {b}});
-
-        match min_trump {
-            Some(card) => *card,
-            None => Card::new(0, self.trump_suit)
-        }
     }
 }
