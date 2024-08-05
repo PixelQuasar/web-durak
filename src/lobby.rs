@@ -16,7 +16,7 @@ pub struct Lobby {
     status: LobbyStatus,
     public: bool,
     player_list: Vec<String>,
-    game: Option<Game>
+    pub game: Option<Game>
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -25,7 +25,7 @@ pub struct PopulatedLobby {
     status: LobbyStatus,
     public: bool,
     player_list: Vec<Option<Player>>,
-    game: Option<Game>
+    pub game: Option<Game>
 }
 
 impl Lobby {
@@ -65,8 +65,16 @@ impl Lobby {
         self.player_list.remove(index);
     }
 
-    pub fn init_game(&mut self) {
-        self.game = Some(Game::new(self.player_list.clone()));
+    pub fn init_game(&mut self, player_ids: Vec<String>) {
+        let mut game = Game::new(self.player_list.clone());
+
+        game.deck_manager.deal_six(player_ids);;
+
+        game.set_target_player_id(game.deck_manager.get_first_target_player().unwrap());
+
+        game.start();
+
+        self.game = Some(game);
     }
 
     pub fn players_num(&self) -> usize {

@@ -2,6 +2,7 @@ import './style.scss';
 import {createRouter} from "./router.js";
 import {CreateLobby, CreateUser, Homepage, JoinLobby, LobbyPage} from "./pages/index.js";
 import {PAGE_CHANGE_EVENT_ID, WEBSOCKET_UPDATE_ID} from "./utils/index.js";
+import {GamePage} from "./pages/game-page/game-page.js";
 
 const router = createRouter([
     {
@@ -23,6 +24,10 @@ const router = createRouter([
     {
         name: "/lobby",
         page: LobbyPage
+    },
+    {
+        name: "/game",
+        page: GamePage
     }
 ]);
 

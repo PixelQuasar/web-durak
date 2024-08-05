@@ -12,12 +12,14 @@ use axum::extract::ws::{Message, WebSocket};
 use futures_util::SinkExt;
 use futures_util::stream::SplitSink;
 use serde::Deserialize;
+use crate::game::deck_manager::Card;
 use crate::server::AppState;
 use crate::server::websocket::handle_socket::handle_socket;
 
 #[derive(Deserialize, Clone, PartialEq, Debug)]
 pub enum  WSRequestType {
-    LobbyCreate, LobbyJoin, GameCreate, GameTurn,
+    LobbyCreate, LobbyJoin, GameCreate, GameTurnInitTable, GameTurnConfirmBeat,
+    GameTurnToss, GameTurnBeat, GameTurnTake, GameTurnDiscard
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -26,6 +28,14 @@ pub struct WSBody {
     sender_id: String,
     lobby_id: Option<String>,
     content: Option<String>
+}
+
+#[derive(Deserialize, Clone, Debug)]
+pub struct WSBodyCardContent {
+    card: Option<Card>,
+    beating: Option<Card>,
+    beatable: Option<Card>,
+    player_id: Option<String>
 }
 
 pub async fn websocket_handler(
@@ -38,7 +48,7 @@ pub async fn websocket_handler(
     let user_agent = if let Some(TypedHeader(user_agent)) = user_agent {
         user_agent.to_string()
     } else {
-        String::from("Unknown browser")
+        "Unknown browser".to_string()
     };
     println!("`{user_agent}` at {addr} connected.");
     ws.on_upgrade(move |socket| {

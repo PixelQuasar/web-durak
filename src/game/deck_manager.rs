@@ -51,6 +51,7 @@ pub struct DeckManager {
     hands: HashMap<String, Vec<Card>>,
     hands_amount: usize,
     hands_order: Vec<String>,
+    beat_confirmations: HashMap<String, bool>,
     hand_size: usize,
     trump_suit: i32,
     table: Vec<(Card, Option<Card>)>
@@ -65,6 +66,7 @@ impl DeckManager {
             hands: HashMap::new(),
             hands_order: vec![],
             hands_amount: 0,
+            beat_confirmations: HashMap::new(),
             hand_size: 0,
             trump_suit: 0,
             table: vec![]
@@ -83,6 +85,7 @@ impl DeckManager {
 
         for player_id in players_vec {
             self.hands.insert(player_id.clone(), vec![]);
+            self.beat_confirmations.insert(player_id.clone(), false);
             self.deal_to_hand_until_full(&player_id).unwrap();
         }
 
@@ -149,19 +152,29 @@ impl DeckManager {
                 player.push(pair.1.unwrap());
             }
         }
+
+        self.drop_beat_confirmations();
         self.table = vec![];
 
         Ok(())
     }
 
-    pub fn discard_table(&mut self) {
+    pub fn discard_table(&mut self) -> Result<(), ()> {
+        if !self.can_discard() {
+            return Err(());
+        }
+
         for pair in &self.table {
             self.discard.push(pair.0);
             if pair.1.is_some() {
                 self.discard.push(pair.1.unwrap());
             }
         }
+
+        self.drop_beat_confirmations();
         self.table = vec![];
+
+        Ok(())
     }
 
     pub fn deal_more(&mut self, defending_player_id: &str) -> Result<(), ()> {
@@ -192,6 +205,22 @@ impl DeckManager {
         (beating.suit == self.trump_suit && beatable.suit != self.trump_suit)
     }
 
+    pub fn can_discard(&self) -> bool {
+        let mut result = true;
+
+        for key in self.beat_confirmations.keys() {
+            result = result && *self.beat_confirmations.get(key).unwrap();
+        }
+
+        result
+    }
+
+    pub fn drop_beat_confirmations(&mut self) {
+        for key in self.beat_confirmations.values_mut() {
+            *key = true;
+        }
+    }
+
     pub fn get_min_trump(&self, player_id: &str) -> Card {
         let hand = self.hands.get(player_id).unwrap();
 
@@ -216,11 +245,28 @@ impl DeckManager {
 
     pub fn player_after(&self, player_id: &str) -> Option<String> {
         let player_index = self.hands_order.iter().position(|item| {item == player_id});
+
         if player_index.is_none() {
             return None
         }
+
         let next_index = (player_index.unwrap() + 1) % &self.hands_amount;
+
         Some(self.hands_order[next_index].clone())
+    }
+
+    pub fn get_first_target_player(&self) -> Option<String> {
+        self.player_after(&self.hands_order[0])
+    }
+
+    pub fn confirm_beat(&mut self, player_id: String)-> Result<(), ()> {
+        if !self.beat_confirmations.contains_key(&player_id) {
+            return Err(())
+        }
+
+        self.beat_confirmations.insert(player_id, true);
+
+        Ok(())
     }
 
     fn init_order(&mut self) {
@@ -254,12 +300,14 @@ impl DeckManager {
 
     fn flatten_table(&self) -> Vec<Card> {
         let mut result = Vec::<Card>::new();
+
         for pair in &self.table {
             result.push(pair.0);
             if pair.1.is_some() {
                 result.push(pair.1.unwrap());
             }
         }
+
         result
     }
 
@@ -276,6 +324,7 @@ impl DeckManager {
         if !self.player_has_card(player_id, card) {
             return Err(())
         }
+
         let hand = self.hands.get_mut(player_id).unwrap();
 
         let card_index = hand.iter().position(|item| *item == card).unwrap();

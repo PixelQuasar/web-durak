@@ -13,6 +13,7 @@ use crate::server::websocket::process_message::{disconnect_message, handle_messa
 pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Arc<AppState>) {
     // start connection handler (join or create lobby)
     let (mut sender, mut receiver) = socket.split();
+
     let mut tx = None::<broadcast::Sender<String>>;
 
     // current player id, generated during the first client query (join or create lobby)
@@ -77,6 +78,7 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
 
         let mut send_task = {
             let tx = tx.clone();
+            let app_state = app_state.clone();
             tokio::spawn(async move {
                 while let Some(Ok(Message::Text(text))) = receiver.next().await {
                     let request = match from_str::<WSBody>(&text) {
@@ -87,7 +89,7 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
                         }
                     };
 
-                    let response = match handle_message(request).await {
+                    let response = match handle_message(&app_state, request).await {
                         Ok(res) => res,
                         Err(err) => {
                             println!("message processing error: {}", err);

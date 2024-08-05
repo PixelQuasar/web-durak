@@ -7,8 +7,8 @@ use serde::de::DeserializeOwned;
 use crate::server::errors::error_message;
 
 pub async fn get_struct_from_redis<T: DeserializeOwned>(
-    pool: &Pool<RedisConnectionManager>, id: &str) -> Result<T, String>
-{
+    pool: &Pool<RedisConnectionManager>, id: &str
+) -> Result<T, String> {
     let mut conn = pool.get().await.map_err(error_message)?;
 
     let stored_string = conn.get::<String, String>(id.to_string()).await.map_err(error_message)?;
@@ -19,8 +19,8 @@ pub async fn get_struct_from_redis<T: DeserializeOwned>(
 }
 
 pub async fn set_struct_to_redis<T: Serialize>(
-    pool: &Pool<RedisConnectionManager>, id: &str, payload: T) -> Result<(), String>
-{
+    pool: &Pool<RedisConnectionManager>, id: &str, payload: T
+) -> Result<(), String>  {
     let mut conn = pool.get().await.map_err(error_message)?;
 
     let str_value = serde_json::to_string(&payload).map_err(error_message)?;
@@ -31,8 +31,8 @@ pub async fn set_struct_to_redis<T: Serialize>(
 }
 
 pub async fn get_vector_from_redis<T: DeserializeOwned>(
-    pool: &Pool<RedisConnectionManager>, prefix: &str) -> Result<Vec<T>, String>
-{
+    pool: &Pool<RedisConnectionManager>, prefix: &str
+) -> Result<Vec<T>, String> {
     let mut conn = pool.get().await.map_err(error_message)?;
 
     // Some bad code here. But sadly I didn't figure out how to make it better.
@@ -48,8 +48,8 @@ pub async fn get_vector_from_redis<T: DeserializeOwned>(
 }
 
 pub async fn delete_struct_from_redis<T: DeserializeOwned + Serialize>(
-    pool: &Pool<RedisConnectionManager>, id: &str) -> Result<(), String>
-{
+    pool: &Pool<RedisConnectionManager>, id: &str
+) -> Result<(), String> {
     let mut conn = pool.get().await.map_err(error_message)?;
 
     let result = conn.del::<String, i32>(id.to_string()).await.map_err(error_message)?;

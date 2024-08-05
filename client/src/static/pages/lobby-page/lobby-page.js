@@ -1,9 +1,14 @@
 import {navigate} from "../../utils/index.js";
 import {disconnectWebsocket} from "../../websocket/index.js";
+import {wsCreateGame} from "../../websocket/handle-game.js";
 
-const leaveLobby = function () {
+const leaveLobbyAction = function () {
     disconnectWebsocket();
     navigate("/");
+}
+
+const createGameAction = function () {
+    wsCreateGame();
 }
 
 export const LobbyPage = function () {
@@ -49,6 +54,7 @@ export const LobbyPage = function () {
 document.querySelector("body").addEventListener("click", (event) => {
     const className = event.target.className
     switch (true) {
-        case /leave-button/.test(className): leaveLobby(); break;
+        case /leave-button/.test(className): leaveLobbyAction(); break;
+        case /create-game-button/.test(className): createGameAction(); break;
     }
 });

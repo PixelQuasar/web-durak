@@ -8,7 +8,7 @@ export const wsJoinLobby = function (lobbyId) {
     if (!getUser()) return navigate("/create-user");
 
     window.lobbyData = null;
-    window.websocket.send(buildWebsocketRequest(ReqTypes.JoinLobby, lobbyId, {}));
+    window.websocket.send(buildWebsocketRequest(ReqTypes.LobbyJoin, lobbyId, {}));
 }
 
 export const wsCreateLobby = function (isPublic) {
@@ -16,5 +16,5 @@ export const wsCreateLobby = function (isPublic) {
     if (!getUser()) return navigate("/create-user");
 
     window.lobbyData = null;
-    window.websocket.send(buildWebsocketRequest(ReqTypes.CreateLobby, "", { public: isPublic }));
+    window.websocket.send(buildWebsocketRequest(ReqTypes.LobbyCreate, "", { public: isPublic }));
 }

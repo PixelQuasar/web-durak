@@ -5,10 +5,8 @@ use serde::{Deserialize};
 use crate::lobby::{Lobby, PopulatedLobby};
 use crate::player::Player;
 use crate::server::redis_service::{
-    delete_struct_from_redis,
-    get_struct_from_redis,
-    get_vector_from_redis,
-    set_struct_to_redis
+    delete_struct_from_redis, get_struct_from_redis,
+    get_vector_from_redis, set_struct_to_redis
 };
 
 #[derive(Deserialize)]
@@ -32,6 +30,15 @@ pub async fn create_lobby(
     set_struct_to_redis::<Lobby>(redis_pool, lobby.get_id(), lobby.clone()).await?;
 
     Ok(lobby)
+}
+
+pub async fn save_lobby(
+    redis_pool: &Pool<RedisConnectionManager>, lobby: Lobby
+) -> Result<(), String>
+{
+    set_struct_to_redis::<Lobby>(redis_pool, lobby.get_id(), lobby.clone()).await?;
+
+    Ok(())
 }
 
 pub async fn get_lobbies(
