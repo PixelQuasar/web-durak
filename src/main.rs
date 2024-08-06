@@ -14,12 +14,12 @@ use crate::player::Player;
 async fn main() {
     // testing game deck state machine
 
-    let players = vec![
-        Player::new_with_id("1".to_string(), "Player One".to_string()),
-        Player::new_with_id("2".to_string(), "Player Two".to_string()),
-        Player::new_with_id("3".to_string(), "Player Three".to_string()),
-        Player::new_with_id("4".to_string(), "Player Four".to_string())
-    ];
+    // let players = vec![
+    //     Player::new_with_id("1".to_string(), "Player One".to_string()),
+    //     Player::new_with_id("2".to_string(), "Player Two".to_string()),
+    //     Player::new_with_id("3".to_string(), "Player Three".to_string()),
+    //     Player::new_with_id("4".to_string(), "Player Four".to_string())
+    // ];
 
     // let player_ids: Vec<String> = players.iter().map(|x| {x.get_id().to_string()}).collect();
     //

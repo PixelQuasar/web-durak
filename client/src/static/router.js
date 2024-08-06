@@ -1,8 +1,18 @@
 import {getParams} from "./get-params.js";
 import {NotFoundPage} from "./pages/index.js";
 
+/**
+ * transform path to regex
+ * @param {string} path
+ * @returns {RegExp}
+ */
 const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
 
+/**
+ * creates client-side page router from pages tree.
+ * @param {any} routesTree
+ * @returns {{render: render}}
+ */
 export const createRouter = function (routesTree) {
     const routes = [];
     try {

@@ -5,6 +5,10 @@ const joinLobbyAction = function () {
     wsJoinLobby(lobbyId);
 }
 
+/**
+ * Returns joining lobby page.
+ * @returns {string}
+ */
 export const JoinLobby = function () {
     initWebsocketConnection();
     return `

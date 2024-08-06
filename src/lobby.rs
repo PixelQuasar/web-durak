@@ -70,7 +70,13 @@ impl Lobby {
 
         game.deck_manager.deal_six(player_ids);;
 
-        game.set_target_player_id(game.deck_manager.get_first_target_player().unwrap());
+        let first_target_player = game.deck_manager.get_first_target_player();
+
+        game.set_target_player_id(first_target_player.clone());
+
+        game.set_next_player_id(game.deck_manager.player_after(&first_target_player).unwrap());
+
+        game.set_attacker_player_id(game.deck_manager.get_first_attacker_player());
 
         game.start();
 

@@ -16,6 +16,7 @@ pub struct Game {
     id: String,
     status: GameLoopState,
     participant_ids: Vec<String>,
+    attacker_player_id: Option<String>,
     target_player_id: Option<String>,
     next_player_id: Option<String>,
     turn_queue: Vec<String>,
@@ -39,6 +40,7 @@ impl Game {
             id: gen_special_id("GAME"),
             status: GameLoopState::Start,
             participant_ids: players,
+            attacker_player_id: None,
             target_player_id: None,
             next_player_id: None,
             turn_queue: vec![],
@@ -111,6 +113,8 @@ impl Game {
 
             self.target_player_id = Some(self.deck_manager.player_after(&next_attacker).unwrap());
 
+            self.attacker_player_id = Some(next_attacker);
+
             Ok(())
         } else {
             Err(())
@@ -129,6 +133,8 @@ impl Game {
 
             self.target_player_id = Some(self.deck_manager.player_after(&defender).unwrap());
 
+            self.attacker_player_id = Some(defender.to_string());
+
             Ok(())
         } else {
             Err(())
@@ -141,6 +147,14 @@ impl Game {
 
     pub fn set_target_player_id(&mut self, player_id: String) {
         self.target_player_id = Some(player_id);
+    }
+
+    pub fn set_next_player_id(&mut self, player_id: String) {
+        self.next_player_id = Some(player_id);
+    }
+
+    pub fn set_attacker_player_id(&mut self, player_id: String) {
+        self.attacker_player_id = Some(player_id);
     }
 
     pub fn start(&mut self) {

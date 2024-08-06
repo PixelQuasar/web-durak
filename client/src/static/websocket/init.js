@@ -10,7 +10,6 @@ export const initWebsocketConnection = function () {
     });
 
     window.websocket.addEventListener("message", async (event) => {
-        console.log("WebSocket message: ", event.data);
         if (event.data[0] === "{") {
             await handleServerMessage(event.data);
         }

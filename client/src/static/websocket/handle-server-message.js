@@ -4,7 +4,7 @@ import {getLobbyQuery} from "../state/lobby-handler.js";
 export const handleServerMessage = async function (data) {
     data = JSON.parse(data);
 
-    console.log(data);
+    // console.log(data);
 
     if (!data.req_type && !data.content) return;
 
@@ -16,6 +16,13 @@ export const handleServerMessage = async function (data) {
             const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
             window.dispatchEvent(websocketEvent);
             if (firstLobbyMsg) navigate("/lobby");
+            break;
+        }
+        case "GameCreate": {
+            window.lobbyData = JSON.parse(data.content);
+            const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
+            window.dispatchEvent(websocketEvent);
+            navigate("/game");
             break;
         }
     }

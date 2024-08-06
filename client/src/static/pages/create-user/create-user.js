@@ -11,6 +11,10 @@ const createUserAction = async function () {
     navigate("/");
 }
 
+/**
+ * Returns page where user identifies itself.
+ * @returns {string}
+ */
 export const CreateUser = function () {
     return `
 <div class="create-lobby-wrapper page-wrapper">

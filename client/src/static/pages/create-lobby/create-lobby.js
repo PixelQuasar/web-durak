@@ -4,6 +4,10 @@ const createLobbyAction = function () {
     wsCreateLobby(true);
 }
 
+/**
+ * Returns creating lobby page.
+ * @returns {string}
+ */
 export const CreateLobby = function () {
     initWebsocketConnection();
     return `

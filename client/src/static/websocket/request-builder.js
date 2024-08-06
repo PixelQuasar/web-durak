@@ -11,6 +11,13 @@ export const ReqTypes = {
     GameTurnDiscard: "GameTurnDiscard"
 }
 
+/**
+ * Builds JSON body that would be correctly read by server--side websocket listener.
+ * @param {string} type
+ * @param {string} lobbyId
+ * @param {any} content
+ * @returns {string}
+ */
 export const buildWebsocketRequest = function (type, lobbyId, content) {
     return JSON.stringify({
         req_type: type,

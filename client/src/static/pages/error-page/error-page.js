@@ -1,3 +1,7 @@
+/**
+ * Returns error page.
+ * @returns {string}
+ */
 export const ErrorPage = function () {
     const props = {
         errorName: this.errorName ?? "Unknown error name",

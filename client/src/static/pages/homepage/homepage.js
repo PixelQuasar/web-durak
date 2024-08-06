@@ -1,5 +1,9 @@
 import {navigate} from "../../utils/index.js";
 
+/**
+ * Returns WEB DURAK index page.
+ * @returns {string}
+ */
 export const Homepage = function () {
     return `
 <div class="homepage-wrapper page-wrapper">

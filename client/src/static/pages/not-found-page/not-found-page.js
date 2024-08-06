@@ -1,3 +1,8 @@
+/**
+ * Returns not found page.
+ * @returns {string}
+ * @constructor
+ */
 export const NotFoundPage = function () {
     const props = {
         notFoundPage: this.notFoundPage ?? "unknown",

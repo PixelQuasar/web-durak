@@ -33,7 +33,7 @@ pub async fn handle_player_join(
 pub async fn handle_message(
     app_state: &Arc<AppState>,
     request: WSBody
-) -> Result<String, String> {
+) -> Result<(ClientRequestType, String), String> {
     if request.lobby_id.is_none() {
         return Err("no lobby".to_string());
     }
@@ -54,7 +54,7 @@ pub async fn handle_message(
                 .map_err(|_| { "game machine error" })?
         ).unwrap();
 
-        Ok(result)
+        Ok((ClientRequestType::GameCreate, result))
     }
     else {
         match lobby.game {
@@ -126,7 +126,7 @@ pub async fn handle_message(
                         .map_err(|_| { "game machine error" })?
                 ).unwrap();
 
-                Ok(result)
+                Ok((ClientRequestType::GameUpdate, result))
             },
             None => {
                 return Err("lobby error".to_string())

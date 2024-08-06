@@ -11,11 +11,15 @@ const createGameAction = function () {
     wsCreateGame();
 }
 
+/**
+ * Returns page that indicates lobby info.
+ * @returns {string}
+ */
 export const LobbyPage = function () {
     const lobbyData = window.lobbyData ?? {
-            id: "UNKNOWN",
-            status: "INACTIVE",
-            public: false,
+        id: "UNKNOWN",
+        status: "INACTIVE",
+        public: false,
             player_list: [],
             game: null
     };

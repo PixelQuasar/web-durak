@@ -3,33 +3,33 @@ use std::fmt;
 use rand::rngs::StdRng;
 use rand::{SeedableRng};
 use rand::seq::SliceRandom;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, Serializer};
 
 
 #[derive(Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Card {
-    pub suit: i32,
-    pub rank: i32
+    pub s: i32,
+    pub r: i32
 }
 
 impl Card {
     pub fn new(rank: i32, suit: i32) -> Card {
-        Card { rank, suit }
+        Card { r: rank, s: suit }
     }
 }
 
 impl fmt::Debug for Card {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "[{}-{}] {} of {}",
-               self.rank,
-               self.suit,
+               self.r,
+               self.s,
                vec![
                    "unknown", "two", "three", "four", "five", "six", "seven", "eight",
                    "nine", "ten", "jack", "queen", "king", "ace"
-               ].get(self.rank as usize).unwrap(),
+               ].get(self.r as usize).unwrap(),
                vec![
                    "unknown", "hearts", "diamonds", "spades", "clubs"
-               ].get(self.suit as usize).unwrap())
+               ].get(self.s as usize).unwrap())
     }
 }
 
@@ -37,7 +37,7 @@ fn generate_deck(suit_num: i32, cards_num: i32) -> Vec<Card> {
     let mut cards = vec![];
     for i in 1..=cards_num {
         for j in 1..=suit_num {
-            cards.push(Card{ suit: j, rank: i });
+            cards.push(Card{ s: j, r: i });
         }
     }
     cards
@@ -79,7 +79,7 @@ impl DeckManager {
 
         self.deck.shuffle(&mut StdRng::seed_from_u64(1234));
 
-        self.trump_suit = self.deck[self.deck.len() - 1].suit;
+        self.trump_suit = self.deck[self.deck.len() - 1].s;
 
         self.hand_size = hand_size;
 
@@ -201,8 +201,8 @@ impl DeckManager {
     }
 
     pub fn can_beat(&self, beating: Card, beatable: Card) -> bool {
-        (beating.suit == beatable.suit && beating.rank > beatable.rank) ||
-        (beating.suit == self.trump_suit && beatable.suit != self.trump_suit)
+        (beating.s == beatable.s && beating.r > beatable.r) ||
+        (beating.s == self.trump_suit && beatable.s != self.trump_suit)
     }
 
     pub fn can_discard(&self) -> bool {
@@ -225,8 +225,8 @@ impl DeckManager {
         let hand = self.hands.get(player_id).unwrap();
 
         let min_trump = hand.iter()
-            .filter(|x| { x.suit == self.trump_suit })
-            .reduce(|a, b| { if a.suit > b.suit {a} else {b} });
+            .filter(|x| { x.s == self.trump_suit })
+            .reduce(|a, b| { if a.s > b.s {a} else {b} });
 
         match min_trump {
             Some(card) => *card,
@@ -255,8 +255,28 @@ impl DeckManager {
         Some(self.hands_order[next_index].clone())
     }
 
-    pub fn get_first_target_player(&self) -> Option<String> {
-        self.player_after(&self.hands_order[0])
+    pub fn player_before(&self, player_id: &str) -> Option<String> {
+        let mut result = self.player_after(player_id);
+
+        if result.is_none() {
+            return None
+        }
+
+        let mut result = result.unwrap();
+
+        for i in 0..self.hands.len() - 2 {
+            result = self.player_after(&result).unwrap();
+        }
+
+        Some(result)
+    }
+
+    pub fn get_first_target_player(&self) -> String {
+        self.player_after(&self.hands_order[0]).unwrap()
+    }
+
+    pub fn get_first_attacker_player(&self) -> String {
+        self.hands_order[0].clone()
     }
 
     pub fn confirm_beat(&mut self, player_id: String)-> Result<(), ()> {
@@ -277,7 +297,7 @@ impl DeckManager {
         }
 
         hands_in_order.sort_by(|a, b| {
-            self.get_min_trump(a).rank.cmp(&self.get_min_trump(b).rank)
+            self.get_min_trump(a).r.cmp(&self.get_min_trump(b).r)
         });
 
         self.hands_order = hands_in_order;
@@ -345,11 +365,11 @@ impl DeckManager {
 
     fn can_toss(&self, card: Card) -> bool {
         for (bottom, top) in &self.table {
-            if bottom.rank == card.rank {
+            if bottom.r == card.r {
                 return true;
             }
             if let Some(top) = top {
-                if top.rank == card.rank {
+                if top.r == card.r {
                     return true;
                 }
             }
