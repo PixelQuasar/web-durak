@@ -1,5 +1,6 @@
 import {getParams} from "./get-params.js";
 import {NotFoundPage} from "./pages/index.js";
+import {PAGE_RENDER_EVENT_ID} from "./utils/index.js";
 
 /**
  * transform path to regex
@@ -11,7 +12,7 @@ const pathToRegex = path => new RegExp("^" + path.replace(/\//g, "\\/").replace(
 /**
  * creates client-side page router from pages tree.
  * @param {any} routesTree
- * @returns {{render: render}}
+ * @returns {{render: () => void}}
  */
 export const createRouter = function (routesTree) {
     const routes = [];
@@ -46,6 +47,9 @@ export const createRouter = function (routesTree) {
 
         const root = document.querySelector("#root");
         root.innerHTML = match.route.page.bind(globalProps).call(getParams(match));
+
+        const changeEvent = new Event(PAGE_RENDER_EVENT_ID);
+        document.dispatchEvent(changeEvent);
     }
 
     return { render };

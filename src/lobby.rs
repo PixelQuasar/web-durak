@@ -1,11 +1,13 @@
+use std::cmp::PartialEq;
 use std::ops::Deref;
 use serde::{Deserialize, Serialize};
+use serde::__private::de::Content::Str;
 use crate::player::Player;
 use crate::game::Game;
 use crate::utils::{gen_special_id};
 
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum LobbyStatus {
     INACTIVE, ACTIVE, STARTED
 }
@@ -14,6 +16,7 @@ pub enum LobbyStatus {
 pub struct Lobby {
     id: String,
     status: LobbyStatus,
+    owner_id: String,
     public: bool,
     player_list: Vec<String>,
     pub game: Option<Game>
@@ -23,6 +26,7 @@ pub struct Lobby {
 pub struct PopulatedLobby {
     id: String,
     status: LobbyStatus,
+    owner_id: String,
     public: bool,
     player_list: Vec<Option<Player>>,
     pub game: Option<Game>
@@ -33,8 +37,9 @@ impl Lobby {
         dotenv::dotenv().ok();
         Lobby {
             id: gen_special_id(&dotenv::var("PREFIX_LOBBY").unwrap()),
-            status: LobbyStatus::INACTIVE,
+            status: LobbyStatus::ACTIVE,
             public: is_public,
+            owner_id: String::new(),
             player_list: vec![],
             game: None
         }
@@ -54,6 +59,9 @@ impl Lobby {
     }
 
     pub fn player_add(&mut self, player_id: &str) {
+        if self.player_list.len() == 0 {
+            self.owner_id = player_id.to_string();
+        }
         self.player_list.push(player_id.to_string());
     }
 
@@ -80,11 +88,17 @@ impl Lobby {
 
         game.start();
 
+        self.status = LobbyStatus::STARTED;
+
         self.game = Some(game);
     }
 
     pub fn players_num(&self) -> usize {
         return self.player_list.len()
+    }
+
+    pub fn can_join(&self) -> bool {
+        self.status == LobbyStatus::STARTED || self.status == LobbyStatus::ACTIVE
     }
 }
 
@@ -94,6 +108,7 @@ impl PopulatedLobby {
             id: lobby.id,
             status: lobby.status,
             public: lobby.public,
+            owner_id: lobby.owner_id,
             player_list: players,
             game: lobby.game
         }

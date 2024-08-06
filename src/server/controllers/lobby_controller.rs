@@ -61,6 +61,10 @@ pub async fn add_player_to_lobby(
 {
     let mut lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
 
+    if !lobby.can_join() {
+        return Err("Lobby is closed".to_string())
+    }
+
     let player = get_struct_from_redis::<Player>(redis_pool, player_id).await?;
 
     // check if player exists

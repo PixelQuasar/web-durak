@@ -6,7 +6,7 @@ use serde_json::{from_str, to_string};
 use tokio::sync::broadcast;
 use crate::lobby::PopulatedLobby;
 use crate::server::AppState;
-use crate::server::websocket::{WSBody, WSRequestType};
+use crate::server::websocket::{WSBody, WSError, WSRequestType};
 use crate::server::websocket::client_request::{ClientRequest, ClientRequestType};
 use crate::server::websocket::process_message::{disconnect_message, handle_message, handle_player_join};
 
@@ -31,7 +31,9 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
                 Ok(req) => req,
                 Err(err) => {
                     println!("Connection request parsing error: {}", err);
-                    let _ = sender.send(Message::from("Failed to connect to lobby!")).await;
+                    let _ = sender.send(Message::from(
+                        WSError::conn_error("connection error".to_string()).stringify()
+                    )).await;
                     break
                 }
             };
@@ -45,7 +47,7 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
                     Ok(res) => res,
                     Err(err) => {
                         println!("Lobby connection error: {}", err);
-                        let _ = sender.send(Message::from("Failed to connect to lobby!")).await;
+                        let _ = sender.send(Message::from(WSError::conn_error(err).stringify())).await;
                         break;
                     }
                 };
@@ -91,13 +93,8 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
                         }
                     };
 
-                    let (res_type, response) = match handle_message(&app_state, request).await {
-                        Ok(res) => res,
-                        Err(err) => {
-                            println!("message processing error: {}", err);
-                            break
-                        }
-                    };
+                    let (res_type, response) = handle_message(&app_state, request)
+                        .await.unwrap_or_else(|err| (ClientRequestType::Error, WSError::game_error(err).stringify()));
 
                     let req_to_client = ClientRequest::new(
                          res_type, response

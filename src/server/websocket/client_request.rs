@@ -4,7 +4,7 @@ use serde_json::to_string;
 
 #[derive(Clone, Serialize, Debug)]
 pub enum ClientRequestType {
-    LobbyUpdate, GameCreate, GameUpdate
+    LobbyUpdate, GameCreate, GameUpdate, Error
 }
 
 #[derive(Clone, Serialize, Debug)]

@@ -11,7 +11,8 @@ use axum::extract::connect_info::ConnectInfo;
 use axum::extract::ws::{Message, WebSocket};
 use futures_util::SinkExt;
 use futures_util::stream::SplitSink;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use serde_json::to_string;
 use crate::game::deck_manager::Card;
 use crate::server::AppState;
 use crate::server::websocket::handle_socket::handle_socket;
@@ -20,6 +21,11 @@ use crate::server::websocket::handle_socket::handle_socket;
 pub enum  WSRequestType {
     LobbyCreate, LobbyJoin, GameCreate, GameTurnInitTable, GameTurnConfirmBeat,
     GameTurnToss, GameTurnBeat, GameTurnTake, GameTurnDiscard
+}
+
+#[derive(Deserialize, Serialize, Clone, PartialEq, Debug)]
+pub enum WSErrorType {
+    LobbyError, GameError, Warning, ConnectionError
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -36,6 +42,36 @@ pub struct WSBodyCardContent {
     beating: Option<Card>,
     beatable: Option<Card>,
     player_id: Option<String>
+}
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct WSError {
+    err_type: WSErrorType,
+    message: String
+}
+
+impl WSError {
+    pub fn new (message: String, err_type: WSErrorType) -> WSError {
+        WSError { message, err_type }
+    }
+
+    pub fn conn_error (msg: String) -> WSError {
+        WSError {
+            message: msg,
+            err_type: WSErrorType::ConnectionError
+        }
+    }
+
+    pub fn game_error (msg: String) -> WSError {
+        WSError {
+            message: msg,
+            err_type: WSErrorType::GameError
+        }
+    }
+
+    pub fn stringify (&self) -> String {
+        to_string::<WSError>(&self).unwrap()
+    }
 }
 
 pub async fn websocket_handler(
