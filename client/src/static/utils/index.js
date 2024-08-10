@@ -12,3 +12,8 @@ export const navigate = function (path) {
     const changeEvent = new Event(PAGE_CHANGE_EVENT_ID);
     window.dispatchEvent(changeEvent);
 }
+
+export const triggerRenderPageId = function () {
+    const websocketEvent = new Event(PAGE_RENDER_EVENT_ID);
+    window.dispatchEvent(websocketEvent);
+}

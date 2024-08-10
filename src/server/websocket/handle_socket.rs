@@ -116,10 +116,9 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
             },
             Err(err) => {
                 println!("Disconnection error: {}", err);
-                let _ = tx.send(err);
+                let _ = tx.send(ClientRequest::build_error(WSError::game_error(err).stringify()).to_string());
             }
         }
-
     }
 
     println!("Websocket context {who} destroyed");

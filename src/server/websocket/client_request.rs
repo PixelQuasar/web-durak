@@ -20,6 +20,13 @@ impl ClientRequest {
         }
     }
 
+    pub fn build_error(msg: String) -> ClientRequest {
+        ClientRequest {
+            req_type: ClientRequestType::Error,
+            content: msg
+        }
+    }
+
     pub fn to_msg(&self) -> Message {
         Message::Text(self.to_string())
     }

@@ -1,7 +1,45 @@
+.game-page-wrapper {
+  min-width: 100vw;
+  min-height: 100vh;
+  max-width: 100vw;
+  max-height: 100vh;
+  overflow: hidden;
+  background: #222222;
+  box-sizing: border-box;
+  justify-content: start;
+  align-items: start;
+  gap: 0;
+}
+
 .hand-container {
   position: absolute;
-  height: 200px;
-  width: 200px;
-
   background-color: #ff0000;
+}
+
+.card-container {
+  position: absolute;
+  height: 210px;
+  width: 150px;
+  background-color: #ffffff;
+  transition: 0.5s all;
+  display: flex;
+  justify-content: end;
+  align-items: start;
+  text-align: end;
+  border: 1px solid black;
+}
+
+.player-card-container {
+  height: 280px;
+  width: 200px;
+  cursor: pointer;
+}
+
+.game-container {
+  position: absolute;
+  width: 100vw;
+  top: 120px;
+  height: calc(100vw - 120px);
+  overflow: hidden;
+  background: #111111;
 }
