@@ -5,8 +5,9 @@ use crate::lobby::{PopulatedLobby};
 use crate::server::AppState;
 use crate::server::controllers::lobby_controller::{get_lobby_by_id, get_populated_lobby, save_lobby};
 use crate::server::errors::error_message;
-use crate::server::websocket::{WSBody, WSBodyCardContent, WSRequestType};
+use crate::server::websocket::{GameEntityType, GameUpdateState, WSBody, WSBodyCardContent, WSGameUpdateResponseType, WSRequestType};
 use crate::server::websocket::client_request::{ClientRequest, ClientRequestType};
+use crate::server::websocket::GameEntityType::{Deck, Table};
 use crate::server::websocket::websocket_service::{ws_create_lobby, ws_join_lobby, ws_leave_lobby};
 
 pub async fn handle_player_join(
@@ -67,45 +68,104 @@ pub async fn handle_message(
                     &request.content.unwrap()).map_err(error_message
                 )?;
 
-                match request.req_type {
+                let game_update_state = match request.req_type {
                     WSRequestType::GameTurnInitTable => {
                         if game_content.card.is_none() || game_content.player_id.is_none() {
                             return Err("no card".to_string());
                         }
 
-                        game.init_table(&game_content.player_id.unwrap(), game_content.card.unwrap())
+                        let player_id = game_content.player_id.unwrap();
+
+                        let card = game_content.card.unwrap();
+
+                        game.init_table(&player_id, card.clone())
                             .map_err(|_| { "game machine error" })?;
+
+                        vec![GameUpdateState::new(
+                            GameEntityType::Table,
+                            GameEntityType::Player,
+                            String::new(),
+                            player_id,
+                            vec![card]
+                        )]
                     },
                     WSRequestType::GameTurnBeat => {
                         if game_content.beatable.is_none() || game_content.beating.is_none() || game_content.player_id.is_none() {
                             return Err("invalid cards".to_string());
                         }
 
-                        game.beat(
-                            &game_content.player_id.unwrap(),
-                            game_content.beating.unwrap(),
+                        let player_id = game_content.player_id.unwrap();
+
+                        let card = game_content.beating.unwrap();
+
+                        let table_element_id = game.beat(
+                            &player_id,
+                            card.clone(),
                             game_content.beatable.unwrap()
                         ).map_err(|_| { "game machine error" })?;
+
+                        vec![GameUpdateState::new(
+                            GameEntityType::Table,
+                            GameEntityType::Player,
+                            table_element_id.to_string(),
+                            player_id,
+                            vec![card]
+                        )]
                     },
                     WSRequestType::GameTurnToss => {
                         if game_content.card.is_none() || game_content.player_id.is_none() {
                             return Err("no card".to_string());
                         }
 
-                        game.toss(&game_content.player_id.unwrap(), game_content.card.unwrap())
+                        let player_id = game_content.player_id.unwrap();
+
+                        let card = game_content.card.unwrap();
+
+                        let table_element_id = game.toss(&player_id, card.clone())
                             .map_err(|_| { "game machine error" })?;
+
+                        vec![GameUpdateState::new(
+                            GameEntityType::Table,
+                            GameEntityType::Player,
+                            table_element_id.to_string(),
+                            player_id,
+                            vec![card]
+                        )]
                     },
                     WSRequestType::GameTurnDiscard => {
-                        game.toss(&game_content.player_id.unwrap(), game_content.card.unwrap())
+                        game.finish_with_discard()
                             .map_err(|_| { "game machine error" })?;
+
+                        let table_size = game.deck_manager.get_table_size();
+
+                        (0..table_size).map(|index| {
+                            GameUpdateState::new(
+                                GameEntityType::Discard,
+                                GameEntityType::Table,
+                                String::new(),
+                                index.to_string(),
+                                game.deck_manager.get_table_element_cards(index)
+                            )
+                        }).collect()
                     },
                     WSRequestType::GameTurnTake => {
                         if game.target_player_id().is_none() {
                             return Err("no defender".to_string());
                         }
 
-                        game.toss(&game.target_player_id().unwrap(), game_content.card.unwrap())
-                            .map_err(|_| { "game machine error" })?;
+                        game.finish_with_take().map_err(|_| { "game machine error" })?;
+
+                        let table_size = game.deck_manager.get_table_size();
+
+                        (0..table_size).map(|index| {
+                            GameUpdateState::new(
+                                GameEntityType::Deck,
+                                GameEntityType::Table,
+                                String::new(),
+                                index.to_string(),
+                                game.deck_manager.get_table_element_cards(index)
+                            )
+                        }).collect()
                     },
                     WSRequestType::GameTurnConfirmBeat => {
                         if game_content.player_id.is_none() {
@@ -114,17 +174,30 @@ pub async fn handle_message(
 
                         game.confirm_beat(&game_content.player_id.unwrap())
                             .map_err(|_| { "game machine error" })?;
+
+                        vec![GameUpdateState::new(
+                            GameEntityType::Nobody, GameEntityType::Nobody,
+                            String::new(), String::new(), vec![]
+                        )]
                     }
                     _ => {
                         println!("Unknown state");
+                        vec![GameUpdateState::new(
+                            GameEntityType::Nobody, GameEntityType::Nobody,
+                            String::new(), String::new(), vec![]
+                        )]
                     }
                 };
                 save_lobby(&app_state.redis_pool, lobby.clone()).await?;
 
-                let result = to_string::<PopulatedLobby>(
-                    &get_populated_lobby(&app_state.redis_pool, lobby_id.as_str()).await
-                        .map_err(|_| { "game machine error" })?
-                ).unwrap();
+
+                let lobby = get_populated_lobby(&app_state.redis_pool, lobby_id.as_str()).await
+                        .map_err(|_| { "game machine error" })?;
+
+
+                let response = WSGameUpdateResponseType::new(lobby, game_update_state);
+
+                let result = to_string::<WSGameUpdateResponseType>(&response).map_err(|_| {"parsing error"})?;
 
                 Ok((ClientRequestType::GameUpdate, result))
             },

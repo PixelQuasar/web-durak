@@ -14,6 +14,7 @@ use futures_util::stream::SplitSink;
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
 use crate::game::deck_manager::Card;
+use crate::lobby::PopulatedLobby;
 use crate::server::AppState;
 use crate::server::websocket::handle_socket::handle_socket;
 
@@ -26,6 +27,11 @@ pub enum  WSRequestType {
 #[derive(Deserialize, Serialize, Clone, PartialEq, Debug)]
 pub enum WSErrorType {
     LobbyError, GameError, Warning, ConnectionError
+}
+
+#[derive(Deserialize, Serialize, Clone, PartialEq, Debug)]
+pub enum GameEntityType {
+    Nobody, Player, Deck, Table, Discard
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -71,6 +77,40 @@ impl WSError {
 
     pub fn stringify (&self) -> String {
         to_string::<WSError>(&self).unwrap()
+    }
+}
+
+
+#[derive(Deserialize, Serialize, Clone, Debug)]
+pub struct GameUpdateState {
+    receiver_type: GameEntityType,
+    sender_type: GameEntityType,
+    receiver_id: String,
+    sender_id: String,
+    cards: Vec<Card>
+}
+
+impl GameUpdateState {
+    pub fn new(
+        receiver_type: GameEntityType,
+        sender_type: GameEntityType,
+        receiver_id: String,
+        sender_id: String,
+        cards: Vec<Card>
+    ) -> GameUpdateState {
+        GameUpdateState { receiver_type, sender_type, receiver_id, sender_id, cards }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct WSGameUpdateResponseType {
+    lobby: PopulatedLobby,
+    game_update_states: Vec<GameUpdateState>
+}
+
+impl WSGameUpdateResponseType {
+    pub fn new(lobby: PopulatedLobby, game_update_states: Vec<GameUpdateState>) -> WSGameUpdateResponseType {
+        WSGameUpdateResponseType { lobby, game_update_states }
     }
 }
 

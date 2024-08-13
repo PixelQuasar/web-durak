@@ -59,7 +59,7 @@ impl Game {
 
     }
 
-    pub fn beat(&mut self, player_id: &str, beating: Card, beatable: Card) -> Result<(), ()> {
+    pub fn beat(&mut self, player_id: &str, beating: Card, beatable: Card) -> Result<i32, ()> {
         if self.target_player_id.is_none() {
             return Err(())
         }
@@ -67,9 +67,7 @@ impl Game {
         if self.can_beat(player_id) {
             let defender = &self.target_player_id.clone().unwrap();
 
-            self.deck_manager.beat(defender, beating, beatable)?;
-
-            Ok(())
+            Ok(self.deck_manager.beat(defender, beating, beatable)?)
         } else {
             Err(())
         }
@@ -89,11 +87,9 @@ impl Game {
         }
     }
 
-    pub fn toss(&mut self, attacker_id: &str, card: Card) -> Result<(), ()> {
+    pub fn toss(&mut self, attacker_id: &str, card: Card) -> Result<i32, ()> {
         if (self.can_toss(attacker_id)) {
-            self.deck_manager.toss(attacker_id, card)?;
-
-            Ok(())
+            Ok(self.deck_manager.toss(attacker_id, card)?)
         } else {
             Err(())
         }

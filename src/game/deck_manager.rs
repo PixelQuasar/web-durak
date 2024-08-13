@@ -108,7 +108,7 @@ impl DeckManager {
         Ok(())
     }
 
-    pub fn toss(&mut self, player_id: &str, card: Card) -> Result<(), ()> {
+    pub fn toss(&mut self, player_id: &str, card: Card) -> Result<i32, ()> {
         if !self.player_has_card(&player_id, card) || !self.can_toss(card) {
             return Err(());
         }
@@ -117,26 +117,28 @@ impl DeckManager {
 
         self.pick_card(&player_id, card)?;
 
-        Ok(())
+        Ok(self.table.len() as i32)
     }
 
-    pub fn beat(&mut self, player_id: &str, beating: Card, beatable: Card) -> Result<(), ()> {
+    pub fn beat(&mut self, player_id: &str, beating: Card, beatable: Card) -> Result<i32, ()> {
         if !self.player_has_card(&player_id, beating) ||
             !self.table_has_open_card(beatable) ||
             !self.can_beat(beating, beatable) {
             return Err(());
         }
 
+        let mut table_element_id = 0;
+
         for i in 0..self.table.len() {
             let (bottom, _) = self.table[i];
             if bottom == beatable {
-                self.table[i].1 = Some(beating)
+                self.table[i].1 = Some(beating);
+                self.pick_card(&player_id, beating)?;
+                table_element_id = i as i32;
             }
         }
 
-        self.pick_card(&player_id, beating)?;
-
-        Ok(())
+        Ok(table_element_id)
     }
 
     pub fn take_table(&mut self, player_id: &str) -> Result<(), ()> {
@@ -287,6 +289,20 @@ impl DeckManager {
         self.beat_confirmations.insert(player_id, true);
 
         Ok(())
+    }
+
+    pub fn get_table_size(&self) -> usize {
+        self.table.len()
+    }
+
+    pub fn get_table_element_cards(&self, element_id: usize) -> Vec<Card> {
+        let mut result = vec![self.table[element_id].0];
+
+        if (self.table[element_id].1.is_some()) {
+            result.push(self.table[element_id].1.unwrap());
+        }
+
+        result
     }
 
     fn init_order(&mut self) {

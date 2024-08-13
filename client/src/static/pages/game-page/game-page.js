@@ -21,6 +21,15 @@ import {disconnectWebsocket} from "../../websocket/index.js";
  * @property {Card[]} cards
  */
 
+/**
+ * Playing table data
+ * @typedef {Object} TableData
+ * @property {Card[]} deck
+ * @property {number} trump_suit
+ * @property {Card[]} discard
+ * @property {[Card, Card][]} table
+ */
+
 const leaveLobbyAction = function () {
     disconnectWebsocket();
     navigate("/");
@@ -28,13 +37,13 @@ const leaveLobbyAction = function () {
 
 
 /**
- * Fetches hands data from game data
+ * Fetches hands data from game data at page mount.
  * @param {Map<string, Card[]>} hands
  * @param {string[]} order
  * @param {string} playerId
  * @return {HandData[]}
  */
-const fetchHandData = function (hands, order, playerId) {
+const fetchHandDataOnMount = function (hands, order, playerId) {
     while (order[0] !== playerId) {
         order.push(order[0]);
         order.splice(0, 1);
@@ -152,7 +161,7 @@ const postRenderCards = function (handsData) {
             })
 
             HTMLCard.addEventListener("mouseleave", () => {
-                HTMLCard.style.transform = `translate(0, 0) rotate(${(((item.cards.length - 1) / 2) - i) * 10}deg)`;
+                HTMLCard.style.transform = `translate(0, 0) rotate(0)`;
                 const leftNeighbors = cardsHTMLIds.slice(0, i).map(x => document.getElementById(x));;
                 const rightNeighbors = cardsHTMLIds.slice(i + 1).map(x => document.getElementById(x));
                 for (const neighbor of leftNeighbors) {
@@ -166,13 +175,21 @@ const postRenderCards = function (handsData) {
     }
 }
 
+/**
+ * Renders playing table by table data
+ * @param {TableData} tableData
+ */
+const renderTable = function (tableData) {
+
+}
+
 
 /**
- * Renderers playing hands by hands data.
+ * returns playing hands elements by hands data.
  * @param {HandData[]} handsData
  * @return {string}
  */
-const renderHands = function(handsData) {
+const handsElements = function(handsData) {
     return `${handsData.map((item, index) => `
 <div class="hand-container" id="${item.id}"></div>
 `).join("")}`
@@ -196,7 +213,7 @@ export const GamePage = function () {
 
     const gameData = JSON.parse("{\"id\":\"GAME977547931\",\"status\":\"Start\",\"participant_ids\":[\"22233530764\",\"2404048658\",\"2734066259\",\"22483399774\"],\"attacker_player_id\":\"2734066259\",\"target_player_id\":\"2404048658\",\"next_player_id\":\"22233530764\",\"turn_queue\":[],\"deck_manager\":{\"full_deck\":[{\"s\":1,\"r\":1},{\"s\":2,\"r\":1},{\"s\":3,\"r\":1},{\"s\":4,\"r\":1},{\"s\":1,\"r\":2},{\"s\":2,\"r\":2},{\"s\":3,\"r\":2},{\"s\":4,\"r\":2},{\"s\":1,\"r\":3},{\"s\":2,\"r\":3},{\"s\":3,\"r\":3},{\"s\":4,\"r\":3},{\"s\":1,\"r\":4},{\"s\":2,\"r\":4},{\"s\":3,\"r\":4},{\"s\":4,\"r\":4},{\"s\":1,\"r\":5},{\"s\":2,\"r\":5},{\"s\":3,\"r\":5},{\"s\":4,\"r\":5},{\"s\":1,\"r\":6},{\"s\":2,\"r\":6},{\"s\":3,\"r\":6},{\"s\":4,\"r\":6},{\"s\":1,\"r\":7},{\"s\":2,\"r\":7},{\"s\":3,\"r\":7},{\"s\":4,\"r\":7},{\"s\":1,\"r\":8},{\"s\":2,\"r\":8},{\"s\":3,\"r\":8},{\"s\":4,\"r\":8},{\"s\":1,\"r\":9},{\"s\":2,\"r\":9},{\"s\":3,\"r\":9},{\"s\":4,\"r\":9},{\"s\":1,\"r\":10},{\"s\":2,\"r\":10},{\"s\":3,\"r\":10},{\"s\":4,\"r\":10},{\"s\":1,\"r\":11},{\"s\":2,\"r\":11},{\"s\":3,\"r\":11},{\"s\":4,\"r\":11},{\"s\":1,\"r\":12},{\"s\":2,\"r\":12},{\"s\":3,\"r\":12},{\"s\":4,\"r\":12},{\"s\":1,\"r\":13},{\"s\":2,\"r\":13},{\"s\":3,\"r\":13},{\"s\":4,\"r\":13}],\"deck\":[{\"s\":1,\"r\":2},{\"s\":2,\"r\":6},{\"s\":3,\"r\":12},{\"s\":2,\"r\":2},{\"s\":2,\"r\":10},{\"s\":4,\"r\":12},{\"s\":1,\"r\":1},{\"s\":4,\"r\":6},{\"s\":2,\"r\":3},{\"s\":3,\"r\":10},{\"s\":4,\"r\":13},{\"s\":3,\"r\":13},{\"s\":4,\"r\":3},{\"s\":2,\"r\":13},{\"s\":3,\"r\":6},{\"s\":4,\"r\":1},{\"s\":2,\"r\":7},{\"s\":2,\"r\":4},{\"s\":2,\"r\":11},{\"s\":1,\"r\":8},{\"s\":4,\"r\":9},{\"s\":2,\"r\":1},{\"s\":1,\"r\":5},{\"s\":4,\"r\":8},{\"s\":3,\"r\":9},{\"s\":3,\"r\":7},{\"s\":2,\"r\":12},{\"s\":3,\"r\":3}],\"discard\":[],\"hands\":{\"2404048658\":[{\"s\":2,\"r\":8},{\"s\":1,\"r\":12},{\"s\":3,\"r\":1},{\"s\":1,\"r\":11},{\"s\":2,\"r\":5},{\"s\":1,\"r\":10}],\"2734066259\":[{\"s\":2,\"r\":9},{\"s\":1,\"r\":7},{\"s\":4,\"r\":7},{\"s\":4,\"r\":10},{\"s\":1,\"r\":4},{\"s\":1,\"r\":13}],\"22233530764\":[{\"s\":3,\"r\":2},{\"s\":1,\"r\":3},{\"s\":4,\"r\":4},{\"s\":3,\"r\":8},{\"s\":3,\"r\":5},{\"s\":1,\"r\":9}],\"22483399774\":[{\"s\":1,\"r\":6},{\"s\":4,\"r\":11},{\"s\":3,\"r\":4},{\"s\":4,\"r\":5},{\"s\":3,\"r\":11},{\"s\":4,\"r\":2}]},\"hands_amount\":4,\"hands_order\":[\"2734066259\",\"2404048658\",\"22233530764\",\"22483399774\"],\"beat_confirmations\":{\"2404048658\":false,\"2734066259\":false,\"22233530764\":false,\"22483399774\":false},\"hand_size\":6,\"trump_suit\":3,\"table\":[]}}")
 
-    const handsData = fetchHandData(
+    const handsData = fetchHandDataOnMount(
         gameData.deck_manager.hands,
         gameData.deck_manager.hands_order,
         gameData.target_player_id
@@ -205,6 +222,15 @@ export const GamePage = function () {
     document.addEventListener(PAGE_RENDER_EVENT_ID, () => {
         if (document.querySelector(".hand-container")) {
             postRenderHands(handsData);
+        }
+
+        if (document.querySelector(".table-container")) {
+            renderTable({
+                table: gameData.deck_manager.table,
+                trump_suit: gameData.deck_manager.trump_suit,
+                deck: gameData.deck_manager.deck,
+                discard: gameData.deck_manager.discard
+            })
         }
 
         if (document.querySelector(".card-container")) {
@@ -222,6 +248,11 @@ export const GamePage = function () {
     </div>
     <div class="game-container">
         ${renderHands(handsData)}
+        <div class="table-container">
+            <div class="deck-container"></div>
+            <div class="table-container"></div>
+            <div class="discard-container"></div>
+        </div>
     </div>
 </div>`
 }
