@@ -21,15 +21,19 @@
   height: 140px;
   width: 100px;
   background-color: #ffffff;
-  transition: 0.2s all linear;
+  transition: 0.2s all;
   display: flex;
   justify-content: end;
   align-items: start;
   text-align: end;
   border: 1px solid black;
+
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
 }
 
-.player {
+.client {
   cursor: pointer;
 }
 

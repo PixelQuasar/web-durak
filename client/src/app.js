@@ -15,7 +15,7 @@ const INDEX_HTML_PATH = path.join(__dirname, "..", "public/index.html");
 export const createApp = () => {
     const requestHandler = function (request, response) {
         try {
-            if (request.url.includes("public") || request.url.includes("build")) {
+            if (request.url.includes("public") || request.url.includes("build") || request.url.includes("assets")) {
                 return serveStatic(request, response);
             }
 
@@ -23,6 +23,7 @@ export const createApp = () => {
             return response.end( html, 'utf-8');
         }
         catch (error) {
+            console.log("ERROR!!");
             let errorPage = null;
             if (error.message === "NOTFOUND") {
                 response.writeHead(404);
