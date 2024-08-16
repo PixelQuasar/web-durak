@@ -1,14 +1,31 @@
 import {templates} from "./table-templates.js"
-import {navigate, PAGE_RENDER_EVENT_ID, triggerRenderPageId} from "../../utils/index.js";
+import {navigate, PAGE_RENDER_EVENT_ID, randomRange, triggerRenderPageId} from "../../utils/index.js";
 import {disconnectWebsocket} from "../../websocket/index.js";
+import {getUser} from "../../state/index.js";
+
 
 /**
  * A playing card.
  * @typedef {Object} Card
  * @property {number} r - rank
  * @property {number} s - suit
+ * @property {number} id - card id
  */
 
+/**
+ * Deck manager type
+ * @typedef {Object} DeckManager
+ * @property {Card[]} full_deck
+ * @property {Card[]} deck
+ * @property {Card[]} discard
+ * @property {Map<string, Card[]>} hands
+ * @property {number} hands_amount
+ * @property {string[]} hands_order
+ * @property {Map<string, boolean>} beat_confirmations
+ * @property {number} hand_size
+ * @property {number} trump_suit
+ * @property {[Card, Card | null][]} table
+ */
 
 /**
  * Playing hand data
@@ -22,19 +39,45 @@ import {disconnectWebsocket} from "../../websocket/index.js";
  */
 
 /**
+ * Card render data
+ * @typedef {Object} CardRenderData
+ * @property {number} x
+ * @property {number} y
+ * @property {number} rotation
+ * @property {boolean} facing
+ */
+
+/**
  * Playing table data
  * @typedef {Object} TableData
  * @property {Card[]} deck
- * @property {number} trump_suit
+ * @property {number} trumpSuit
  * @property {Card[]} discard
  * @property {[Card, Card][]} table
  */
+
+/**
+ * @type {Map<number, CardRenderData>}
+ */
+let cardRenderDataMap = new Map();
+
+let gameData = JSON.parse("{\"id\":\"GAME4273841987\",\"status\":\"Start\",\"participant_ids\":[\"22233530764\",\"2404048658\",\"2734066259\",\"22483399774\"],\"attacker_player_id\":\"2734066259\",\"target_player_id\":\"2404048658\",\"next_player_id\":\"22233530764\",\"turn_queue\":[],\"deck_manager\":{\"full_deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":2,\"r\":1,\"id\":2},{\"s\":3,\"r\":1,\"id\":3},{\"s\":4,\"r\":1,\"id\":4},{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":2,\"id\":6},{\"s\":3,\"r\":2,\"id\":7},{\"s\":4,\"r\":2,\"id\":8},{\"s\":1,\"r\":3,\"id\":9},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":3,\"id\":11},{\"s\":4,\"r\":3,\"id\":12},{\"s\":1,\"r\":4,\"id\":13},{\"s\":2,\"r\":4,\"id\":14},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":4,\"id\":16},{\"s\":1,\"r\":5,\"id\":17},{\"s\":2,\"r\":5,\"id\":18},{\"s\":3,\"r\":5,\"id\":19},{\"s\":4,\"r\":5,\"id\":20},{\"s\":1,\"r\":6,\"id\":21},{\"s\":2,\"r\":6,\"id\":22},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":6,\"id\":24},{\"s\":1,\"r\":7,\"id\":25},{\"s\":2,\"r\":7,\"id\":26},{\"s\":3,\"r\":7,\"id\":27},{\"s\":4,\"r\":7,\"id\":28},{\"s\":1,\"r\":8,\"id\":29},{\"s\":2,\"r\":8,\"id\":30},{\"s\":3,\"r\":8,\"id\":31},{\"s\":4,\"r\":8,\"id\":32},{\"s\":1,\"r\":9,\"id\":33},{\"s\":2,\"r\":9,\"id\":34},{\"s\":3,\"r\":9,\"id\":35},{\"s\":4,\"r\":9,\"id\":36},{\"s\":1,\"r\":10,\"id\":37},{\"s\":2,\"r\":10,\"id\":38},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":11,\"id\":42},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":11,\"id\":44},{\"s\":1,\"r\":12,\"id\":45},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":12,\"id\":47},{\"s\":4,\"r\":12,\"id\":48},{\"s\":1,\"r\":13,\"id\":49},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":13,\"id\":52}],\"deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":4,\"r\":6,\"id\":24},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":13,\"id\":52},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":3,\"id\":12},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":1,\"id\":4},{\"s\":2,\"r\":7,\"id\":26},{\"s\":2,\"r\":4,\"id\":14},{\"s\":2,\"r\":11,\"id\":42},{\"s\":1,\"r\":8,\"id\":29},{\"s\":4,\"r\":9,\"id\":36},{\"s\":2,\"r\":1,\"id\":2},{\"s\":1,\"r\":5,\"id\":17},{\"s\":4,\"r\":8,\"id\":32},{\"s\":3,\"r\":9,\"id\":35}],\"discard\":[{\"s\":3,\"r\":7,\"id\":27},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":3,\"id\":11}],\"hands\":{\"2404048658\":[{\"s\":2,\"r\":8,\"id\":30},{\"s\":1,\"r\":12,\"id\":45},{\"s\":3,\"r\":1,\"id\":3},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":5,\"id\":18},{\"s\":1,\"r\":10,\"id\":37}],\"2734066259\":[{\"s\":2,\"r\":9,\"id\":34},{\"s\":1,\"r\":7,\"id\":25},{\"s\":4,\"r\":7,\"id\":28},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":4,\"id\":13},{\"s\":1,\"r\":13,\"id\":49}],\"22483399774\":[{\"s\":1,\"r\":6,\"id\":21},{\"s\":4,\"r\":11,\"id\":44},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":5,\"id\":20},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":2,\"id\":8}],\"22233530764\":[{\"s\":3,\"r\":2,\"id\":7},{\"s\":1,\"r\":3,\"id\":9},{\"s\":4,\"r\":4,\"id\":16},{\"s\":3,\"r\":8,\"id\":31},{\"s\":3,\"r\":5,\"id\":19},{\"s\":1,\"r\":9,\"id\":33}]},\"hands_amount\":4,\"hands_order\":[\"22233530764\",\"2734066259\",\"2404048658\",\"22483399774\"],\"beat_confirmations\":{\"2404048658\":false,\"2734066259\":false,\"22233530764\":false,\"22483399774\":false},\"hand_size\":6,\"trump_suit\":3,\"table\":[[{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":6,\"id\":22}],[{\"s\":3,\"r\":12,\"id\":47},{\"s\":2,\"r\":2,\"id\":6}],[{\"s\":2,\"r\":10,\"id\":38},{\"s\":4,\"r\":12,\"id\":48}]]}}");
+
+let HTMLHandsData = [];
 
 const leaveLobbyAction = function () {
     disconnectWebsocket();
     navigate("/");
 }
 
+/**
+ * Returns deck manager from game data
+ * @param {any} gameData
+ * @return {DeckManager}
+ */
+const getDeckManagerData = function (gameData) {
+    return gameData.deck_manager
+}
 
 /**
  * Fetches hands data from game data at page mount.
@@ -99,69 +142,237 @@ const fetchHandDataOnMount = function (hands, order, playerId) {
  */
 const postRenderHands = function (handsData) {
     for (const item of handsData) {
-        const HTMLHand = document.querySelector(`#${item.id}`);
-
-        HTMLHand.style.top = `${item.y}px`;
-
-        HTMLHand.style.left = `${item.x}px`;
-
-        HTMLHand.style.rotate = `${[0, 90, 180, 270][item.dir - 1]}deg`;
-
-        let cardsHTML = "";
-
         for (let i = 0; i < item.cards.length; i++) {
             const card = item.cards[i];
 
-            cardsHTML += `
-<div class="card-container" id="card-container-${item.playerId}-${i}">
-    ${card.r} ${card.s}
-</div>
-`
-        }
-        HTMLHand.innerHTML = cardsHTML;
-    }
+            let cardGap = 20;
+            let cardVGap = 10;
+            let cardRotate = 5;
+            let facing = false;
 
-    triggerRenderPageId();
+            if (item.id === "hand-container-1") {
+                cardGap = 80;
+                cardRotate = 0;
+                cardVGap = 0;
+                facing = true;
+            }
+
+
+            let localXOffset = Math.abs((item.cards.length - 1) / 2 - i) * cardVGap - 50;
+            let localYOffset = ((item.cards.length - 1) / 2 - i) * cardGap;
+
+            switch (item.dir) {
+                case 1:
+                    [localXOffset, localYOffset] = [localYOffset, localXOffset];
+                    break;
+                case 2:
+                    [localXOffset, localYOffset] = [-localXOffset, localYOffset];
+                    break;
+                case 3:
+                    [localXOffset, localYOffset] = [-localYOffset, -localXOffset];
+                    break;
+                case 4:
+                    [localXOffset, localYOffset] = [localXOffset, -localYOffset];
+                    break;
+            }
+
+            const offset = -75;
+
+            const hOffset = item.dir === 1 ? offset : item.dir === 3 ? -offset : 0;
+            const vOffset = item.dir === 2 ? offset : item.dir === 4 ? -offset : 0;
+
+            const y = localYOffset + item.y - vOffset - 100 + facing * 150;
+            const x = localXOffset + item.x - hOffset - 50;
+            const rotation = (((item.cards.length - 1) / 2) - i) * cardRotate + [0, 90, 180, 270][item.dir - 1];
+
+            cardRenderDataMap.set(card.id, {
+                x, y, rotation, facing
+            });
+        }
+    }
 }
 
 /**
- * Draws and manages playing cards styles
- * @param {HandData[]} handsData
+ * Renders playing table by table data
+ * @param {TableData} tableData
+ * @return {string}
  */
-const postRenderCards = function (handsData) {
-    for (const item of handsData) {
-        const cardsHTMLIds = item.cards.map((_, i) =>  `card-container-${item.playerId}-${i}`);
+const tableElements = function (tableData) {
+    return `
+    ${tableData.deck.map((card) => `<div class="card-container card-closed deck" id="card-${card.id}"></div>`).reverse().join("")}
+    ${tableData.table.map(([bottom, top]) =>
+            `<div class="card-container" id="card-${top.id}"></div> <div class="card-container table" id="card-${bottom.id}"></div>`
+        ).join("")}
+    ${tableData.discard.map((card) => `<div class="card-container card-closed discard" id="card-${card.id}"></div>`).join("")}
+    <div class="table-container"></div>`
+}
 
-        for (let i = 0; i < item.cards.length; i++) {
-            const card = item.cards[i];
+/**
+ * Renders deck cards
+ * @param {Card[]} deck
+ * @param {{x: number, y: number}} position
+ */
+const renderDeck = function (deck, position) {
+    let i = 0;
 
-            const HTMLCard = document.querySelector(`#${cardsHTMLIds[i]}`);
+    const trump = deck.pop();
+    const x = position.x + 20;
+    const y = position.y;
+    const facing = false;
+    const rotation = 90;
+    cardRenderDataMap.set(trump.id, { x, y, rotation, facing });
+    for (const card of deck) {
+        const scatter = 5;
+        const x = position.x;
+        const y = position.y + i * 0.5;
+        const facing = false;
+        const rotation = randomRange(-scatter, scatter);
 
-            let cardGap = 40;
+        cardRenderDataMap.set(card.id, { x, y, rotation, facing });
 
-            if (item.id === "hand-container-1") {
-                HTMLCard.classList.add("player-card-container");
-                cardGap = 80;
+        i += 1;
+    }
+}
+
+/**
+ * Renders table cards
+ * @param {[Card, Card][]} table
+ * @param {{x: number, y: number}} position
+ */
+const renderTable = function (table, position) {
+    const rows = 2;
+    const columns = Math.ceil(table.length / 2);
+
+    const width = 500;
+    const height = 400;
+
+    for (let i = 0; i < table.length; i++) {
+        let isBottom = true;
+        for (const card of table[i]) {
+            if (card == null) {
+                continue;
             }
 
-            HTMLCard.style.top = `${Math.abs((item.cards.length - 1) / 2 - i) * 10 - 50}px`;
-            HTMLCard.style.left = `${((item.cards.length - 1) / 2 - i) * cardGap}px`;
-            HTMLCard.style.rotate = `${(((item.cards.length - 1) / 2) - i) * 5}deg`;
+            const currentColumn = i % columns;
+            const currentRow = Math.floor(i / rows);
+
+            const scatter = 50;
+
+            const x = position.x + Math.floor(width * (currentRow / rows))
+            const y = position.y + Math.floor( height * (currentColumn / columns)) + isBottom * 30;
+            const rotation = randomRange(-scatter, scatter);
+            const facing = true;
+
+            cardRenderDataMap.set(card.id, { x, y, rotation, facing });
+            isBottom = false;
+        }
+
+
+    }
+}
+
+/**
+ * Renders discard cards
+ * @param {Card[]} discard
+ * @param {{x: number, y: number}} position
+ */
+const renderDiscard = function (discard, position) {
+    let i = 0;
+    for (const card of discard) {
+        const scatter = 50;
+        const x = position.x + randomRange(-scatter, scatter);
+        const y = position.y + i * 1.5 + randomRange(-scatter, scatter);
+        const facing = false;
+        const rotation = randomRange(-scatter, scatter);
+
+        cardRenderDataMap.set(card.id, { x, y, rotation, facing });
+
+        i += 1;
+    }
+}
+
+/**
+ * Manages renderer playing table elements properties
+ * @param {TableData} tableData
+ */
+const postRenderTable = function (tableData) {
+    const ww = window.innerWidth;
+    const wh = window.innerHeight;
+
+    const hGap = ww - 200 * 2;
+    const vGap = (wh - 120) - 200 * 2;
+
+    const xCenter = ww / 2;
+    const yCenter = (wh - 120) / 2 - 120;
+
+    const deckPosition = {
+        x: 100,
+        y: wh - 400
+    };
+
+    const tablePosition = {
+        x: xCenter - 300,
+        y: yCenter - 100
+    }
+
+    const discardPosition = {
+        x: ww - 200,
+        y: wh - 400
+    };
+
+    renderDeck(tableData.deck, deckPosition);
+    renderTable(tableData.table, tablePosition);
+    renderDiscard(tableData.discard, discardPosition);
+}
+
+/**
+ * returns playing hands elements by hands data.
+ * @param {HandData[]} handsData
+ * @return {string}
+ */
+const handsElements = function(handsData) {
+    const playerId = getUser()
+    return handsData.map(hand => hand.cards.map(card =>
+        `<div class="card-container card-closed ${hand.playerId === playerId ? "player" : "enemy"}" id="card-${card.id}"></div>`
+    )).flat().join("") + "<div class='hand-container'></div>";
+}
+
+/**
+ * place and position all cards on game table
+ */
+const positionAllCards = function () {
+    const deck = gameData.deck_manager.full_deck;
+    const playerId = getUser();
+
+    console.log(Array.from(cardRenderDataMap.values()).length);
+
+    for (const card of deck) {
+        const {x, y, rotation, facing} = cardRenderDataMap.get(card.id);
+        const HTMLCard = document.querySelector(`#card-${card.id}`);
+        HTMLCard.style.left = `${x}px`;
+        HTMLCard.style.top = `${y}px`;
+        HTMLCard.style.rotate = `${rotation}deg`;
+
+        if (HTMLCard.classList.contains("player")) {
+            const handCards = gameData.deck_manager.hands[playerId];
+            const cardsHTMLIds = handCards.map((card) =>  `card-${card.id}`);
+            const i = handCards.indexOf(handCards.find(x => x.id === card.id));
+            console.log(i);
 
             HTMLCard.addEventListener("mouseenter", () => {
-                HTMLCard.style.transform = `translate(0, -100px) rotate(${(((item.cards.length - 1) / 2) - i) * -5}deg)`;
+                HTMLCard.style.transform = `translate(0, -50px)`;
                 const leftNeighbors = cardsHTMLIds.slice(0, i).map(x => document.getElementById(x));;
                 const rightNeighbors = cardsHTMLIds.slice(i + 1).map(x => document.getElementById(x));;
                 for (const neighbor of leftNeighbors) {
-                    neighbor.style.transform = "translateX(10px)";
+                    neighbor.style.transform = "translateX(30px)";
                 }
                 for (const neighbor of rightNeighbors) {
-                    neighbor.style.transform = "translateX(-60px)";
+                    neighbor.style.transform = "translateX(-30px)";
                 }
             })
 
             HTMLCard.addEventListener("mouseleave", () => {
-                HTMLCard.style.transform = `translate(0, 0) rotate(0)`;
+                HTMLCard.style.transform = `translate(0, 0)`;
                 const leftNeighbors = cardsHTMLIds.slice(0, i).map(x => document.getElementById(x));;
                 const rightNeighbors = cardsHTMLIds.slice(i + 1).map(x => document.getElementById(x));
                 for (const neighbor of leftNeighbors) {
@@ -176,26 +387,6 @@ const postRenderCards = function (handsData) {
 }
 
 /**
- * Renders playing table by table data
- * @param {TableData} tableData
- */
-const renderTable = function (tableData) {
-
-}
-
-
-/**
- * returns playing hands elements by hands data.
- * @param {HandData[]} handsData
- * @return {string}
- */
-const handsElements = function(handsData) {
-    return `${handsData.map((item, index) => `
-<div class="hand-container" id="${item.id}"></div>
-`).join("")}`
-}
-
-/**
  * @returns {string}
  */
 export const GamePage = function () {
@@ -207,34 +398,34 @@ export const GamePage = function () {
         game: null
     };
 
-    //const gameData = lobbyData.game;
+    console.log(gameData);
 
-    //console.log(JSON.stringify(gameData));
-
-    const gameData = JSON.parse("{\"id\":\"GAME977547931\",\"status\":\"Start\",\"participant_ids\":[\"22233530764\",\"2404048658\",\"2734066259\",\"22483399774\"],\"attacker_player_id\":\"2734066259\",\"target_player_id\":\"2404048658\",\"next_player_id\":\"22233530764\",\"turn_queue\":[],\"deck_manager\":{\"full_deck\":[{\"s\":1,\"r\":1},{\"s\":2,\"r\":1},{\"s\":3,\"r\":1},{\"s\":4,\"r\":1},{\"s\":1,\"r\":2},{\"s\":2,\"r\":2},{\"s\":3,\"r\":2},{\"s\":4,\"r\":2},{\"s\":1,\"r\":3},{\"s\":2,\"r\":3},{\"s\":3,\"r\":3},{\"s\":4,\"r\":3},{\"s\":1,\"r\":4},{\"s\":2,\"r\":4},{\"s\":3,\"r\":4},{\"s\":4,\"r\":4},{\"s\":1,\"r\":5},{\"s\":2,\"r\":5},{\"s\":3,\"r\":5},{\"s\":4,\"r\":5},{\"s\":1,\"r\":6},{\"s\":2,\"r\":6},{\"s\":3,\"r\":6},{\"s\":4,\"r\":6},{\"s\":1,\"r\":7},{\"s\":2,\"r\":7},{\"s\":3,\"r\":7},{\"s\":4,\"r\":7},{\"s\":1,\"r\":8},{\"s\":2,\"r\":8},{\"s\":3,\"r\":8},{\"s\":4,\"r\":8},{\"s\":1,\"r\":9},{\"s\":2,\"r\":9},{\"s\":3,\"r\":9},{\"s\":4,\"r\":9},{\"s\":1,\"r\":10},{\"s\":2,\"r\":10},{\"s\":3,\"r\":10},{\"s\":4,\"r\":10},{\"s\":1,\"r\":11},{\"s\":2,\"r\":11},{\"s\":3,\"r\":11},{\"s\":4,\"r\":11},{\"s\":1,\"r\":12},{\"s\":2,\"r\":12},{\"s\":3,\"r\":12},{\"s\":4,\"r\":12},{\"s\":1,\"r\":13},{\"s\":2,\"r\":13},{\"s\":3,\"r\":13},{\"s\":4,\"r\":13}],\"deck\":[{\"s\":1,\"r\":2},{\"s\":2,\"r\":6},{\"s\":3,\"r\":12},{\"s\":2,\"r\":2},{\"s\":2,\"r\":10},{\"s\":4,\"r\":12},{\"s\":1,\"r\":1},{\"s\":4,\"r\":6},{\"s\":2,\"r\":3},{\"s\":3,\"r\":10},{\"s\":4,\"r\":13},{\"s\":3,\"r\":13},{\"s\":4,\"r\":3},{\"s\":2,\"r\":13},{\"s\":3,\"r\":6},{\"s\":4,\"r\":1},{\"s\":2,\"r\":7},{\"s\":2,\"r\":4},{\"s\":2,\"r\":11},{\"s\":1,\"r\":8},{\"s\":4,\"r\":9},{\"s\":2,\"r\":1},{\"s\":1,\"r\":5},{\"s\":4,\"r\":8},{\"s\":3,\"r\":9},{\"s\":3,\"r\":7},{\"s\":2,\"r\":12},{\"s\":3,\"r\":3}],\"discard\":[],\"hands\":{\"2404048658\":[{\"s\":2,\"r\":8},{\"s\":1,\"r\":12},{\"s\":3,\"r\":1},{\"s\":1,\"r\":11},{\"s\":2,\"r\":5},{\"s\":1,\"r\":10}],\"2734066259\":[{\"s\":2,\"r\":9},{\"s\":1,\"r\":7},{\"s\":4,\"r\":7},{\"s\":4,\"r\":10},{\"s\":1,\"r\":4},{\"s\":1,\"r\":13}],\"22233530764\":[{\"s\":3,\"r\":2},{\"s\":1,\"r\":3},{\"s\":4,\"r\":4},{\"s\":3,\"r\":8},{\"s\":3,\"r\":5},{\"s\":1,\"r\":9}],\"22483399774\":[{\"s\":1,\"r\":6},{\"s\":4,\"r\":11},{\"s\":3,\"r\":4},{\"s\":4,\"r\":5},{\"s\":3,\"r\":11},{\"s\":4,\"r\":2}]},\"hands_amount\":4,\"hands_order\":[\"2734066259\",\"2404048658\",\"22233530764\",\"22483399774\"],\"beat_confirmations\":{\"2404048658\":false,\"2734066259\":false,\"22233530764\":false,\"22483399774\":false},\"hand_size\":6,\"trump_suit\":3,\"table\":[]}}")
+    const deckManager = getDeckManagerData(gameData);
 
     const handsData = fetchHandDataOnMount(
-        gameData.deck_manager.hands,
-        gameData.deck_manager.hands_order,
-        gameData.target_player_id
+        deckManager.hands,
+        deckManager.hands_order,
+        getUser()
     );
 
-    document.addEventListener(PAGE_RENDER_EVENT_ID, () => {
-        if (document.querySelector(".hand-container")) {
-            postRenderHands(handsData);
-        }
+    const tableData = {
+        deck: deckManager.deck,
+        table: deckManager.table,
+        discard: deckManager.discard,
+        trumpSuit: deckManager.trump_suit
+    }
 
+    document.addEventListener(PAGE_RENDER_EVENT_ID, () => {
         if (document.querySelector(".table-container")) {
-            renderTable({
-                table: gameData.deck_manager.table,
-                trump_suit: gameData.deck_manager.trump_suit,
-                deck: gameData.deck_manager.deck,
-                discard: gameData.deck_manager.discard
-            })
+            postRenderTable(tableData);
+            console.log(Array.from(cardRenderDataMap.values()).length);
+            postRenderHands(handsData);
+            console.log(Array.from(cardRenderDataMap.values()).length);
+            triggerRenderPageId();
         }
 
         if (document.querySelector(".card-container")) {
-            postRenderCards(handsData);
+            positionAllCards();
         }
     })
 
@@ -247,12 +438,8 @@ export const GamePage = function () {
         <button class="leave-button"> LEAVE </button>
     </div>
     <div class="game-container">
-        ${renderHands(handsData)}
-        <div class="table-container">
-            <div class="deck-container"></div>
-            <div class="table-container"></div>
-            <div class="discard-container"></div>
-        </div>
+        ${handsElements(handsData)}
+         ${tableElements(tableData)}}
     </div>
 </div>`
 }
@@ -263,3 +450,29 @@ document.querySelector("body").addEventListener("click", (event) => {
         case /leave-button/.test(className): leaveLobbyAction(); break;
     }
 });
+
+/**
+ * updates game data
+ * @param newGameData
+ */
+export const updateGameData = function (newGameData) {
+    gameData = newGameData;
+}
+
+export const CardType = {
+    Player: "player",
+    Enemy: "enemy",
+    Deck: "deck",
+    Discard: "discard",
+    Table: "table"
+}
+
+/**
+ * Moves given card into new position.
+ * @param {number} cardId
+ * @param {$Values<CardType>} cardType
+ * @param {number | string} index
+ */
+export const moveCard = function (cardId, cardType, index) {
+
+}

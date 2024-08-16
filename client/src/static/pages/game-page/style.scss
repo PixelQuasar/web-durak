@@ -18,8 +18,8 @@
 
 .card-container {
   position: absolute;
-  height: 210px;
-  width: 150px;
+  height: 140px;
+  width: 100px;
   background-color: #ffffff;
   transition: 0.2s all linear;
   display: flex;
@@ -29,10 +29,12 @@
   border: 1px solid black;
 }
 
-.player-card-container {
-  height: 280px;
-  width: 200px;
+.player {
   cursor: pointer;
+}
+
+.card-closed {
+
 }
 
 .game-container {
@@ -42,4 +44,20 @@
   height: calc(100vw - 120px);
   overflow: hidden;
   background: #111111;
+}
+
+.table-wrapper {
+
+}
+
+.deck-container {
+
+}
+
+.table-container {
+
+}
+
+.discard-container {
+
 }

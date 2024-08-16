@@ -82,11 +82,8 @@ pub async fn handle_message(
                             .map_err(|_| { "game machine error" })?;
 
                         vec![GameUpdateState::new(
-                            GameEntityType::Table,
-                            GameEntityType::Player,
-                            String::new(),
-                            player_id,
-                            vec![card]
+                            GameEntityType::Table, GameEntityType::Player,
+                            String::new(), player_id, vec![card]
                         )]
                     },
                     WSRequestType::GameTurnBeat => {
@@ -105,11 +102,8 @@ pub async fn handle_message(
                         ).map_err(|_| { "game machine error" })?;
 
                         vec![GameUpdateState::new(
-                            GameEntityType::Table,
-                            GameEntityType::Player,
-                            table_element_id.to_string(),
-                            player_id,
-                            vec![card]
+                            GameEntityType::Table, GameEntityType::Player,
+                            table_element_id.to_string(), player_id, vec![card]
                         )]
                     },
                     WSRequestType::GameTurnToss => {
@@ -125,11 +119,8 @@ pub async fn handle_message(
                             .map_err(|_| { "game machine error" })?;
 
                         vec![GameUpdateState::new(
-                            GameEntityType::Table,
-                            GameEntityType::Player,
-                            table_element_id.to_string(),
-                            player_id,
-                            vec![card]
+                            GameEntityType::Table, GameEntityType::Player,
+                            table_element_id.to_string(), player_id, vec![card]
                         )]
                     },
                     WSRequestType::GameTurnDiscard => {
@@ -140,10 +131,8 @@ pub async fn handle_message(
 
                         (0..table_size).map(|index| {
                             GameUpdateState::new(
-                                GameEntityType::Discard,
-                                GameEntityType::Table,
-                                String::new(),
-                                index.to_string(),
+                                GameEntityType::Discard, GameEntityType::Table,
+                                String::new(), index.to_string(),
                                 game.deck_manager.get_table_element_cards(index)
                             )
                         }).collect()
@@ -157,12 +146,10 @@ pub async fn handle_message(
 
                         let table_size = game.deck_manager.get_table_size();
 
-                        (0..table_size).map(|index| {
+                        (0..table_size) .map(|index| {
                             GameUpdateState::new(
-                                GameEntityType::Deck,
-                                GameEntityType::Table,
-                                String::new(),
-                                index.to_string(),
+                                GameEntityType::Deck, GameEntityType::Table,
+                                String::new(), index.to_string(),
                                 game.deck_manager.get_table_element_cards(index)
                             )
                         }).collect()

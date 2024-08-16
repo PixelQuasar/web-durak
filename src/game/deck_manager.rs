@@ -4,17 +4,20 @@ use rand::rngs::StdRng;
 use rand::{SeedableRng};
 use rand::seq::SliceRandom;
 use serde::{Deserialize, Serialize, Serializer};
+use crate::utils::generate_card_id;
 
+pub type CardIdType = usize;
 
 #[derive(Clone, Copy, PartialEq, Serialize, Deserialize)]
 pub struct Card {
     pub s: i32,
-    pub r: i32
+    pub r: i32,
+    pub id: CardIdType
 }
 
 impl Card {
-    pub fn new(rank: i32, suit: i32) -> Card {
-        Card { r: rank, s: suit }
+    pub fn new(rank: i32, suit: i32, id: CardIdType) -> Card {
+        Card { r: rank, s: suit, id }
     }
 }
 
@@ -35,9 +38,11 @@ impl fmt::Debug for Card {
 
 fn generate_deck(suit_num: i32, cards_num: i32) -> Vec<Card> {
     let mut cards = vec![];
+    let mut id = 1;
     for i in 1..=cards_num {
         for j in 1..=suit_num {
-            cards.push(Card{ s: j, r: i });
+            cards.push(Card::new(i, j, id));
+            id += 1;
         }
     }
     cards
@@ -232,7 +237,7 @@ impl DeckManager {
 
         match min_trump {
             Some(card) => *card,
-            None => Card::new(0, self.trump_suit)
+            None => Card::new(0, self.trump_suit, 0)
         }
     }
 
