@@ -1,5 +1,5 @@
 import {navigate, WEBSOCKET_UPDATE_ID} from "../utils/index.js";
-import {CardType, moveCard, updateGameData} from "../pages/game-page/game-page.js";
+import {CardType, moveCard, positionAllCards, updateGameData} from "../pages/game-page/game-page.js";
 
 /**
  * server game update state entity
@@ -62,6 +62,9 @@ export const handleServerMessage = async function (data) {
             for (const state of gameUpdateState) {
                 handleGameUpdateState(state);
             }
+            break;
+        }
+        case "GameFinish": {
             break;
         }
     }

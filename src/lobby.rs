@@ -1,15 +1,16 @@
+use crate::game::Game;
+use crate::player::Player;
+use crate::utils::gen_special_id;
+use serde::__private::de::Content::Str;
+use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
 use std::ops::Deref;
-use serde::{Deserialize, Serialize};
-use serde::__private::de::Content::Str;
-use crate::player::Player;
-use crate::game::Game;
-use crate::utils::{gen_special_id};
-
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum LobbyStatus {
-    INACTIVE, ACTIVE, STARTED
+    INACTIVE,
+    ACTIVE,
+    STARTED,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -19,7 +20,7 @@ pub struct Lobby {
     owner_id: String,
     public: bool,
     player_list: Vec<String>,
-    pub game: Option<Game>
+    pub game: Option<Game>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -29,7 +30,7 @@ pub struct PopulatedLobby {
     owner_id: String,
     public: bool,
     player_list: Vec<Option<Player>>,
-    pub game: Option<Game>
+    pub game: Option<Game>,
 }
 
 impl Lobby {
@@ -41,7 +42,7 @@ impl Lobby {
             public: is_public,
             owner_id: String::new(),
             player_list: vec![],
-            game: None
+            game: None,
         }
     }
 
@@ -66,23 +67,24 @@ impl Lobby {
     }
 
     pub fn player_remove(&mut self, id: &str) {
-        let index = self.player_list
-            .iter()
-            .position(|item| item == id)
-            .unwrap();
+        let index = self.player_list.iter().position(|item| item == id).unwrap();
         self.player_list.remove(index);
     }
 
     pub fn init_game(&mut self, player_ids: Vec<String>) {
         let mut game = Game::new(self.player_list.clone());
 
-        game.deck_manager.deal_six(player_ids);;
+        game.deck_manager.deal_six(player_ids);
 
         let first_target_player = game.deck_manager.get_first_target_player();
 
         game.set_target_player_id(first_target_player.clone());
 
-        game.set_next_player_id(game.deck_manager.player_after(&first_target_player).unwrap());
+        game.set_next_player_id(
+            game.deck_manager
+                .player_after(&first_target_player)
+                .unwrap(),
+        );
 
         game.set_attacker_player_id(game.deck_manager.get_first_attacker_player());
 
@@ -94,7 +96,7 @@ impl Lobby {
     }
 
     pub fn players_num(&self) -> usize {
-        return self.player_list.len()
+        return self.player_list.len();
     }
 
     pub fn can_join(&self) -> bool {
@@ -110,7 +112,7 @@ impl PopulatedLobby {
             public: lobby.public,
             owner_id: lobby.owner_id,
             player_list: players,
-            game: lobby.game
+            game: lobby.game,
         }
     }
 
@@ -127,10 +129,14 @@ impl PopulatedLobby {
     }
 
     pub fn player_remove(&mut self, id: &str) {
-        let index = self.player_list
+        let index = self
+            .player_list
             .iter()
             .position(|item| {
-                item.clone().unwrap_or_else(|| Player::new(String::new())).get_id() == id
+                item.clone()
+                    .unwrap_or_else(|| Player::new(String::new()))
+                    .get_id()
+                    == id
             })
             .unwrap();
         self.player_list.remove(index);

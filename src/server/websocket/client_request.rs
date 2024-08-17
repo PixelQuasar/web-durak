@@ -1,29 +1,30 @@
-use serde::Serialize;
 use axum::extract::ws::Message;
+use serde::Serialize;
 use serde_json::to_string;
 
 #[derive(Clone, Serialize, Debug)]
 pub enum ClientRequestType {
-    LobbyUpdate, GameCreate, GameUpdate, Error
+    LobbyUpdate,
+    GameCreate,
+    GameUpdate,
+    Error,
 }
 
 #[derive(Clone, Serialize, Debug)]
 pub struct ClientRequest {
     req_type: ClientRequestType,
-    content: String
+    content: String,
 }
 
 impl ClientRequest {
     pub fn new(req_type: ClientRequestType, content: String) -> ClientRequest {
-        ClientRequest {
-            req_type, content
-        }
+        ClientRequest { req_type, content }
     }
 
     pub fn build_error(msg: String) -> ClientRequest {
         ClientRequest {
             req_type: ClientRequestType::Error,
-            content: msg
+            content: msg,
         }
     }
 
@@ -32,6 +33,6 @@ impl ClientRequest {
     }
 
     pub fn to_string(&self) -> String {
-        to_string(&self).unwrap_or_else(|_| { "Serialize error".to_string() })
+        to_string(&self).unwrap_or_else(|_| "Serialize error".to_string())
     }
 }

@@ -1,14 +1,17 @@
 pub mod deck_manager;
-use std::cmp::PartialEq;
-use serde::{Deserialize, Serialize};
 use crate::game::deck_manager::{Card, DeckManager};
 use crate::player::Player;
-use crate::utils::{gen_special_id};
-
+use crate::utils::gen_special_id;
+use serde::{Deserialize, Serialize};
+use std::cmp::PartialEq;
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum GameLoopState {
-    Start, Pause, Finish, BeforeTurn, Turn
+    Start,
+    Pause,
+    Finish,
+    BeforeTurn,
+    Turn,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -20,7 +23,7 @@ pub struct Game {
     target_player_id: Option<String>,
     next_player_id: Option<String>,
     turn_queue: Vec<String>,
-    pub deck_manager: DeckManager
+    pub deck_manager: DeckManager,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -31,7 +34,7 @@ pub struct PopulatedGame {
     target_player_id: Option<Player>,
     next_player_id: Option<Player>,
     turn_queue: Vec<Option<Player>>,
-    pub deck_manager: DeckManager
+    pub deck_manager: DeckManager,
 }
 
 impl Game {
@@ -44,7 +47,7 @@ impl Game {
             target_player_id: None,
             next_player_id: None,
             turn_queue: vec![],
-            deck_manager: DeckManager::new()
+            deck_manager: DeckManager::new(),
         }
     }
 
@@ -58,12 +61,11 @@ impl Game {
         } else {
             Err(())
         }
-
     }
 
     pub fn beat(&mut self, player_id: &str, beating: Card, beatable: Card) -> Result<i32, ()> {
         if self.target_player_id.is_none() {
-            return Err(())
+            return Err(());
         }
 
         if self.can_beat(player_id) {
@@ -77,7 +79,7 @@ impl Game {
 
     pub fn confirm_beat(&mut self, player_id: &str) -> Result<(), ()> {
         if self.target_player_id.is_none() {
-            return Err(())
+            return Err(());
         }
 
         if self.can_confirm_beat(player_id) {
@@ -90,7 +92,8 @@ impl Game {
     }
 
     pub fn is_all_confirmed(&self) -> bool {
-        self.deck_manager.is_all_confirmed(self.target_player_id.clone().unwrap().as_str())
+        self.deck_manager
+            .is_all_confirmed(self.target_player_id.clone().unwrap().as_str())
     }
 
     pub fn toss(&mut self, attacker_id: &str, card: Card) -> Result<i32, ()> {
@@ -103,7 +106,7 @@ impl Game {
 
     pub fn finish_with_take(&mut self) -> Result<(), ()> {
         if self.target_player_id.is_none() {
-            return Err(())
+            return Err(());
         }
 
         if self.can_take_table(&self.target_player_id.clone().unwrap()) {
@@ -127,7 +130,7 @@ impl Game {
 
     pub fn finish_with_discard(&mut self) -> Result<(), ()> {
         if self.target_player_id.is_none() {
-            return Err(())
+            return Err(());
         }
 
         if self.can_discard_table(&self.target_player_id.clone().unwrap()) {

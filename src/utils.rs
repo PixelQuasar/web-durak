@@ -1,5 +1,5 @@
-use rand::Rng;
 use crate::game::deck_manager::CardIdType;
+use rand::Rng;
 
 pub fn generate_id() -> u64 {
     let mut rng = rand::thread_rng();

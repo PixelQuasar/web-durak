@@ -1,10 +1,10 @@
+use crate::utils::generate_card_id;
+use rand::rngs::StdRng;
+use rand::seq::SliceRandom;
+use rand::SeedableRng;
+use serde::{Deserialize, Serialize, Serializer};
 use std::collections::HashMap;
 use std::fmt;
-use rand::rngs::StdRng;
-use rand::{SeedableRng};
-use rand::seq::SliceRandom;
-use serde::{Deserialize, Serialize, Serializer};
-use crate::utils::generate_card_id;
 
 pub type CardIdType = usize;
 
@@ -12,27 +12,36 @@ pub type CardIdType = usize;
 pub struct Card {
     pub s: i32,
     pub r: i32,
-    pub id: CardIdType
+    pub id: CardIdType,
 }
 
 impl Card {
     pub fn new(rank: i32, suit: i32, id: CardIdType) -> Card {
-        Card { r: rank, s: suit, id }
+        Card {
+            r: rank,
+            s: suit,
+            id,
+        }
     }
 }
 
 impl fmt::Debug for Card {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "[{}-{}] {} of {}",
-               self.r,
-               self.s,
-               vec![
-                   "unknown", "two", "three", "four", "five", "six", "seven", "eight",
-                   "nine", "ten", "jack", "queen", "king", "ace"
-               ].get(self.r as usize).unwrap(),
-               vec![
-                   "unknown", "hearts", "diamonds", "spades", "clubs"
-               ].get(self.s as usize).unwrap())
+        write!(
+            f,
+            "[{}-{}] {} of {}",
+            self.r,
+            self.s,
+            vec![
+                "unknown", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+                "jack", "queen", "king", "ace"
+            ]
+            .get(self.r as usize)
+            .unwrap(),
+            vec!["unknown", "hearts", "diamonds", "spades", "clubs"]
+                .get(self.s as usize)
+                .unwrap()
+        )
     }
 }
 
@@ -48,6 +57,13 @@ fn generate_deck(suit_num: i32, cards_num: i32) -> Vec<Card> {
     cards
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum HandStatus {
+    Active,
+    Winner(i32),
+    Left,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct DeckManager {
     full_deck: Vec<Card>,
@@ -56,10 +72,11 @@ pub struct DeckManager {
     hands: HashMap<String, Vec<Card>>,
     hands_amount: usize,
     hands_order: Vec<String>,
+    hands_statuses: Vec<HandStatus>,
     beat_confirmations: HashMap<String, bool>,
     hand_size: usize,
     trump_suit: i32,
-    table: Vec<(Card, Option<Card>)>
+    table: Vec<(Card, Option<Card>)>,
 }
 
 impl DeckManager {
@@ -70,11 +87,12 @@ impl DeckManager {
             discard: vec![],
             hands: HashMap::new(),
             hands_order: vec![],
+            hands_statuses: vec![],
             hands_amount: 0,
             beat_confirmations: HashMap::new(),
             hand_size: 0,
             trump_suit: 0,
-            table: vec![]
+            table: vec![],
         }
     }
 
@@ -108,6 +126,8 @@ impl DeckManager {
 
         self.table.push((card, None));
 
+        self.drop_beat_confirmations();
+
         self.pick_card(&player_id, card)?;
 
         Ok(())
@@ -126,9 +146,10 @@ impl DeckManager {
     }
 
     pub fn beat(&mut self, player_id: &str, beating: Card, beatable: Card) -> Result<i32, ()> {
-        if !self.player_has_card(&player_id, beating) ||
-            !self.table_has_open_card(beatable) ||
-            !self.can_beat(beating, beatable) {
+        if !self.player_has_card(&player_id, beating)
+            || !self.table_has_open_card(beatable)
+            || !self.can_beat(beating, beatable)
+        {
             return Err(());
         }
 
@@ -150,9 +171,7 @@ impl DeckManager {
         for pair in &self.table {
             let player = match self.hands.get_mut(player_id) {
                 Some(player) => player,
-                None => {
-                    return Err(())
-                }
+                None => return Err(()),
             };
             player.push(pair.0);
             if pair.1.is_some() {
@@ -182,7 +201,10 @@ impl DeckManager {
 
     pub fn deal_more(&mut self, defending_player_id: &str) -> Result<Vec<(String, Vec<Card>)>, ()> {
         let defending_player_num = match self
-            .hands_order.iter().position(|x| {x == defending_player_id}) {
+            .hands_order
+            .iter()
+            .position(|x| x == defending_player_id)
+        {
             Some(res) => res,
             None => {
                 return Err(());
@@ -191,12 +213,20 @@ impl DeckManager {
 
         let mut result = vec![];
 
-        let attacking_player_num = if defending_player_num > 0
-            { defending_player_num - 1 } else { self.hands_order.len() - 1 };
+        let attacking_player_num = if defending_player_num > 0 {
+            defending_player_num - 1
+        } else {
+            self.hands_order.len() - 1
+        };
 
         let dealing_order: Vec<String> = [
-            &self.hands_order[defending_player_num..], &self.hands_order[..=attacking_player_num]
-        ].concat().into_iter().rev().collect();
+            &self.hands_order[defending_player_num..],
+            &self.hands_order[..=attacking_player_num],
+        ]
+        .concat()
+        .into_iter()
+        .rev()
+        .collect();
 
         for player_id in dealing_order {
             let cards = self.deal_to_hand_until_full(&player_id).unwrap();
@@ -207,8 +237,8 @@ impl DeckManager {
     }
 
     pub fn can_beat(&self, beating: Card, beatable: Card) -> bool {
-        (beating.s == beatable.s && beating.r > beatable.r) ||
-        (beating.s == self.trump_suit && beatable.s != self.trump_suit)
+        (beating.s == beatable.s && beating.r > beatable.r)
+            || (beating.s == self.trump_suit && beatable.s != self.trump_suit)
     }
 
     pub fn can_discard(&self, target_id: &str) -> bool {
@@ -216,21 +246,22 @@ impl DeckManager {
     }
 
     pub fn drop_beat_confirmations(&mut self) {
-        for key in self.beat_confirmations.values_mut() {
-            *key = true;
+        for key in &self.hands_order {
+            self.beat_confirmations.insert(key.to_string(), false);
         }
     }
 
     pub fn get_min_trump(&self, player_id: &str) -> Card {
         let hand = self.hands.get(player_id).unwrap();
 
-        let min_trump = hand.iter()
-            .filter(|x| { x.s == self.trump_suit })
-            .reduce(|a, b| { if a.s > b.s {a} else {b} });
+        let min_trump = hand
+            .iter()
+            .filter(|x| x.s == self.trump_suit)
+            .reduce(|a, b| if a.s > b.s { a } else { b });
 
         match min_trump {
             Some(card) => *card,
-            None => Card::new(0, self.trump_suit, 0)
+            None => Card::new(0, self.trump_suit, 0),
         }
     }
 
@@ -244,10 +275,10 @@ impl DeckManager {
     }
 
     pub fn player_after(&self, player_id: &str) -> Option<String> {
-        let player_index = self.hands_order.iter().position(|item| {item == player_id});
+        let player_index = self.hands_order.iter().position(|item| item == player_id);
 
         if player_index.is_none() {
-            return None
+            return None;
         }
 
         let next_index = (player_index.unwrap() + 1) % &self.hands_amount;
@@ -259,7 +290,7 @@ impl DeckManager {
         let mut result = self.player_after(player_id);
 
         if result.is_none() {
-            return None
+            return None;
         }
 
         let mut result = result.unwrap();
@@ -279,9 +310,9 @@ impl DeckManager {
         self.hands_order[0].clone()
     }
 
-    pub fn confirm_beat(&mut self, player_id: String)-> Result<(), ()> {
+    pub fn confirm_beat(&mut self, player_id: String) -> Result<(), ()> {
         if !self.beat_confirmations.contains_key(&player_id) {
-            return Err(())
+            return Err(());
         }
 
         self.beat_confirmations.insert(player_id, true);
@@ -296,7 +327,7 @@ impl DeckManager {
                 result = result && *self.beat_confirmations.get(key).unwrap();
             }
         }
-        return result
+        return result;
     }
 
     pub fn get_table_size(&self) -> usize {
@@ -320,9 +351,7 @@ impl DeckManager {
             hands_in_order.push(key.to_string());
         }
 
-        hands_in_order.sort_by(|a, b| {
-            self.get_min_trump(a).r.cmp(&self.get_min_trump(b).r)
-        });
+        hands_in_order.sort_by(|a, b| self.get_min_trump(a).r.cmp(&self.get_min_trump(b).r));
 
         self.hands_order = hands_in_order;
     }
@@ -361,12 +390,13 @@ impl DeckManager {
             None => {
                 return false;
             }
-        }.contains(&card)
+        }
+        .contains(&card)
     }
 
     fn pick_card(&mut self, player_id: &str, card: Card) -> Result<(), ()> {
         if !self.player_has_card(player_id, card) {
-            return Err(())
+            return Err(());
         }
 
         let hand = self.hands.get_mut(player_id).unwrap();

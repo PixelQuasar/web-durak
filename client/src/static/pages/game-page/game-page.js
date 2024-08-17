@@ -148,7 +148,7 @@ const fetchHandDataOnMount = function (hands, order, playerId) {
                     dir: dir,
                     id: `hand-container-${num}`,
                     playerId: order[num - 1],
-                    cards: hands[order[num - 1]].toSorted(x => x.s * 14 + x.r)
+                    cards: hands[order[num - 1]].toSorted(x => x.s * 14 + x.r).reverse()
                 };
             }
         }
@@ -549,7 +549,6 @@ export const positionAllCards = function () {
 const uiElements = function () {
     return `
 ${gameData.deck_manager.hands_order.map(id => `<div class="player-nickname" id="player-${id}"></div>`).join("")}
-${gameData.deck_manager.hands_order.map(id => `<div class="attacker-tag" id="attacker-${id}">attacker</div>`).join("")}
 <button class="game-button" id="take-button">Take</button>
 <button class="game-button" id="pass-button">Pass</button>
 <div class="msg"></div>`
