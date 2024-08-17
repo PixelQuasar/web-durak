@@ -38,7 +38,7 @@ impl Game {
     pub fn new(players: Vec<String>) -> Game {
         Game {
             id: gen_special_id("GAME"),
-            status: GameLoopState::Start,
+            status: GameLoopState::BeforeTurn,
             participant_ids: players,
             attacker_player_id: None,
             target_player_id: None,
@@ -50,6 +50,8 @@ impl Game {
 
     pub fn init_table(&mut self, player_id: &str, card: Card) -> Result<(), ()> {
         if self.can_init_table(player_id) {
+            self.status = GameLoopState::Turn;
+
             self.deck_manager.init_table(player_id, card)?;
 
             Ok(())
@@ -87,6 +89,10 @@ impl Game {
         }
     }
 
+    pub fn is_all_confirmed(&self) -> bool {
+        self.deck_manager.is_all_confirmed(self.target_player_id.clone().unwrap().as_str())
+    }
+
     pub fn toss(&mut self, attacker_id: &str, card: Card) -> Result<i32, ()> {
         if (self.can_toss(attacker_id)) {
             Ok(self.deck_manager.toss(attacker_id, card)?)
@@ -102,6 +108,8 @@ impl Game {
 
         if self.can_take_table(&self.target_player_id.clone().unwrap()) {
             let defender = &self.target_player_id.clone().unwrap();
+
+            self.status = GameLoopState::BeforeTurn;
 
             self.deck_manager.take_table(defender)?;
 
@@ -126,6 +134,8 @@ impl Game {
             let defender = &self.target_player_id.clone().unwrap();
 
             self.deck_manager.discard_table()?;
+
+            self.status = GameLoopState::BeforeTurn;
 
             self.target_player_id = Some(self.deck_manager.player_after(&defender).unwrap());
 
@@ -154,15 +164,15 @@ impl Game {
     }
 
     pub fn start(&mut self) {
-        self.status = GameLoopState::Start;
+        self.status = GameLoopState::BeforeTurn;
     }
 
     fn can_init_table(&self, player_id: &str) -> bool {
         if self.status != GameLoopState::BeforeTurn {
             return false;
         }
-        if let Some(next_player) = &self.next_player_id {
-            player_id == next_player
+        if let Some(attacker) = &self.attacker_player_id {
+            player_id == attacker
         } else {
             false
         }
@@ -219,7 +229,7 @@ impl Game {
         if let Some(target) = &self.target_player_id {
             player_id == target
                 && self.deck_manager.is_table_beaten()
-                && self.deck_manager.can_discard()
+                && self.deck_manager.can_discard(target)
         } else {
             false
         }

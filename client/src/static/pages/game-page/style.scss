@@ -27,7 +27,6 @@
   align-items: start;
   text-align: end;
   border: 1px solid black;
-
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -41,6 +40,12 @@
 
 }
 
+.table-container {
+  position: absolute;
+  z-index: 5;
+  cursor: pointer;
+}
+
 .game-container {
   position: absolute;
   width: 100vw;
@@ -50,18 +55,38 @@
   background: #111111;
 }
 
-.table-wrapper {
-
+.player-nickname {
+  position: absolute;
+  color: #ffffff;
+  z-index: 100;
+  width: 100px;
+  height: 100px;
+  background: #000000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
 }
 
-.deck-container {
-
+.attacker-tag {
+  position: absolute;
+  color: #ffffff;
+  z-index: 100;
 }
 
-.table-container {
-
+.msg {
+  position: absolute;
+  z-index: 100;
+  color: #ffffff;
 }
 
-.discard-container {
+.hidden {
+  display: none;
+}
 
+.game-button {
+  position: absolute;
+  margin: 16px;
+  z-index: 150;
+  cursor: pointer;
 }

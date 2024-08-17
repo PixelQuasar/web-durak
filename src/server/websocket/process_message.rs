@@ -39,11 +39,11 @@ pub async fn handle_message(
         return Err("no lobby".to_string());
     }
 
-    let lobby_id = request.lobby_id.unwrap();
+    let lobby_id = request.clone().lobby_id.unwrap();
 
     let mut lobby = get_lobby_by_id(&app_state.redis_pool, &lobby_id.clone()).await?;
 
-    print!("{:#?}", lobby);
+    print!("{:#?}", request);
 
     if request.req_type == WSRequestType::GameCreate {
         lobby.init_game(lobby.player_list().clone());
@@ -83,7 +83,7 @@ pub async fn handle_message(
 
                         vec![GameUpdateState::new(
                             GameEntityType::Table, GameEntityType::Player,
-                            String::new(), player_id, vec![card]
+                            "0".to_string(), player_id, vec![card]
                         )]
                     },
                     WSRequestType::GameTurnBeat => {
@@ -124,35 +124,43 @@ pub async fn handle_message(
                         )]
                     },
                     WSRequestType::GameTurnDiscard => {
-                        game.finish_with_discard()
-                            .map_err(|_| { "game machine error" })?;
-
                         let table_size = game.deck_manager.get_table_size();
 
-                        (0..table_size).map(|index| {
+                        let result = (0..table_size).map(|index| {
                             GameUpdateState::new(
                                 GameEntityType::Discard, GameEntityType::Table,
                                 String::new(), index.to_string(),
                                 game.deck_manager.get_table_element_cards(index)
                             )
-                        }).collect()
+                        }).collect();
+
+                        game.finish_with_discard()
+                            .map_err(|_| { "game machine error" })?;
+
+                        result
                     },
                     WSRequestType::GameTurnTake => {
-                        if game.target_player_id().is_none() {
+                        let player_id =  game.target_player_id();
+
+                        if player_id.is_none() {
                             return Err("no defender".to_string());
                         }
 
-                        game.finish_with_take().map_err(|_| { "game machine error" })?;
+                        let player_id = player_id.unwrap();
 
                         let table_size = game.deck_manager.get_table_size();
 
-                        (0..table_size) .map(|index| {
+                        let result = (0..table_size).map(|index| {
                             GameUpdateState::new(
-                                GameEntityType::Deck, GameEntityType::Table,
-                                String::new(), index.to_string(),
+                                GameEntityType::Player, GameEntityType::Table,
+                                player_id.clone(), index.to_string(),
                                 game.deck_manager.get_table_element_cards(index)
                             )
-                        }).collect()
+                        }).collect();
+
+                        game.finish_with_take().map_err(|_| { "game machine error" })?;
+
+                        result
                     },
                     WSRequestType::GameTurnConfirmBeat => {
                         if game_content.player_id.is_none() {
@@ -162,10 +170,26 @@ pub async fn handle_message(
                         game.confirm_beat(&game_content.player_id.unwrap())
                             .map_err(|_| { "game machine error" })?;
 
-                        vec![GameUpdateState::new(
-                            GameEntityType::Nobody, GameEntityType::Nobody,
-                            String::new(), String::new(), vec![]
-                        )]
+                        if game.is_all_confirmed() {
+                            let table_size = game.deck_manager.get_table_size();
+
+                            let result = (0..table_size).map(|index| {
+                                GameUpdateState::new(
+                                    GameEntityType::Discard, GameEntityType::Table,
+                                    String::new(), index.to_string(),
+                                    game.deck_manager.get_table_element_cards(index)
+                                )
+                            }).collect();
+
+                            game.finish_with_discard().map_err(|_| { "game machine error" })?;
+
+                            result
+                        } else {
+                            vec![GameUpdateState::new(
+                                GameEntityType::Nobody, GameEntityType::Nobody,
+                                String::new(), String::new(), vec![]
+                            )]
+                        }
                     }
                     _ => {
                         println!("Unknown state");

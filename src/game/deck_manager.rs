@@ -167,10 +167,6 @@ impl DeckManager {
     }
 
     pub fn discard_table(&mut self) -> Result<(), ()> {
-        if !self.can_discard() {
-            return Err(());
-        }
-
         for pair in &self.table {
             self.discard.push(pair.0);
             if pair.1.is_some() {
@@ -212,14 +208,8 @@ impl DeckManager {
         (beating.s == self.trump_suit && beatable.s != self.trump_suit)
     }
 
-    pub fn can_discard(&self) -> bool {
-        let mut result = true;
-
-        for key in self.beat_confirmations.keys() {
-            result = result && *self.beat_confirmations.get(key).unwrap();
-        }
-
-        result
+    pub fn can_discard(&self, target_id: &str) -> bool {
+        self.is_all_confirmed(target_id)
     }
 
     pub fn drop_beat_confirmations(&mut self) {
@@ -294,6 +284,16 @@ impl DeckManager {
         self.beat_confirmations.insert(player_id, true);
 
         Ok(())
+    }
+
+    pub fn is_all_confirmed(&self, target_player: &str) -> bool {
+        let mut result = true;
+        for key in self.beat_confirmations.keys() {
+            if (key != target_player) {
+                result = result && *self.beat_confirmations.get(key).unwrap();
+            }
+        }
+        return result
     }
 
     pub fn get_table_size(&self) -> usize {

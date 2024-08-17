@@ -17,6 +17,17 @@ export const setUser = function (id) {
 }
 
 /**
+ *
+ * @param {string} id
+ * @return {Promise<any>}
+ */
+export const getUserQuery = async function (id) {
+    const response = await fetch (`${process.env.SERVER_URL}/player/${id}`);
+
+    return await response.json();
+}
+
+/**
  * Get user info from server REST endpoint.
  * @param {string} name
  * @returns {Promise<any>}

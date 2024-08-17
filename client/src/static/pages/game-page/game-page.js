@@ -2,6 +2,7 @@ import {templates} from "./table-templates.js"
 import {navigate, PAGE_RENDER_EVENT_ID, randomRange, triggerRenderPageId} from "../../utils/index.js";
 import {disconnectWebsocket} from "../../websocket/index.js";
 import {getUser} from "../../state/index.js";
+import {wsGameBeat, wsGameConfirmPass, wsGameInitTurn, wsGameTake, wsGameToss} from "../../websocket/handle-game.js";
 
 /**
  * A playing card.
@@ -60,7 +61,16 @@ import {getUser} from "../../state/index.js";
  */
 let cardRenderDataMap = new Map();
 
-let gameData = JSON.parse("{\"id\":\"GAME4273841987\",\"status\":\"Start\",\"participant_ids\":[\"22233530764\",\"2404048658\",\"2734066259\",\"22483399774\"],\"attacker_player_id\":\"2734066259\",\"target_player_id\":\"2404048658\",\"next_player_id\":\"22233530764\",\"turn_queue\":[],\"deck_manager\":{\"full_deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":2,\"r\":1,\"id\":2},{\"s\":3,\"r\":1,\"id\":3},{\"s\":4,\"r\":1,\"id\":4},{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":2,\"id\":6},{\"s\":3,\"r\":2,\"id\":7},{\"s\":4,\"r\":2,\"id\":8},{\"s\":1,\"r\":3,\"id\":9},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":3,\"id\":11},{\"s\":4,\"r\":3,\"id\":12},{\"s\":1,\"r\":4,\"id\":13},{\"s\":2,\"r\":4,\"id\":14},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":4,\"id\":16},{\"s\":1,\"r\":5,\"id\":17},{\"s\":2,\"r\":5,\"id\":18},{\"s\":3,\"r\":5,\"id\":19},{\"s\":4,\"r\":5,\"id\":20},{\"s\":1,\"r\":6,\"id\":21},{\"s\":2,\"r\":6,\"id\":22},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":6,\"id\":24},{\"s\":1,\"r\":7,\"id\":25},{\"s\":2,\"r\":7,\"id\":26},{\"s\":3,\"r\":7,\"id\":27},{\"s\":4,\"r\":7,\"id\":28},{\"s\":1,\"r\":8,\"id\":29},{\"s\":2,\"r\":8,\"id\":30},{\"s\":3,\"r\":8,\"id\":31},{\"s\":4,\"r\":8,\"id\":32},{\"s\":1,\"r\":9,\"id\":33},{\"s\":2,\"r\":9,\"id\":34},{\"s\":3,\"r\":9,\"id\":35},{\"s\":4,\"r\":9,\"id\":36},{\"s\":1,\"r\":10,\"id\":37},{\"s\":2,\"r\":10,\"id\":38},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":11,\"id\":42},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":11,\"id\":44},{\"s\":1,\"r\":12,\"id\":45},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":12,\"id\":47},{\"s\":4,\"r\":12,\"id\":48},{\"s\":1,\"r\":13,\"id\":49},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":13,\"id\":52}],\"deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":4,\"r\":6,\"id\":24},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":13,\"id\":52},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":3,\"id\":12},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":1,\"id\":4},{\"s\":2,\"r\":7,\"id\":26},{\"s\":2,\"r\":4,\"id\":14},{\"s\":2,\"r\":11,\"id\":42},{\"s\":1,\"r\":8,\"id\":29},{\"s\":4,\"r\":9,\"id\":36},{\"s\":2,\"r\":1,\"id\":2},{\"s\":1,\"r\":5,\"id\":17},{\"s\":4,\"r\":8,\"id\":32},{\"s\":3,\"r\":9,\"id\":35}],\"discard\":[{\"s\":3,\"r\":7,\"id\":27},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":3,\"id\":11}],\"hands\":{\"2404048658\":[{\"s\":2,\"r\":8,\"id\":30},{\"s\":1,\"r\":12,\"id\":45},{\"s\":3,\"r\":1,\"id\":3},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":5,\"id\":18},{\"s\":1,\"r\":10,\"id\":37}],\"2734066259\":[{\"s\":2,\"r\":9,\"id\":34},{\"s\":1,\"r\":7,\"id\":25},{\"s\":4,\"r\":7,\"id\":28},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":4,\"id\":13},{\"s\":1,\"r\":13,\"id\":49}],\"22483399774\":[{\"s\":1,\"r\":6,\"id\":21},{\"s\":4,\"r\":11,\"id\":44},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":5,\"id\":20},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":2,\"id\":8}],\"22233530764\":[{\"s\":3,\"r\":2,\"id\":7},{\"s\":1,\"r\":3,\"id\":9},{\"s\":4,\"r\":4,\"id\":16},{\"s\":3,\"r\":8,\"id\":31},{\"s\":3,\"r\":5,\"id\":19},{\"s\":1,\"r\":9,\"id\":33}]},\"hands_amount\":4,\"hands_order\":[\"22233530764\",\"2734066259\",\"2404048658\",\"22483399774\"],\"beat_confirmations\":{\"2404048658\":false,\"2734066259\":false,\"22233530764\":false,\"22483399774\":false},\"hand_size\":6,\"trump_suit\":3,\"table\":[[{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":6,\"id\":22}],[{\"s\":3,\"r\":12,\"id\":47},{\"s\":2,\"r\":2,\"id\":6}],[{\"s\":2,\"r\":10,\"id\":38},{\"s\":4,\"r\":12,\"id\":48}]]}}");
+let gameData = {};
+
+//
+// let gameData = JSON.parse("{\"id\":\"GAME4273841987\",\"status\":\"Start\",\"participant_ids\":[\"22233530764\",\"2404048658\",\"2734066259\",\"22483399774\"],\"attacker_player_id\":\"2734066259\",\"target_player_id\":\"2404048658\",\"next_player_id\":\"22233530764\",\"turn_queue\":[],\"deck_manager\":{\"full_deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":2,\"r\":1,\"id\":2},{\"s\":3,\"r\":1,\"id\":3},{\"s\":4,\"r\":1,\"id\":4},{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":2,\"id\":6},{\"s\":3,\"r\":2,\"id\":7},{\"s\":4,\"r\":2,\"id\":8},{\"s\":1,\"r\":3,\"id\":9},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":3,\"id\":11},{\"s\":4,\"r\":3,\"id\":12},{\"s\":1,\"r\":4,\"id\":13},{\"s\":2,\"r\":4,\"id\":14},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":4,\"id\":16},{\"s\":1,\"r\":5,\"id\":17},{\"s\":2,\"r\":5,\"id\":18},{\"s\":3,\"r\":5,\"id\":19},{\"s\":4,\"r\":5,\"id\":20},{\"s\":1,\"r\":6,\"id\":21},{\"s\":2,\"r\":6,\"id\":22},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":6,\"id\":24},{\"s\":1,\"r\":7,\"id\":25},{\"s\":2,\"r\":7,\"id\":26},{\"s\":3,\"r\":7,\"id\":27},{\"s\":4,\"r\":7,\"id\":28},{\"s\":1,\"r\":8,\"id\":29},{\"s\":2,\"r\":8,\"id\":30},{\"s\":3,\"r\":8,\"id\":31},{\"s\":4,\"r\":8,\"id\":32},{\"s\":1,\"r\":9,\"id\":33},{\"s\":2,\"r\":9,\"id\":34},{\"s\":3,\"r\":9,\"id\":35},{\"s\":4,\"r\":9,\"id\":36},{\"s\":1,\"r\":10,\"id\":37},{\"s\":2,\"r\":10,\"id\":38},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":11,\"id\":42},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":11,\"id\":44},{\"s\":1,\"r\":12,\"id\":45},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":12,\"id\":47},{\"s\":4,\"r\":12,\"id\":48},{\"s\":1,\"r\":13,\"id\":49},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":13,\"id\":52}],\"deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":4,\"r\":6,\"id\":24},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":13,\"id\":52},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":3,\"id\":12},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":1,\"id\":4},{\"s\":2,\"r\":7,\"id\":26},{\"s\":2,\"r\":4,\"id\":14},{\"s\":2,\"r\":11,\"id\":42},{\"s\":1,\"r\":8,\"id\":29},{\"s\":4,\"r\":9,\"id\":36},{\"s\":2,\"r\":1,\"id\":2},{\"s\":1,\"r\":5,\"id\":17},{\"s\":4,\"r\":8,\"id\":32},{\"s\":3,\"r\":9,\"id\":35}],\"discard\":[{\"s\":3,\"r\":7,\"id\":27},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":3,\"id\":11}],\"hands\":{\"2404048658\":[{\"s\":2,\"r\":8,\"id\":30},{\"s\":1,\"r\":12,\"id\":45},{\"s\":3,\"r\":1,\"id\":3},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":5,\"id\":18},{\"s\":1,\"r\":10,\"id\":37}],\"2734066259\":[{\"s\":2,\"r\":9,\"id\":34},{\"s\":1,\"r\":7,\"id\":25},{\"s\":4,\"r\":7,\"id\":28},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":4,\"id\":13},{\"s\":1,\"r\":13,\"id\":49}],\"22483399774\":[{\"s\":1,\"r\":6,\"id\":21},{\"s\":4,\"r\":11,\"id\":44},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":5,\"id\":20},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":2,\"id\":8}],\"22233530764\":[{\"s\":3,\"r\":2,\"id\":7},{\"s\":1,\"r\":3,\"id\":9},{\"s\":4,\"r\":4,\"id\":16},{\"s\":3,\"r\":8,\"id\":31},{\"s\":3,\"r\":5,\"id\":19},{\"s\":1,\"r\":9,\"id\":33}]},\"hands_amount\":4,\"hands_order\":[\"22233530764\",\"2734066259\",\"2404048658\",\"22483399774\"],\"beat_confirmations\":{\"2404048658\":false,\"2734066259\":false,\"22233530764\":false,\"22483399774\":false},\"hand_size\":6,\"trump_suit\":3,\"table\":[[{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":6,\"id\":22}],[{\"s\":3,\"r\":12,\"id\":47},{\"s\":2,\"r\":2,\"id\":6}],[{\"s\":2,\"r\":10,\"id\":38},{\"s\":4,\"r\":12,\"id\":48}]]}}");
+//
+// console.log(gameData);
+//
+// window.lobbyData = {
+//     player_list: gameData.deck_manager.hands_order.map((x, i) => ({id: x, name: `Player${i + 1}`}))
+// }
 
 /**
  * @type {HandData[]}
@@ -72,6 +82,11 @@ const wh = window.innerHeight;
 
 const xCenter = ww / 2;
 const yCenter = (wh - 120) / 2 - 120;
+
+/**
+ * @type {Card | null}
+ */
+let selectedCard = null;
 
 const listeners = [];
 
@@ -133,9 +148,12 @@ const fetchHandDataOnMount = function (hands, order, playerId) {
                 const offset = 75;
                 const hOffset = dir === 1 ? offset : dir === 3 ? -offset : 0;
                 const vOffset = dir === 2 ? offset : dir === 4 ? -offset : 0;
+                const handX = j * ww / (templateLen - 1) + hGap / 10 - hOffset;
+                const handY = i * wh / (templateLen - 1) + vGap - vOffset - headerSize - hOffset * 0.5;
+
                 handsData[num - 1] = {
-                    x: j * ww / (templateLen - 1) + hGap / 10 - hOffset,
-                    y: i * wh / (templateLen - 1) + vGap - vOffset - headerSize,
+                    x: handX,
+                    y: handY,
                     dir: dir,
                     id: `hand-container-${num}`,
                     playerId: order[num - 1],
@@ -146,6 +164,16 @@ const fetchHandDataOnMount = function (hands, order, playerId) {
     }
 
     return handsData;
+}
+
+/**
+ * Set player tag name.
+ * @param id
+ * @param HTMLTag
+ * @return {Promise<void>}
+ */
+const setPlayerName = async function (id, HTMLTag) {
+    HTMLTag.innerHTML = window.lobbyData.player_list.find(x => x.id === id).name;
 }
 
 /**
@@ -196,12 +224,79 @@ const postRenderHands = function () {
             const y = localYOffset + item.y - vOffset - 100 + facing * 150;
             const x = localXOffset + item.x - hOffset - 50;
             const rotation = (((item.cards.length - 1) / 2) - i) * cardRotate + [0, 90, 180, 270][item.dir - 1];
-            const zIndex = i;
+            const zIndex = item.cards.length - i;
 
             cardRenderDataMap.set(card.id, {
                 x, y, rotation, facing, zIndex
             });
         }
+    }
+}
+
+/**
+ * renders ui: player labels, buttons, messages
+ */
+const renderUi = function () {
+    const clientId = getUser();
+
+    const msg = document.querySelector(".msg");
+    msg.innerHTML = "";
+    msg.style.left = `${xCenter - 50}px`;
+    msg.style.top = `${yCenter + 280}px`;
+
+    const takeBtn = document.querySelector("#take-button");
+    takeBtn.style.left = `${xCenter - 50}px`;
+    takeBtn.style.top = `${yCenter + 300}px`;
+    takeBtn.classList.add("hidden");
+    takeBtn.removeEventListeners("click");
+    takeBtn.addEventListener("click", () => {
+        wsGameTake();
+    })
+
+    const passBtn = document.querySelector("#pass-button");
+    passBtn.style.left = `${xCenter - 50}px`;
+    passBtn.style.top = `${yCenter +300}px`;
+    passBtn.classList.add("hidden");
+    passBtn.removeEventListeners("click");
+    passBtn.addEventListener("click", () => {
+        for (const id of gameData.deck_manager.hands_order) {
+            wsGameConfirmPass(id);
+        }
+    })
+
+    if (gameData.target_player_id !== clientId && gameData.deck_manager.table.length !== 0) {
+        passBtn.classList.remove("hidden");
+    }
+
+    if (gameData.target_player_id === clientId && gameData.deck_manager.table.length !== 0) {
+        takeBtn.classList.remove("hidden");
+    }
+
+    for (const hand of handsData) {
+        const {x, y, playerId, dir} = hand;
+        const offset = 75;
+        const margin = 35;
+        const hOffset = dir === 1 ? offset : dir === 3 ? -offset : 0;
+        const vOffset = dir === 2 ? offset : dir === 4 ? -offset : 0;
+        const vMargin = dir === 3 ? margin * 0.8 : dir === 1 ? -margin * 0.8 : 0;
+        const hMargin = dir === 2 ? margin : dir === 4 ? -margin : 0;
+
+        const HTMLPlayerTag = document.querySelector(`#player-${playerId}`);
+
+        if (playerId === clientId) {
+            HTMLPlayerTag.classList.add("hidden");
+            if (playerId === gameData.attacker_player_id) {
+                msg.innerHTML = "your turn!";
+            }
+        }
+
+        if (playerId === gameData.attacker_player_id) {
+            HTMLPlayerTag.style.border = "3px solid red";
+        }
+
+        HTMLPlayerTag.style.left = `${x - 50 + hOffset + hMargin}px`;
+        HTMLPlayerTag.style.top = `${y - 75 + vOffset + vMargin}px`;
+        setPlayerName(playerId, HTMLPlayerTag);
     }
 }
 
@@ -362,6 +457,7 @@ const positionAllCards = function () {
         HTMLCard.style.rotate = `${rotation}deg`;
         HTMLCard.style.zIndex = `${zIndex}`;
         HTMLCard.style.transform = `translate(0, 0)`;
+        HTMLCard.style.border = "1px solid black";
 
         if (!HTMLCard.style.backgroundImage) {
             if (!HTMLCard.classList.contains("card-closed")) {
@@ -375,8 +471,40 @@ const positionAllCards = function () {
         HTMLCard.removeEventListeners("mouseenter");
         HTMLCard.removeEventListeners("mouseleave");
 
+        HTMLCard.addEventListener("click", (event) => {
+            if (HTMLCard.classList.contains("client")) {
+                const hand = handsData.find(x => x.playerId === playerId).cards;
+                const HTMLCards = hand.map((card) => document.querySelector(`#card-${card.id}`));
+
+                if (HTMLCard.classList.contains("selected")) {
+                    HTMLCard.classList.remove("selected");
+                    HTMLCard.style.transform = "translate(0, 0)";
+                    HTMLCard.style.border = "1px solid black";
+                    selectedCard = null;
+                } else {
+                    HTMLCards.forEach(item => {
+                        item.classList.remove("selected");
+                        item.style.transform = "translate(0, 0)";
+                        item.style.border = "1px solid black";
+                    });
+                    HTMLCard.classList.add("selected");
+                    HTMLCard.style.transform = "translate(0, -60px)";
+                    HTMLCard.style.border = "3px solid #ff00ff";
+                    selectedCard = card;
+                }
+            }
+
+            if (HTMLCard.classList.contains("table")) {
+                if (selectedCard) {
+                    //const targetCard = gameData.deck_manager.full_deck.find(x => x.id === Number(event.target.id.split("-")[1]));
+
+                    wsGameBeat(selectedCard, card, getUser());
+                }
+            }
+        });
+
         HTMLCard.addEventListener("click", () => {
-            moveCard(card, CardType.Player, 0, gameData.deck_manager.hands_order[randomRange(0, 4)]);
+
         });
 
         if (HTMLCard.classList.contains("client")) {
@@ -390,10 +518,11 @@ const positionAllCards = function () {
 
             const rightNeighbors = HTMLHands.slice(i + 1).map(x => document.getElementById(x));
 
-
             HTMLCard.addEventListener("mouseenter", () => {
+                if (selectedCard != null) {
+                    return;
+                }
                 HTMLCard.style.transform = `translate(0, -50px)`;
-
 
                 for (const neighbor of leftNeighbors) {
                     neighbor.style.transform = "translateX(30px)";
@@ -404,17 +533,34 @@ const positionAllCards = function () {
             });
 
             HTMLCard.addEventListener("mouseleave", () => {
+                if (selectedCard != null) {
+                    return;
+                }
                 HTMLCard.style.transform = `translate(0, 0)`;
 
                 for (const neighbor of leftNeighbors) {
-                    neighbor.style.transform = "translateX(0)";
+                    neighbor.style.transform = "translate(0, 0)";
                 }
                 for (const neighbor of rightNeighbors) {
-                    neighbor.style.transform = "translateX(0)";
+                    neighbor.style.transform = "translate(0, 0)";
                 }
             });
         }
     }
+    renderUi();
+}
+
+/**
+ * returns ui elements
+ * @return {string}
+ */
+const uiElements = function () {
+    return `
+${gameData.deck_manager.hands_order.map(id => `<div class="player-nickname" id="player-${id}"></div>`).join("")}
+${gameData.deck_manager.hands_order.map(id => `<div class="attacker-tag" id="attacker-${id}">attacker</div>`).join("")}
+<button class="game-button" id="take-button">Take</button>
+<button class="game-button" id="pass-button">Pass</button>
+<div class="msg"></div>`
 }
 
 /**
@@ -428,6 +574,9 @@ export const GamePage = function () {
         player_list: [],
         game: null
     };
+
+    gameData = lobbyData.game;
+
 
     const deckManager = getDeckManagerData(gameData);
 
@@ -444,29 +593,49 @@ export const GamePage = function () {
         trumpSuit: deckManager.trump_suit
     }
 
-    document.addEventListener(PAGE_RENDER_EVENT_ID, () => {
+    const render = () => {
         if (document.querySelector(".table-container")) {
+            const table = document.querySelector(".table-container");
+            const w = 600;
+            const h = 400;
+            table.style.width = `${w}px`;
+            table.style.height = `${h}px`;
+            table.style.left = `${(ww - w) / 2}px`;
+            table.style.top = `${(wh - h) / 2 - 100}px`;
+
+            table.addEventListener("click", () => {
+                if (!selectedCard) {
+                    return;
+                }
+                if (gameData.status === "Turn") {
+                    wsGameToss(selectedCard, getUser());
+                } else {
+                    wsGameInitTurn(selectedCard, getUser());
+                }
+            })
+
             postRenderTable(tableData);
             postRenderHands();
+            renderUi();
             triggerRenderPageId();
         }
 
         if (document.querySelector(".card-container")) {
             positionAllCards();
         }
-    })
+    }
+
+    document.addEventListener(PAGE_RENDER_EVENT_ID, render);
 
     return `
 <div class="game-page-wrapper page-wrapper">
     <div class="lobby-header">
-        <div class="title">
-            WEB DURAK
-        </div>
+        <div class="title"> WEB DURAK </div>
         <button class="leave-button"> LEAVE </button>
     </div>
     <div class="game-container">
-        ${handsElements(handsData)}
-         ${tableElements(tableData)}}
+        <div class="ui-container">${uiElements()}</div>
+        <div class="cards">${handsElements()} ${tableElements(tableData)}}</div>
     </div>
 </div>`
 }
@@ -491,7 +660,7 @@ export const CardType = {
     Deck: "deck",
     Discard: "discard",
     Table: "table",
-    None: ""
+    Nobody: "Nobody"
 }
 
 /**
@@ -605,6 +774,8 @@ export const moveCard = function (card, whereTo, indexFrom = 0, indexTo = 0) {
             postRenderHands();
         }
     } else if (whereTo === CardType.Player) {
+        console.log(whereTo, whereFrom, indexTo, indexFrom, clientId);
+
         if (whereFrom === CardType.Table) {
             HTMLCard.classList.add("player");
             HTMLCard.classList.remove("table");
