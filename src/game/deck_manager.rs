@@ -84,8 +84,6 @@ impl DeckManager {
 
         self.deck.shuffle(&mut StdRng::seed_from_u64(1234));
 
-        self.trump_suit = self.deck[self.deck.len() - 1].s;
-
         self.hand_size = hand_size;
 
         for player_id in players_vec {
@@ -93,6 +91,8 @@ impl DeckManager {
             self.beat_confirmations.insert(player_id.clone(), false);
             self.deal_to_hand_until_full(&player_id).unwrap();
         }
+
+        self.trump_suit = self.deck[0].s;
 
         self.init_order()
     }
@@ -139,7 +139,7 @@ impl DeckManager {
             if bottom == beatable {
                 self.table[i].1 = Some(beating);
                 self.pick_card(&player_id, beating)?;
-                table_element_id = i as i32;
+                return Ok(i as i32);
             }
         }
 
@@ -180,7 +180,7 @@ impl DeckManager {
         Ok(())
     }
 
-    pub fn deal_more(&mut self, defending_player_id: &str) -> Result<(), ()> {
+    pub fn deal_more(&mut self, defending_player_id: &str) -> Result<Vec<(String, Vec<Card>)>, ()> {
         let defending_player_num = match self
             .hands_order.iter().position(|x| {x == defending_player_id}) {
             Some(res) => res,
@@ -188,6 +188,8 @@ impl DeckManager {
                 return Err(());
             }
         };
+
+        let mut result = vec![];
 
         let attacking_player_num = if defending_player_num > 0
             { defending_player_num - 1 } else { self.hands_order.len() - 1 };
@@ -197,10 +199,11 @@ impl DeckManager {
         ].concat().into_iter().rev().collect();
 
         for player_id in dealing_order {
-            self.deal_to_hand_until_full(&player_id).unwrap();
+            let cards = self.deal_to_hand_until_full(&player_id).unwrap();
+            result.push((player_id.clone(), cards));
         }
 
-        Ok(())
+        Ok(result)
     }
 
     pub fn can_beat(&self, beating: Card, beatable: Card) -> bool {
@@ -324,7 +327,7 @@ impl DeckManager {
         self.hands_order = hands_in_order;
     }
 
-    fn deal_to_hand_until_full(&mut self, player_id: &str) -> Result<(), ()> {
+    fn deal_to_hand_until_full(&mut self, player_id: &str) -> Result<Vec<Card>, ()> {
         let hand = match self.hands.get_mut(player_id) {
             Some(res) => res,
             None => {
@@ -336,7 +339,7 @@ impl DeckManager {
             hand.push(self.deck.pop().unwrap());
         }
 
-        Ok(())
+        Ok(hand.clone())
     }
 
     fn flatten_table(&self) -> Vec<Card> {

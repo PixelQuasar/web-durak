@@ -63,15 +63,6 @@ let cardRenderDataMap = new Map();
 
 let gameData = {};
 
-//
-// let gameData = JSON.parse("{\"id\":\"GAME4273841987\",\"status\":\"Start\",\"participant_ids\":[\"22233530764\",\"2404048658\",\"2734066259\",\"22483399774\"],\"attacker_player_id\":\"2734066259\",\"target_player_id\":\"2404048658\",\"next_player_id\":\"22233530764\",\"turn_queue\":[],\"deck_manager\":{\"full_deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":2,\"r\":1,\"id\":2},{\"s\":3,\"r\":1,\"id\":3},{\"s\":4,\"r\":1,\"id\":4},{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":2,\"id\":6},{\"s\":3,\"r\":2,\"id\":7},{\"s\":4,\"r\":2,\"id\":8},{\"s\":1,\"r\":3,\"id\":9},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":3,\"id\":11},{\"s\":4,\"r\":3,\"id\":12},{\"s\":1,\"r\":4,\"id\":13},{\"s\":2,\"r\":4,\"id\":14},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":4,\"id\":16},{\"s\":1,\"r\":5,\"id\":17},{\"s\":2,\"r\":5,\"id\":18},{\"s\":3,\"r\":5,\"id\":19},{\"s\":4,\"r\":5,\"id\":20},{\"s\":1,\"r\":6,\"id\":21},{\"s\":2,\"r\":6,\"id\":22},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":6,\"id\":24},{\"s\":1,\"r\":7,\"id\":25},{\"s\":2,\"r\":7,\"id\":26},{\"s\":3,\"r\":7,\"id\":27},{\"s\":4,\"r\":7,\"id\":28},{\"s\":1,\"r\":8,\"id\":29},{\"s\":2,\"r\":8,\"id\":30},{\"s\":3,\"r\":8,\"id\":31},{\"s\":4,\"r\":8,\"id\":32},{\"s\":1,\"r\":9,\"id\":33},{\"s\":2,\"r\":9,\"id\":34},{\"s\":3,\"r\":9,\"id\":35},{\"s\":4,\"r\":9,\"id\":36},{\"s\":1,\"r\":10,\"id\":37},{\"s\":2,\"r\":10,\"id\":38},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":11,\"id\":42},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":11,\"id\":44},{\"s\":1,\"r\":12,\"id\":45},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":12,\"id\":47},{\"s\":4,\"r\":12,\"id\":48},{\"s\":1,\"r\":13,\"id\":49},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":13,\"id\":52}],\"deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":4,\"r\":6,\"id\":24},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":13,\"id\":52},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":3,\"id\":12},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":1,\"id\":4},{\"s\":2,\"r\":7,\"id\":26},{\"s\":2,\"r\":4,\"id\":14},{\"s\":2,\"r\":11,\"id\":42},{\"s\":1,\"r\":8,\"id\":29},{\"s\":4,\"r\":9,\"id\":36},{\"s\":2,\"r\":1,\"id\":2},{\"s\":1,\"r\":5,\"id\":17},{\"s\":4,\"r\":8,\"id\":32},{\"s\":3,\"r\":9,\"id\":35}],\"discard\":[{\"s\":3,\"r\":7,\"id\":27},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":3,\"id\":11}],\"hands\":{\"2404048658\":[{\"s\":2,\"r\":8,\"id\":30},{\"s\":1,\"r\":12,\"id\":45},{\"s\":3,\"r\":1,\"id\":3},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":5,\"id\":18},{\"s\":1,\"r\":10,\"id\":37}],\"2734066259\":[{\"s\":2,\"r\":9,\"id\":34},{\"s\":1,\"r\":7,\"id\":25},{\"s\":4,\"r\":7,\"id\":28},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":4,\"id\":13},{\"s\":1,\"r\":13,\"id\":49}],\"22483399774\":[{\"s\":1,\"r\":6,\"id\":21},{\"s\":4,\"r\":11,\"id\":44},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":5,\"id\":20},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":2,\"id\":8}],\"22233530764\":[{\"s\":3,\"r\":2,\"id\":7},{\"s\":1,\"r\":3,\"id\":9},{\"s\":4,\"r\":4,\"id\":16},{\"s\":3,\"r\":8,\"id\":31},{\"s\":3,\"r\":5,\"id\":19},{\"s\":1,\"r\":9,\"id\":33}]},\"hands_amount\":4,\"hands_order\":[\"22233530764\",\"2734066259\",\"2404048658\",\"22483399774\"],\"beat_confirmations\":{\"2404048658\":false,\"2734066259\":false,\"22233530764\":false,\"22483399774\":false},\"hand_size\":6,\"trump_suit\":3,\"table\":[[{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":6,\"id\":22}],[{\"s\":3,\"r\":12,\"id\":47},{\"s\":2,\"r\":2,\"id\":6}],[{\"s\":2,\"r\":10,\"id\":38},{\"s\":4,\"r\":12,\"id\":48}]]}}");
-//
-// console.log(gameData);
-//
-// window.lobbyData = {
-//     player_list: gameData.deck_manager.hands_order.map((x, i) => ({id: x, name: `Player${i + 1}`}))
-// }
-
 /**
  * @type {HandData[]}
  */
@@ -308,10 +299,11 @@ const renderUi = function () {
 const tableElements = function (tableData) {
     return `
     ${tableData.deck.map((card, index) => 
-        `<div class="card-container ${index !== tableData.deck.length - 1 ? "card-closed" : ""} deck" id="card-${card.id}"></div>`
+        `<div class="card-container ${index !== 0 ? "card-closed" : ""} deck" id="card-${card.id}"></div>`
     ).reverse().join("")}
     ${tableData.table.map(([bottom, top]) =>
-        `<div class="card-container table" id="card-${top.id}"></div> <div class="card-container table" id="card-${bottom.id}"></div>`
+        `${ top ? `<div class="card-container table" id="card-${top.id}"></div>` : ""} 
+        <div class="card-container table" id="card-${bottom.id}"></div>`
     ).join("")} 
     ${tableData.discard.map((card) => 
         `<div class="card-container card-closed discard" id="card-${card.id}"></div>`
@@ -325,21 +317,23 @@ const tableElements = function (tableData) {
  */
 const renderDeck = function (deck) {
     let i = 0;
-
-    const trump = deck.pop();
-    const x = deckPosition.x + 20;
-    const y = deckPosition.y;
-    const facing = false;
-    const rotation = 90;
-    const zIndex = 1;
+    const trump = deck.slice(0, 1)[0];
+    let x = deckPosition.x + 20;
+    let y = deckPosition.y;
+    let facing = true;
+    let rotation = 90;
+    let zIndex = 1;
     cardRenderDataMap.set(trump.id, { x, y, rotation, facing, zIndex });
     for (const card of deck) {
+        if (card.id === trump.id) {
+            continue;
+        }
         const scatter = 5;
-        const x = deckPosition.x;
-        const y = deckPosition.y + i * 0.5;
-        const facing = false;
-        const rotation = randomRange(-scatter, scatter);
-        const zIndex = 1;
+         x = deckPosition.x;
+         y = deckPosition.y + i * 0.5;
+        facing = false;
+        rotation = randomRange(-scatter, scatter);
+        zIndex += 1;
 
         cardRenderDataMap.set(card.id, { x, y, rotation, facing, zIndex });
 
@@ -368,11 +362,11 @@ const renderTable = function (table) {
             const width = 500;
             const height = 400;
 
-            const rows = 2;
-            const columns = Math.ceil(table.length / 2);
+            const rows = 3;
+            const columns = 2;
 
             const currentColumn = i % columns;
-            const currentRow = Math.floor(i / rows);
+            const currentRow = Math.floor(i / columns);
 
             const scatter = 50;
 
@@ -445,7 +439,7 @@ id="card-${card.id}"></div>`
 /**
  * place and position all cards on game table
  */
-const positionAllCards = function () {
+export const positionAllCards = function () {
     const deck = gameData.deck_manager.full_deck;
     const playerId = getUser();
 
@@ -457,7 +451,7 @@ const positionAllCards = function () {
         HTMLCard.style.rotate = `${rotation}deg`;
         HTMLCard.style.zIndex = `${zIndex}`;
         HTMLCard.style.transform = `translate(0, 0)`;
-        HTMLCard.style.border = "1px solid black";
+        HTMLCard.style.border = "1px solid black"
 
         if (!HTMLCard.style.backgroundImage) {
             if (!HTMLCard.classList.contains("card-closed")) {
@@ -496,8 +490,6 @@ const positionAllCards = function () {
 
             if (HTMLCard.classList.contains("table")) {
                 if (selectedCard) {
-                    //const targetCard = gameData.deck_manager.full_deck.find(x => x.id === Number(event.target.id.split("-")[1]));
-
                     wsGameBeat(selectedCard, card, getUser());
                 }
             }
@@ -576,7 +568,6 @@ export const GamePage = function () {
     };
 
     gameData = lobbyData.game;
-
 
     const deckManager = getDeckManagerData(gameData);
 
@@ -774,8 +765,6 @@ export const moveCard = function (card, whereTo, indexFrom = 0, indexTo = 0) {
             postRenderHands();
         }
     } else if (whereTo === CardType.Player) {
-        console.log(whereTo, whereFrom, indexTo, indexFrom, clientId);
-
         if (whereFrom === CardType.Table) {
             HTMLCard.classList.add("player");
             HTMLCard.classList.remove("table");
@@ -803,5 +792,4 @@ export const moveCard = function (card, whereTo, indexFrom = 0, indexTo = 0) {
             postRenderHands();
         }
     }
-    positionAllCards();
 }

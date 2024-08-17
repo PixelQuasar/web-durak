@@ -126,16 +126,27 @@ pub async fn handle_message(
                     WSRequestType::GameTurnDiscard => {
                         let table_size = game.deck_manager.get_table_size();
 
-                        let result = (0..table_size).map(|index| {
+                        let mut result = (0..table_size).map(|index| {
                             GameUpdateState::new(
                                 GameEntityType::Discard, GameEntityType::Table,
                                 String::new(), index.to_string(),
                                 game.deck_manager.get_table_element_cards(index)
                             )
-                        }).collect();
+                        }).collect::<Vec<GameUpdateState>>();
 
                         game.finish_with_discard()
                             .map_err(|_| { "game machine error" })?;
+
+                        let cards = game.deal_more(&game.target_player_id().unwrap())
+                            .map_err(|_| { "game machine error" })?;
+
+                        for (player, hand) in cards {
+                            result.push(GameUpdateState::new(
+                                GameEntityType::Player, GameEntityType::Deck,
+                                player, String::new(),
+                                hand
+                            ));
+                        }
 
                         result
                     },
@@ -150,15 +161,26 @@ pub async fn handle_message(
 
                         let table_size = game.deck_manager.get_table_size();
 
-                        let result = (0..table_size).map(|index| {
+                        let mut result = (0..table_size).map(|index| {
                             GameUpdateState::new(
                                 GameEntityType::Player, GameEntityType::Table,
                                 player_id.clone(), index.to_string(),
                                 game.deck_manager.get_table_element_cards(index)
                             )
-                        }).collect();
+                        }).collect::<Vec<GameUpdateState>>();
 
                         game.finish_with_take().map_err(|_| { "game machine error" })?;
+
+                        let cards = game.deal_more(&game.target_player_id().unwrap())
+                            .map_err(|_| { "game machine error" })?;
+
+                        for (player, hand) in cards {
+                            result.push(GameUpdateState::new(
+                                GameEntityType::Player, GameEntityType::Deck,
+                                player, String::new(),
+                                hand
+                            ));
+                        }
 
                         result
                     },
@@ -173,15 +195,27 @@ pub async fn handle_message(
                         if game.is_all_confirmed() {
                             let table_size = game.deck_manager.get_table_size();
 
-                            let result = (0..table_size).map(|index| {
+                            let mut result = (0..table_size).map(|index| {
                                 GameUpdateState::new(
                                     GameEntityType::Discard, GameEntityType::Table,
                                     String::new(), index.to_string(),
                                     game.deck_manager.get_table_element_cards(index)
                                 )
-                            }).collect();
+                            }).collect::<Vec<GameUpdateState>>();
 
-                            game.finish_with_discard().map_err(|_| { "game machine error" })?;
+                            game.finish_with_discard()
+                                .map_err(|_| { "game machine error" })?;
+
+                            let cards = game.deal_more(&game.target_player_id().unwrap())
+                                .map_err(|_| { "game machine error" })?;
+
+                            for (player, hand) in cards {
+                                result.push(GameUpdateState::new(
+                                    GameEntityType::Player, GameEntityType::Deck,
+                                    player, String::new(),
+                                    hand
+                                ));
+                            }
 
                             result
                         } else {

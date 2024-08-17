@@ -27,12 +27,14 @@ const handleGameUpdateState = function (state) {
     for (const card of state.cards) {
         moveCard(card, actionTypeMap[state.receiver_type], state.sender_id, state.receiver_id);
     }
+
+    positionAllCards();
 }
 
 export const handleServerMessage = async function (data) {
     data = JSON.parse(data);
 
-    console.log("NEW WEBSOCKET DATA: ", data);
+    // console.log("NEW WEBSOCKET DATA: ", data);
 
     if (!data.req_type && !data.content) return;
 
@@ -48,7 +50,6 @@ export const handleServerMessage = async function (data) {
         }
         case "GameCreate": {
             window.lobbyData = JSON.parse(data.content);
-            console.log(JSON.parse(data.content));
             const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
             window.dispatchEvent(websocketEvent);
             navigate("/game");

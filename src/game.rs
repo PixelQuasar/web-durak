@@ -147,6 +147,10 @@ impl Game {
         }
     }
 
+    pub fn deal_more(&mut self, defending_player_id: &str) -> Result<Vec<(String, Vec<Card>)>, ()> {
+        self.deck_manager.deal_more(defending_player_id)
+    }
+
     pub fn target_player_id(&self) -> Option<String> {
         self.target_player_id.clone()
     }
