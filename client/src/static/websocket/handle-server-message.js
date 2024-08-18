@@ -1,6 +1,5 @@
 import {navigate, WEBSOCKET_UPDATE_ID} from "../utils/index.js";
 import {CardType, moveCard, positionAllCards, updateGameData} from "../pages/game-page/game-page.js";
-import {scoreBoardQuery} from "../state/lobby-handler.js";
 
 /**
  * server game update state entity
@@ -61,7 +60,9 @@ export const handleServerMessage = async function (data) {
             handleGameUpdateState(state);
         }
         if (data.req_type === "GameFinish") {
-            console.log(await scoreBoardQuery(window.lobbyData.id));
+            navigate("/scores");
         }
+    } else if (data.req_type === "GameDelete") {
+        navigate("/lobby");
     }
 }

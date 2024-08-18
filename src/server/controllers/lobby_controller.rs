@@ -124,7 +124,7 @@ pub async fn add_player_to_populated_lobby(
 pub async fn get_lobby_score_board(
     redis_pool: &Pool<RedisConnectionManager>,
     lobby_id: &str,
-) -> Result<Vec<Player>, String> {
+) -> Result<Vec<(Player, usize)>, String> {
     let lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
 
     if lobby.game.is_none() {
@@ -133,8 +133,10 @@ pub async fn get_lobby_score_board(
 
     let populated_lobby = get_populated_lobby(&redis_pool, lobby_id).await?;
 
-    Ok(lobby
+    let result = lobby
         .game
         .unwrap()
-        .get_leaderboard(populated_lobby.player_list()))
+        .get_leaderboard(populated_lobby.player_list());
+
+    Ok(result)
 }

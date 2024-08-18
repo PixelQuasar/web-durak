@@ -180,7 +180,7 @@ impl Game {
         self.deck_manager.can_be_finished()
     }
 
-    pub fn get_leaderboard(&self, players: Vec<Player>) -> Vec<Player> {
+    pub fn get_leaderboard(&self, players: Vec<Player>) -> Vec<(Player, usize)> {
         let ids = self.deck_manager.get_leaderboard();
 
         let mut player_map: HashMap<String, Player> = HashMap::new();
@@ -189,9 +189,31 @@ impl Game {
             player_map.insert(player.get_id().to_string(), player);
         }
 
+        let mut index = 0;
+        let scores = vec![
+            vec![0],
+            vec![4, 0],
+            vec![4, 2, 0],
+            vec![4, 2, 1, 0],
+            vec![4, 2, 1, 1, 0],
+            vec![4, 2, 2, 1, 1, 0],
+        ];
+
+        let current_scores = scores[self.participant_ids.len() - 1].clone();
+
         ids.iter()
-            .map(|item| player_map.get(item).unwrap().to_owned())
-            .collect::<Vec<Player>>()
+            .map(|item| {
+                if item.len() == 0 {
+                    (Player::new("Unknown".to_string()), 0)
+                } else {
+                    index += 1;
+                    (
+                        player_map.get(item).unwrap().to_owned(),
+                        current_scores[index - 1],
+                    )
+                }
+            })
+            .collect::<Vec<(Player, usize)>>()
     }
 
     pub fn finish_game(&mut self) {

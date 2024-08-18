@@ -6,6 +6,7 @@ mod websocket;
 
 use crate::server::routes::lobby_routes::{
     route_create_lobby, route_delete_lobby, route_get_lobbies, route_get_lobby_by_id,
+    route_get_lobby_score_board,
 };
 use crate::server::routes::player_routes::{route_create_player, route_get_player_by_id};
 use crate::server::websocket::websocket_handler;
@@ -61,6 +62,7 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
             "/lobby/:id",
             get(route_get_lobby_by_id).delete(route_delete_lobby),
         )
+        .route("/lobby/scoreboard/:id", get(route_get_lobby_score_board))
         // PLAYER
         .route("/player", post(route_create_player))
         .route("/player/:id", get(route_get_player_by_id))

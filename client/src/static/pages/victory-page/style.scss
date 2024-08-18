@@ -1,0 +1,17 @@
+.score-item {
+  display: flex;
+  gap: 16px;
+}
+
+.place {
+  flex-basis: 10%;
+}
+
+.name {
+  flex-basis: 40%;
+}
+
+.score {
+  flex-basis: 40%;
+  text-align: right;
+}

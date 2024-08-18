@@ -55,7 +55,7 @@ pub async fn handle_message(
         )
         .unwrap();
 
-        Ok((ClientRequestType::GameDelete, result))
+        Ok((ClientRequestType::GameCreate, result))
     } else if request.req_type == WSRequestType::GameFinish {
         lobby.finish_game();
 
@@ -68,7 +68,7 @@ pub async fn handle_message(
         )
         .unwrap();
 
-        Ok((ClientRequestType::GameCreate, result))
+        Ok((ClientRequestType::GameDelete, result))
     } else {
         match lobby.game {
             Some(ref mut game) => {
@@ -300,7 +300,7 @@ pub async fn handle_message(
                 let result = to_string::<WSGameUpdateResponseType>(&response)
                     .map_err(|_| "parsing error")?;
 
-                if can_be_finished {
+                if !can_be_finished {
                     Ok((ClientRequestType::GameUpdate, result))
                 } else {
                     Ok((ClientRequestType::GameFinish, result))

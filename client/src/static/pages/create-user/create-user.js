@@ -27,8 +27,7 @@ export const CreateUser = function () {
     
     <input type="text" id="user-name-input" class="large-textbox" placeholder="Type your name here">
     <button class="create-user-button">CREATE USER</button>
-</div>
-    `
+</div>`
 }
 
 document.querySelector("body").addEventListener("click", async (event) => {

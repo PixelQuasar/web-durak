@@ -1,6 +1,8 @@
+use crate::player::Player;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::SeedableRng;
+use serde::de::Unexpected::Str;
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::HashMap;
 use std::fmt;
@@ -115,7 +117,7 @@ impl DeckManager {
     }
 
     pub fn deal_six(&mut self, players_vec: Vec<String>) {
-        self.deal(players_vec, 1);
+        self.deal(players_vec, 6);
     }
 
     pub fn init_table(&mut self, player_id: &str, card: Card) -> Result<(), ()> {
@@ -376,6 +378,7 @@ impl DeckManager {
     }
 
     pub fn victory_check_and_handle(&mut self) -> bool {
+        let mut winner_counter = 0;
         for i in 0..self.hands_order.len() {
             let hand = self.hands.get(&self.hands_order[i]).unwrap();
             if (hand.len() == 0) {
@@ -383,20 +386,21 @@ impl DeckManager {
                 return true;
             }
         }
-
         return false;
     }
 
     pub fn get_leaderboard(&self) -> Vec<String> {
-        let mut result: Vec<String> = Vec::with_capacity(self.hands_statuses.len());
+        let mut result: Vec<String> = Vec::with_capacity(self.hands_order.len());
+        for i in 0..self.hands_order.len() {
+            result.push(String::new());
+        }
 
         let amount_of_winners = self.get_amount_of_winners();
 
         for i in 0..self.hands_statuses.len() {
             if self.hands_statuses[i] == HandStatus::Active {
                 result[amount_of_winners] = self.hands_order[i].clone();
-            }
-            if let HandStatus::Winner(order) = self.hands_statuses[i] {
+            } else if let HandStatus::Winner(order) = self.hands_statuses[i] {
                 result[order as usize] = self.hands_order[i].clone();
             }
         }
@@ -409,13 +413,15 @@ impl DeckManager {
     }
 
     pub fn can_be_finished(&self) -> bool {
-        let mut result = true;
+        let mut active_counter = 0;
 
         for item in &self.hands_statuses {
-            result = result && (*item != HandStatus::Active);
+            if *item == HandStatus::Active {
+                active_counter += 1;
+            }
         }
 
-        result
+        active_counter == 1
     }
 
     fn get_amount_of_winners(&self) -> usize {

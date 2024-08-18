@@ -11,6 +11,12 @@ export const wsCreateGame = function () {
     window.websocket.send(buildWebsocketRequest(ReqTypes.GameCreate, window.lobbyData.id, {}));
 }
 
+export const wsFinishGame = function () {
+    if (!window.websocket) return initWebsocketConnection();
+    if (!window.lobbyData) return navigate("/");
+    window.websocket.send(buildWebsocketRequest(ReqTypes.GameFinish, window.lobbyData.id, {}));
+}
+
 export const wsGameConfirmPass = function (playerId) {
     window.websocket.send(buildWebsocketRequest(ReqTypes.GameTurnConfirmBeat, window.lobbyData.id, {
         player_id: playerId

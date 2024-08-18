@@ -1,8 +1,7 @@
 import './style.scss';
 import {createRouter} from "./router.js";
-import {CreateLobby, CreateUser, Homepage, JoinLobby, LobbyPage} from "./pages/index.js";
+import {CreateLobby, CreateUser, Homepage, JoinLobby, LobbyPage, GamePage, VictoryPage} from "./pages/index.js";
 import {PAGE_CHANGE_EVENT_ID, WEBSOCKET_UPDATE_ID} from "./utils/index.js";
-import {GamePage} from "./pages/game-page/game-page.js";
 
 const router = createRouter([
     {
@@ -28,6 +27,10 @@ const router = createRouter([
     {
         name: "/game",
         page: GamePage
+    },
+    {
+        name: "/scores",
+        page: VictoryPage
     }
 ]);
 

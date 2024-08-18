@@ -1,6 +1,8 @@
 use crate::lobby::{Lobby, PopulatedLobby};
+use crate::player::Player;
 use crate::server::controllers::lobby_controller::{
-    create_lobby, delete_lobby, get_lobbies, get_populated_lobby, NewLobbyData,
+    create_lobby, delete_lobby, get_lobbies, get_lobby_score_board, get_populated_lobby,
+    NewLobbyData,
 };
 use crate::server::errors::error_msg_to_server_error;
 use crate::server::AppState;
@@ -54,4 +56,15 @@ pub async fn route_delete_lobby(
     Ok(delete_lobby(&state.redis_pool, &id)
         .await
         .map_err(error_msg_to_server_error)?)
+}
+
+pub async fn route_get_lobby_score_board(
+    State(state): State<Arc<AppState>>,
+    Path(id): Path<String>,
+) -> Result<Json<Vec<(Player, usize)>>, (StatusCode, String)> {
+    Ok(Json(
+        get_lobby_score_board(&state.redis_pool, &id)
+            .await
+            .map_err(error_msg_to_server_error)?,
+    ))
 }

@@ -1,12 +1,20 @@
 import {navigate} from "../../utils/index.js";
 import {disconnectWebsocket} from "../../websocket/index.js";
 import {wsCreateGame} from "../../websocket/handle-game.js";
+import {getLobby} from "../../state/lobby-handler.js";
+import {getUser} from "../../state/index.js";
 
+/**
+ * Leave lobby and go to homepage
+ */
 const leaveLobbyAction = function () {
     disconnectWebsocket();
     navigate("/");
 }
 
+/**
+ * Create game
+ */
 const createGameAction = function () {
     wsCreateGame();
 }
@@ -41,7 +49,7 @@ export const LobbyPage = function () {
     <div class="lobby-wrapper">
         <div class="player-list">
             <div class="title">
-                Players:
+                Players (${window.lobbyData.player_list.length}):
             </div>
             ${lobbyData.player_list.map(item => `
                 <div class="player-list-item"> ${item.name} </div>
@@ -49,7 +57,10 @@ export const LobbyPage = function () {
         </div>
         
         <div class="game-info">
-            <button class="create-game-button"> CREATE GAME </button>
+            ${window.lobbyData.owner_id === getUser() ? 
+                `<button class="create-game-button"> CREATE GAME </button>` : 
+                `<h2>Waiting for host to start a game...</h2>`
+            }
         </div>
     </div>
 </div>`
