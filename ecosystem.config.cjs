@@ -4,7 +4,7 @@ module.exports = {
             name: "web-durak-client",
             script: "npm run start",
             watch_delay: 10,
-            ignore_watch : ["node_modules"],
+            ignore_watch : ["node_modules", "client/build"],
             watch: false,
         },
         {
