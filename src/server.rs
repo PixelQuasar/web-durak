@@ -12,6 +12,7 @@ use crate::server::routes::player_routes::{route_create_player, route_get_player
 use crate::server::websocket::websocket_handler;
 use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
+use axum::routing::MethodRouter;
 use axum::{routing::get, routing::patch, routing::post, Router};
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
@@ -20,7 +21,6 @@ use redis::AsyncCommands;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;
-use axum::routing::MethodRouter;
 use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
 
@@ -53,26 +53,27 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
         .allow_origin(Any)
         .allow_headers([CONTENT_TYPE]);
 
-    let api_prefix = dotenv::var("API_PREFIX").expect("SERVER_PORT environment variable not defined.");
+    let api_prefix =
+        dotenv::var("API_PREFIX").expect("SERVER_PORT environment variable not defined.");
 
-    let app = Router::new()
-        .route(&api_prefix, MethodRouter::new()
-            .fallback(fallback)
-            // WEBSOCKET
-            .route("/ws", get(websocket_handler))
-            // LOBBY
-            .route("/lobby", get(route_get_lobbies).post(route_create_lobby))
-            .route(
-                "/lobby/:id",
-                get(route_get_lobby_by_id).delete(route_delete_lobby),
-            )
-            .route("/lobby/scoreboard/:id", get(route_get_lobby_score_board))
-            // PLAYER
-            .route("/player", post(route_create_player))
-            .route("/player/:id", get(route_get_player_by_id))
-            .with_state(state)
-            .layer(cors)
-        );
+    let routes = Router::new()
+        .fallback(fallback)
+        // WEBSOCKET
+        .route("/ws", get(websocket_handler))
+        // LOBBY
+        .route("/lobby", get(route_get_lobbies).post(route_create_lobby))
+        .route(
+            "/lobby/:id",
+            get(route_get_lobby_by_id).delete(route_delete_lobby),
+        )
+        .route("/lobby/scoreboard/:id", get(route_get_lobby_score_board))
+        // PLAYER
+        .route("/player", post(route_create_player))
+        .route("/player/:id", get(route_get_player_by_id))
+        .with_state(state)
+        .layer(cors);
+
+    let app = Router::new().nest(&api_prefix, routes);
 
     let port = dotenv::var("SERVER_PORT").expect("SERVER_PORT environment variable not defined.");
 
