@@ -3,12 +3,12 @@ module.exports = {
         {
             name: "web-durak-client",
             script: "npm run start",
-            watch: false,
+            watch: true,
         },
         {
             name: "web-durak-server",
             script: "cargo run --release",
-            watch: false,
+            watch: true,
         },
     ],
 };
