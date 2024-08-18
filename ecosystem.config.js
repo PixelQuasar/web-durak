@@ -1,9 +1,13 @@
 module.exports = {
     apps: [
         {
-            name: "web-durak",
-            script: ["cargo run --release", "npm run start"],
-            "watch-ignore": ["/\\]./", "node_modules", "*.log", "public", "src"],
+            name: "web-durak-client",
+            script: "npm run start",
+            watch: false,
+        },
+        {
+            name: "web-durak-server",
+            script: "cargo run --release",
             watch: false,
         },
     ],
