@@ -5,7 +5,6 @@ use crate::server::controllers::lobby_controller::{
 use crate::server::errors::error_message;
 use crate::server::websocket::client_request::{ClientRequest, ClientRequestType};
 use crate::server::websocket::websocket_service::{ws_create_lobby, ws_join_lobby, ws_leave_lobby};
-use crate::server::websocket::GameEntityType::{Deck, Table};
 use crate::server::websocket::{
     GameEntityType, GameUpdateState, WSBody, WSBodyCardContent, WSGameUpdateResponseType,
     WSRequestType,
@@ -46,6 +45,19 @@ pub async fn handle_message(
 
     if request.req_type == WSRequestType::GameCreate {
         lobby.init_game(lobby.player_list().clone());
+
+        save_lobby(&app_state.redis_pool, lobby.clone()).await?;
+
+        let result = to_string::<PopulatedLobby>(
+            &get_populated_lobby(&app_state.redis_pool, lobby_id.as_str())
+                .await
+                .map_err(|_| "game machine error")?,
+        )
+        .unwrap();
+
+        Ok((ClientRequestType::GameDelete, result))
+    } else if request.req_type == WSRequestType::GameFinish {
+        lobby.finish_game();
 
         save_lobby(&app_state.redis_pool, lobby.clone()).await?;
 
@@ -270,6 +282,13 @@ pub async fn handle_message(
                         )]
                     }
                 };
+
+                let can_be_finished = game.can_be_finished();
+
+                if can_be_finished {
+                    game.finish_game();
+                }
+
                 save_lobby(&app_state.redis_pool, lobby.clone()).await?;
 
                 let lobby = get_populated_lobby(&app_state.redis_pool, lobby_id.as_str())
@@ -281,8 +300,13 @@ pub async fn handle_message(
                 let result = to_string::<WSGameUpdateResponseType>(&response)
                     .map_err(|_| "parsing error")?;
 
-                Ok((ClientRequestType::GameUpdate, result))
+                if can_be_finished {
+                    Ok((ClientRequestType::GameUpdate, result))
+                } else {
+                    Ok((ClientRequestType::GameFinish, result))
+                }
             }
+
             None => return Err("lobby error".to_string()),
         }
     }

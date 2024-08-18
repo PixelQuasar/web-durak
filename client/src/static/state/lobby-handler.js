@@ -26,3 +26,14 @@ export const getLobbyQuery = async function (id) {
 
     return await response.json();
 }
+
+/**
+ * Get lobby scoreboard
+ * @param {string} id
+ * @return {Promise<any>}
+ */
+export const scoreBoardQuery = async function (id) {
+    const response = await fetch(`${process.env.SERVER_URL}/lobby/scoreboard/${id}`);
+
+    return await response.json();
+}

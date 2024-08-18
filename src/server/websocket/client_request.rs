@@ -7,6 +7,8 @@ pub enum ClientRequestType {
     LobbyUpdate,
     GameCreate,
     GameUpdate,
+    GameFinish,
+    GameDelete,
     Error,
 }
 

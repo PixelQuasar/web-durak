@@ -29,6 +29,7 @@ pub enum WSRequestType {
     GameTurnBeat,
     GameTurnTake,
     GameTurnDiscard,
+    GameFinish,
 }
 
 #[derive(Deserialize, Serialize, Clone, PartialEq, Debug)]

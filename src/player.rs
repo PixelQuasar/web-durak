@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 pub struct Player {
     id: String,
     name: String,
+    wins: usize,
     active: bool,
     ready: bool,
 }
@@ -22,6 +23,7 @@ impl Player {
         Player {
             id: new_id,
             name: player_name.parse().unwrap(),
+            wins: 0,
             active: false,
             ready: false,
         }

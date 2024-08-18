@@ -1,5 +1,6 @@
 use crate::lobby::{Lobby, PopulatedLobby};
 use crate::player::Player;
+use crate::server::controllers::player_controller::get_player_by_id;
 use crate::server::redis_service::{
     delete_struct_from_redis, get_struct_from_redis, get_vector_from_redis, set_struct_to_redis,
 };
@@ -95,15 +96,11 @@ pub async fn get_populated_lobby(
 ) -> Result<PopulatedLobby, String> {
     let lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
 
-    let players: Vec<Option<Player>> = join_all(lobby.player_list().into_iter().map(
-        |item: &String| async move {
-            match get_struct_from_redis::<Player>(&redis_pool, &item).await {
-                Ok(result) => Some(result),
-                Err(e) => None,
-            }
-        },
-    ))
-    .await;
+    let mut players: Vec<Player> = vec![];
+
+    for player_id in lobby.player_list() {
+        players.push(get_player_by_id(redis_pool, player_id.to_string()).await?);
+    }
 
     Ok(PopulatedLobby::from_lobby(lobby, players))
 }
@@ -113,13 +110,31 @@ pub async fn add_player_to_populated_lobby(
     lobby_id: &str,
     player_id: &str,
 ) -> Result<PopulatedLobby, String> {
-    let mut lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
+    let lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
 
-    let lobby = add_player_to_lobby(&redis_pool, lobby_id.clone(), player_id).await?;
+    let lobby = add_player_to_lobby(&redis_pool, lobby_id, player_id).await?;
 
     set_struct_to_redis::<Lobby>(redis_pool, lobby_id, lobby.clone()).await?;
 
     let populated_lobby = get_populated_lobby(&redis_pool, lobby_id).await?;
 
     Ok(populated_lobby)
+}
+
+pub async fn get_lobby_score_board(
+    redis_pool: &Pool<RedisConnectionManager>,
+    lobby_id: &str,
+) -> Result<Vec<Player>, String> {
+    let lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
+
+    if lobby.game.is_none() {
+        return Err("no game in this lobby".to_string());
+    }
+
+    let populated_lobby = get_populated_lobby(&redis_pool, lobby_id).await?;
+
+    Ok(lobby
+        .game
+        .unwrap()
+        .get_leaderboard(populated_lobby.player_list()))
 }

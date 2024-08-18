@@ -4,6 +4,8 @@ use crate::player::Player;
 use crate::utils::gen_special_id;
 use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
+use std::collections::HashMap;
+use std::ops::Deref;
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum GameLoopState {
@@ -172,6 +174,28 @@ impl Game {
 
     pub fn start(&mut self) {
         self.status = GameLoopState::BeforeTurn;
+    }
+
+    pub fn can_be_finished(&self) -> bool {
+        self.deck_manager.can_be_finished()
+    }
+
+    pub fn get_leaderboard(&self, players: Vec<Player>) -> Vec<Player> {
+        let ids = self.deck_manager.get_leaderboard();
+
+        let mut player_map: HashMap<String, Player> = HashMap::new();
+
+        for player in players {
+            player_map.insert(player.get_id().to_string(), player);
+        }
+
+        ids.iter()
+            .map(|item| player_map.get(item).unwrap().to_owned())
+            .collect::<Vec<Player>>()
+    }
+
+    pub fn finish_game(&mut self) {
+        self.status = GameLoopState::Finish;
     }
 
     fn can_init_table(&self, player_id: &str) -> bool {

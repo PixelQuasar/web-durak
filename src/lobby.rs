@@ -1,7 +1,6 @@
 use crate::game::Game;
 use crate::player::Player;
 use crate::utils::gen_special_id;
-use serde::__private::de::Content::Str;
 use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
 use std::ops::Deref;
@@ -20,6 +19,7 @@ pub struct Lobby {
     owner_id: String,
     public: bool,
     player_list: Vec<String>,
+    max_players: usize,
     pub game: Option<Game>,
 }
 
@@ -29,7 +29,8 @@ pub struct PopulatedLobby {
     status: LobbyStatus,
     owner_id: String,
     public: bool,
-    player_list: Vec<Option<Player>>,
+    player_list: Vec<Player>,
+    max_players: usize,
     pub game: Option<Game>,
 }
 
@@ -42,6 +43,7 @@ impl Lobby {
             public: is_public,
             owner_id: String::new(),
             player_list: vec![],
+            max_players: 6,
             game: None,
         }
     }
@@ -95,6 +97,12 @@ impl Lobby {
         self.game = Some(game);
     }
 
+    pub fn finish_game(&mut self) {
+        self.status = LobbyStatus::ACTIVE;
+
+        self.game = None;
+    }
+
     pub fn players_num(&self) -> usize {
         return self.player_list.len();
     }
@@ -105,13 +113,14 @@ impl Lobby {
 }
 
 impl PopulatedLobby {
-    pub fn from_lobby(lobby: Lobby, players: Vec<Option<Player>>) -> PopulatedLobby {
+    pub fn from_lobby(lobby: Lobby, players: Vec<Player>) -> PopulatedLobby {
         PopulatedLobby {
             id: lobby.id,
             status: lobby.status,
             public: lobby.public,
             owner_id: lobby.owner_id,
             player_list: players,
+            max_players: 6,
             game: lobby.game,
         }
     }
@@ -125,19 +134,18 @@ impl PopulatedLobby {
     }
 
     pub fn player_add(&mut self, player: Player) {
-        self.player_list.push(Some(player));
+        self.player_list.push(player);
+    }
+
+    pub fn player_list(&self) -> Vec<Player> {
+        self.player_list.clone()
     }
 
     pub fn player_remove(&mut self, id: &str) {
         let index = self
             .player_list
             .iter()
-            .position(|item| {
-                item.clone()
-                    .unwrap_or_else(|| Player::new(String::new()))
-                    .get_id()
-                    == id
-            })
+            .position(|item| item.clone().get_id() == id)
             .unwrap();
         self.player_list.remove(index);
     }
