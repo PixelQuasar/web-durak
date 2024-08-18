@@ -1,7 +1,7 @@
 use crate::player::Player;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
-use rand::SeedableRng;
+use rand::{random, Rng, SeedableRng};
 use serde::de::Unexpected::Str;
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::HashMap;
@@ -101,7 +101,7 @@ impl DeckManager {
         let players_num = players_vec.len();
         self.hands_amount = players_num;
 
-        self.deck.shuffle(&mut StdRng::seed_from_u64());
+        self.deck.shuffle(&mut StdRng::seed_from_u64(random::<u64>()));
 
         self.hand_size = hand_size;
 
