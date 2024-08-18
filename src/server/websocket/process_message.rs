@@ -41,7 +41,7 @@ pub async fn handle_message(
 
     let mut lobby = get_lobby_by_id(&app_state.redis_pool, &lobby_id.clone()).await?;
 
-    print!("{:#?}", request);
+    println!("{:#?}", request.req_type);
 
     if request.req_type == WSRequestType::GameCreate {
         lobby.init_game(lobby.player_list().clone());

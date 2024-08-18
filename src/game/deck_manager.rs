@@ -101,7 +101,7 @@ impl DeckManager {
         let players_num = players_vec.len();
         self.hands_amount = players_num;
 
-        self.deck.shuffle(&mut StdRng::seed_from_u64(1234));
+        self.deck.shuffle(&mut StdRng::seed_from_u64());
 
         self.hand_size = hand_size;
 

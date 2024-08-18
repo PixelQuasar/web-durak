@@ -34,7 +34,7 @@ const handleGameUpdateState = function (state) {
 export const handleServerMessage = async function (data) {
     data = JSON.parse(data);
 
-    console.log("NEW WEBSOCKET DATA: ", data);
+    // console.log("NEW WEBSOCKET DATA: ", data);
 
     if (!data.req_type && !data.content) return;
 
