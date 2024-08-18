@@ -3,9 +3,9 @@
 ### Multiplayer web implementation of traditional Russian card game via rust axum websocket server.
 
 ### Controls:
-- Throw card: click on the card in your hand and then in the middle of desk;
+- Throw card: click on the card in your hand and then in the middle of thr table;
 - Toss card: same as throw;
-- Beat: click on the card in your hand and then on card which you wanna beat.
+- Beat: click on the card in your hand and then on card which you want to beat.
 
 ### Rules:
 https://en.wikipedia.org/wiki/Durak
