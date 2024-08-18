@@ -513,6 +513,18 @@ impl DeckManager {
     }
 
     fn can_toss(&self, card: Card) -> bool {
+        let opened_cards =
+            self.table.iter().fold(
+                0,
+                |result, item| {
+                    if item.1.is_none() {
+                        result + 1
+                    } else {
+                        result
+                    }
+                },
+            );
+
         for (bottom, top) in &self.table {
             if bottom.r == card.r {
                 return true;
