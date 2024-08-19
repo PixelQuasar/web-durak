@@ -77,7 +77,11 @@
 .msg {
   position: absolute;
   z-index: 100;
-  color: #ffffff;
+  font-size: 1.5em;
+  font-weight: bolder;
+  -webkit-text-stroke: 2px #ffffff;
+  color: #000000;
+  animation: msgAnim 0.8s infinite;
 }
 
 .hidden {
@@ -86,7 +90,19 @@
 
 .game-button {
   position: absolute;
-  margin: 16px;
+  padding: 16px;
   z-index: 150;
   cursor: pointer;
+}
+
+@keyframes msgAnim {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
