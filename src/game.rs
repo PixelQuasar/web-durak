@@ -220,6 +220,10 @@ impl Game {
         self.status = GameLoopState::Finish;
     }
 
+    pub fn get_players(&self) -> Vec<String> {
+        self.participant_ids.clone()
+    }
+
     fn can_init_table(&self, player_id: &str) -> bool {
         if self.status != GameLoopState::BeforeTurn {
             return false;

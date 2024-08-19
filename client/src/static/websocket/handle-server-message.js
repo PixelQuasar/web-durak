@@ -60,7 +60,9 @@ export const handleServerMessage = async function (data) {
             handleGameUpdateState(state);
         }
         if (data.req_type === "GameFinish") {
-            navigate("/scores");
+            setTimeout(() => {
+                navigate("/scores");
+            }, 2000)
         }
     } else if (data.req_type === "GameDelete") {
         navigate("/lobby");

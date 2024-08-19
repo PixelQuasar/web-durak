@@ -13,6 +13,7 @@ use crate::server::AppState;
 use serde_json::{from_str, to_string};
 use std::sync::Arc;
 use tokio::sync::broadcast;
+use crate::server::controllers::player_controller::add_player_score;
 
 pub async fn handle_player_join(
     app_state: &Arc<AppState>,
@@ -287,6 +288,14 @@ pub async fn handle_message(
 
                 if can_be_finished {
                     game.finish_game();
+
+                    let populated_lobby = get_populated_lobby(&app_state.redis_pool, &lobby_id).await?;
+
+                    let scoreboard = game.get_leaderboard(populated_lobby.player_list());
+
+                    for (mut player, score) in scoreboard {
+                        add_player_score(&app_state.redis_pool, player.get_id().to_string(), score).await?;
+                    }
                 }
 
                 save_lobby(&app_state.redis_pool, lobby.clone()).await?;

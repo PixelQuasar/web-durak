@@ -29,6 +29,10 @@ impl Player {
         }
     }
 
+    pub fn add_score(&mut self, value: usize) {
+        self.wins += value;
+    }
+
     pub fn get_id(&self) -> &str {
         &self.id
     }
