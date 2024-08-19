@@ -142,6 +142,11 @@ impl Game {
 
             self.status = GameLoopState::BeforeTurn;
 
+            let defender = self
+                .deck_manager
+                .player_after(&self.deck_manager.player_before(&defender).unwrap())
+                .unwrap();
+
             self.target_player_id = Some(self.deck_manager.player_after(&defender).unwrap());
 
             self.attacker_player_id = Some(defender.to_string());

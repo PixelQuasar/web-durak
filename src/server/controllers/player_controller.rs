@@ -1,10 +1,10 @@
+use crate::game::Game;
 use crate::player::Player;
+use crate::server::controllers::lobby_controller::get_populated_lobby;
 use crate::server::redis_service::{get_struct_from_redis, set_struct_to_redis};
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 use serde::Deserialize;
-use crate::game::Game;
-use crate::server::controllers::lobby_controller::get_populated_lobby;
 
 #[derive(Deserialize)]
 pub struct NewPlayerData {
