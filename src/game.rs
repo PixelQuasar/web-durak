@@ -79,6 +79,31 @@ impl Game {
         }
     }
 
+    pub fn transfer(&mut self, player_id: &str, card: Card) -> Result<(), ()> {
+        if self.target_player_id.is_none() {
+            return Err(());
+        }
+
+        if self.can_transfer(player_id) {
+            let defender = &self.target_player_id.clone().unwrap();
+
+            self.deck_manager.transfer(&defender, card)?;
+
+            let defender = self
+                .deck_manager
+                .player_after(&self.deck_manager.player_before(&defender).unwrap())
+                .unwrap();
+
+            self.target_player_id = Some(self.deck_manager.player_after(&defender).unwrap());
+
+            self.attacker_player_id = Some(defender.to_string());
+
+            Ok(())
+        } else {
+            Err(())
+        }
+    }
+
     pub fn confirm_beat(&mut self, player_id: &str) -> Result<(), ()> {
         if self.target_player_id.is_none() {
             return Err(());
@@ -229,6 +254,10 @@ impl Game {
         self.participant_ids.clone()
     }
 
+    pub fn table_size(&self) -> usize {
+        self.deck_manager.get_table_size()
+    }
+
     fn can_init_table(&self, player_id: &str) -> bool {
         if self.status != GameLoopState::BeforeTurn {
             return false;
@@ -252,6 +281,17 @@ impl Game {
     }
 
     fn can_beat(&self, player_id: &str) -> bool {
+        if self.status != GameLoopState::Turn {
+            return false;
+        }
+        if let Some(target) = &self.target_player_id {
+            player_id == target
+        } else {
+            false
+        }
+    }
+
+    fn can_transfer(&self, player_id: &str) -> bool {
         if self.status != GameLoopState::Turn {
             return false;
         }

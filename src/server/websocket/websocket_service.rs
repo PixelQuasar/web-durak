@@ -50,11 +50,11 @@ pub async fn ws_join_lobby(
     let lobby = get_populated_lobby(&app_state.redis_pool, &lobby_id).await?;
 
     if lobby.players_num() + 1 > lobby.max_capacity() {
-        return Err("Lobby is full".to_string())
+        return Err("Lobby is full".to_string());
     }
 
     if !lobby.can_join() {
-        return Err("Lobby is closed or has already started".to_string())
+        return Err("Lobby is closed or has already started".to_string());
     }
 
     let tx = match app_state.lobby_connections.lock().await.get(&lobby_id) {

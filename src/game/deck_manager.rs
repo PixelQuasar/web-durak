@@ -1,8 +1,6 @@
-use crate::player::Player;
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
-use rand::{random, Rng, SeedableRng};
-use serde::de::Unexpected::Str;
+use rand::{random, SeedableRng};
 use serde::{Deserialize, Serialize, Serializer};
 use std::collections::HashMap;
 use std::fmt;
@@ -203,6 +201,24 @@ impl DeckManager {
 
         self.drop_beat_confirmations();
         self.table = vec![];
+
+        Ok(())
+    }
+
+    pub fn transfer(&mut self, player_id: &str, card: Card) -> Result<(), ()> {
+        if !self.player_has_card(&player_id, card) || !self.can_transfer(card) {
+            return Err(());
+        }
+
+        self.table.push((card, None));
+
+        self.pick_card(&player_id, card)?;
+
+        let is_victory = self.victory_check_and_handle();
+
+        if (is_victory) {
+            self.confirm_beat(player_id.to_string())?;
+        }
 
         Ok(())
     }
@@ -537,5 +553,18 @@ impl DeckManager {
             }
         }
         false
+    }
+
+    fn can_transfer(&self, card: Card) -> bool {
+        for (bottom, top) in &self.table {
+            if top.is_some() {
+                return false;
+            }
+            if (bottom.r != card.r) {
+                return false;
+            }
+        }
+
+        true
     }
 }

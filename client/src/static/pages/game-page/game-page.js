@@ -283,6 +283,8 @@ const renderUi = function () {
 
         if (playerId === gameData.attacker_player_id) {
             HTMLPlayerTag.style.border = "3px solid red";
+        } else {
+            HTMLPlayerTag.style.border = "none";
         }
 
         HTMLPlayerTag.style.left = `${x - 50 + hOffset + hMargin}px`;
@@ -780,6 +782,7 @@ export const moveCard = function (card, whereTo, indexFrom = 0, indexTo = 0) {
         } else if (whereFrom === CardType.Deck) {
             HTMLCard.classList.add("player");
             HTMLCard.classList.remove("deck");
+            HTMLCard.classList.add("card-closed");
             if (indexTo === clientId) {
                 HTMLCard.classList.add("client");
                 HTMLCard.classList.remove("card-closed");

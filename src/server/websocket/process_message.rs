@@ -146,6 +146,28 @@ pub async fn handle_message(
                             vec![card],
                         )]
                     }
+                    WSRequestType::GameTurnTransfer => {
+                        if game_content.card.is_none() || game_content.player_id.is_none() {
+                            return Err("invalid cards".to_string());
+                        }
+
+                        let player_id = game_content.player_id.unwrap();
+
+                        let card = game_content.card.unwrap();
+
+                        game.transfer(&player_id, card.clone())
+                            .map_err(|_| "game machine error")?;
+
+                        let table_element_id = game.table_size();
+
+                        vec![GameUpdateState::new(
+                            GameEntityType::Table,
+                            GameEntityType::Player,
+                            table_element_id.to_string(),
+                            player_id,
+                            vec![card],
+                        )]
+                    }
                     WSRequestType::GameTurnDiscard => {
                         let table_size = game.deck_manager.get_table_size();
 

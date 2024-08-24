@@ -51,13 +51,11 @@ pub async fn route_get_lobbies(
     for lobby in lobbies {
         match get_populated_lobby(&state.redis_pool, lobby.get_id()).await {
             Ok(result) => populated_lobbies.push(result),
-            Err(_) => ()
+            Err(_) => (),
         }
     }
 
-    Ok(Json(
-        populated_lobbies
-    ))
+    Ok(Json(populated_lobbies))
 }
 
 pub async fn route_delete_lobby(

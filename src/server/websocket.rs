@@ -27,6 +27,7 @@ pub enum WSRequestType {
     GameTurnConfirmBeat,
     GameTurnToss,
     GameTurnBeat,
+    GameTurnTransfer,
     GameTurnTake,
     GameTurnDiscard,
     GameFinish,

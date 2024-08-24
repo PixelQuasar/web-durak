@@ -10,7 +10,7 @@ pub enum ClientRequestType {
     GameFinish,
     GameDelete,
     Error,
-    LobbyJoinError
+    LobbyJoinError,
 }
 
 #[derive(Clone, Serialize, Debug)]

@@ -20,6 +20,10 @@ body {
   gap: 32px;
 }
 
+button {
+  cursor: pointer;
+}
+
 @import "../static/pages/create-lobby/style";
 @import "../static/pages/homepage/style";
 @import "../static/pages/join-lobby/style";

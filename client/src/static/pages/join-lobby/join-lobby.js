@@ -1,8 +1,6 @@
-import {initWebsocketConnection, wsCreateLobby, wsJoinLobby} from "../../websocket/index.js";
+import {initWebsocketConnection, wsJoinLobby} from "../../websocket/index.js";
 import {getLobbiesListQuery} from "../../state/lobby-handler.js";
-import {PAGE_CHANGE_EVENT_ID, PAGE_RENDER_EVENT_ID, triggerRenderPageId} from "../../utils/index.js";
-
-let lobbiesRendered = false;
+import {PAGE_RENDER_EVENT_ID} from "../../utils/index.js";
 
 /**
  * Join lobby
@@ -17,6 +15,8 @@ const renderLobbies = async function () {
 
     let container = document.querySelector(".lobby-list");
 
+    container.innerHTML = "";
+
     lobbies.filter((lobby) => lobby.status === "ACTIVE").forEach((lobby) => {
         container.innerHTML +=
 `<div class="item">
@@ -24,7 +24,7 @@ const renderLobbies = async function () {
     <div class="players">${lobby.player_list.length}/6</div>
     <div class="button-container"><button lobby-id="${lobby.id}" class="button">JOIN</button></div>
 </div>`
-    })
+    });
 
     container.addEventListener("click", (event) => {
         if (event.target.classList.contains("button")) {
@@ -46,14 +46,19 @@ export const JoinLobby = function () {
     <input type="text" id="join-lobby-input" class="large-textbox" placeholder="enter lobby code"/>
    <button class="join-button">JOIN LOBBY</button>
    <div class="error-msg"></div>
+   <button class="button" id="reload-button">RELOAD</button>
    <div class="lobby-list"></div>
 </div>`
 }
 
 document.addEventListener(PAGE_RENDER_EVENT_ID, () => {
-    if (document.querySelector(".lobby-list") && !lobbiesRendered) {
+    if (document.querySelector(".lobby-list")) {
         renderLobbies();
-        triggerRenderPageId();
+    }
+    if (document.querySelector("#reload-button")) {
+        document.querySelector("#reload-button").addEventListener("click", () => {
+            renderLobbies();
+        })
     }
 })
 
