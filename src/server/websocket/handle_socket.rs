@@ -35,7 +35,7 @@ pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Ar
                     println!("Connection request parsing error: {}", err);
                     let _ = sender
                         .send(Message::from(
-                            WSError::conn_error("connection error".to_string()).stringify(),
+                            WSError::conn_error("Lobby connection error".to_string()).stringify(),
                         ))
                         .await;
                     break;

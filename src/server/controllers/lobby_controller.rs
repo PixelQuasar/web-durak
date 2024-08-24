@@ -42,7 +42,13 @@ pub async fn save_lobby(
 }
 
 pub async fn get_lobbies(redis_pool: &Pool<RedisConnectionManager>) -> Result<Vec<Lobby>, String> {
-    Ok(get_vector_from_redis(redis_pool, "LOBBY*").await?)
+    println!("{:?}", "hello");
+
+    let result = get_vector_from_redis(redis_pool, "1*").await?;
+
+    println!("{:?}", result);
+
+    Ok(result)
 }
 
 pub async fn delete_lobby(
@@ -102,7 +108,9 @@ pub async fn get_populated_lobby(
         players.push(get_player_by_id(redis_pool, player_id.to_string()).await?);
     }
 
-    Ok(PopulatedLobby::from_lobby(lobby, players))
+    let owner = get_player_by_id(redis_pool, lobby.get_owner_id().to_string()).await?;
+
+    Ok(PopulatedLobby::from_lobby(lobby, players, owner))
 }
 
 pub async fn add_player_to_populated_lobby(

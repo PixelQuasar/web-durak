@@ -34,37 +34,40 @@ const handleGameUpdateState = function (state) {
 export const handleServerMessage = async function (data) {
     data = JSON.parse(data);
 
-    // console.log("NEW WEBSOCKET DATA: ", data);
+    console.log("NEW WEBSOCKET DATA: ", data);
 
-    if (!data.req_type && !data.content) return;
-
-    if (data.req_type === "LobbyUpdate") {
-        let firstLobbyMsg = false;
-        if (!window.lobbyData) firstLobbyMsg = true;
-        window.lobbyData = JSON.parse(data.content);
-        const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
-        window.dispatchEvent(websocketEvent);
-        if (firstLobbyMsg) navigate("/lobby");
-    }
-    else if (data.req_type === "GameCreate") {
-        window.lobbyData = JSON.parse(data.content);
-        const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
-        window.dispatchEvent(websocketEvent);
-        navigate("/game");
-    }
-    else if (data.req_type === "GameUpdate" || data.req_type === "GameFinish") {
-        window.lobbyData = JSON.parse(data.content).lobby;
-        updateGameData(window.lobbyData.game);
-        const gameUpdateState = JSON.parse(data.content).game_update_states;
-        for (const state of gameUpdateState) {
-            handleGameUpdateState(state);
+    if (data.req_type) {
+        if (data.req_type === "LobbyUpdate") {
+            let firstLobbyMsg = false;
+            if (!window.lobbyData) firstLobbyMsg = true;
+            window.lobbyData = JSON.parse(data.content);
+            const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
+            window.dispatchEvent(websocketEvent);
+            if (firstLobbyMsg) navigate("/lobby");
+        } else if (data.req_type === "GameCreate") {
+            window.lobbyData = JSON.parse(data.content);
+            const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
+            window.dispatchEvent(websocketEvent);
+            navigate("/game");
+        } else if (data.req_type === "GameUpdate" || data.req_type === "GameFinish") {
+            window.lobbyData = JSON.parse(data.content).lobby;
+            updateGameData(window.lobbyData.game);
+            const gameUpdateState = JSON.parse(data.content).game_update_states;
+            for (const state of gameUpdateState) {
+                handleGameUpdateState(state);
+            }
+            if (data.req_type === "GameFinish") {
+                setTimeout(() => {
+                    navigate("/scores");
+                }, 2000)
+            }
+        } else if (data.req_type === "GameDelete") {
+            navigate("/lobby");
         }
-        if (data.req_type === "GameFinish") {
-            setTimeout(() => {
-                navigate("/scores");
-            }, 2000)
+    } else if (data.err_type) {
+        if (data.err_type === "ConnectionError") {
+            const errorMessageElement = document.querySelector(".error-msg");
+            errorMessageElement.innerHTML = data.message;
         }
-    } else if (data.req_type === "GameDelete") {
-        navigate("/lobby");
     }
 }

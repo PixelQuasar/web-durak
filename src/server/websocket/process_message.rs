@@ -318,7 +318,7 @@ pub async fn handle_message(
                 }
             }
 
-            None => return Err("lobby error".to_string()),
+            None => return Err("error: no lobby".to_string()),
         }
     }
 }
@@ -345,6 +345,6 @@ pub async fn disconnect_message(
         .to_string())
     } else {
         println!("Websocket connection closing error:");
-        Err("Websocket connection closing error: invalid player or lobby".to_string())
+        Err("Invalid player or lobby".to_string())
     }
 }

@@ -28,6 +28,16 @@ export const getLobbyQuery = async function (id) {
 }
 
 /**
+ * Get all lobbies from server
+ * @return {Promise<Array<any>>}
+ */
+export const getLobbiesListQuery = async function () {
+    const response = await fetch(`${process.env.SERVER_URL}/lobby`);
+
+    return await response.json();
+}
+
+/**
  * Get lobby scoreboard
  * @param {string} id
  * @return {Promise<any>}

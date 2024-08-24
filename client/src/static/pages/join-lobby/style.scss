@@ -1,3 +1,37 @@
 .join-lobby-wrapper {
+  width: 100%;
+}
 
+.error-msg {
+  color: #ff0000;
+}
+
+.lobby-list {
+  display: flex;
+  flex-direction: column;
+  width: 60vw;
+  gap: 8px;
+  .item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #aaaaaa;
+    padding: 16px;
+    width: 100%;
+    .header {
+      flex-basis: 10%;
+    }
+    .players {
+      flex-basis: 70%;
+    }
+    .button-container {
+      flex-basis: 20%;
+      display: flex;
+      justify-content: end;
+      align-items: center;
+      .button {
+        padding: 8px;
+      }
+    }
+  }
 }

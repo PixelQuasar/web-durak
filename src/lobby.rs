@@ -27,7 +27,7 @@ pub struct Lobby {
 pub struct PopulatedLobby {
     id: String,
     status: LobbyStatus,
-    owner_id: String,
+    owner_id: Player,
     public: bool,
     player_list: Vec<Player>,
     max_players: usize,
@@ -110,15 +110,23 @@ impl Lobby {
     pub fn can_join(&self) -> bool {
         self.status == LobbyStatus::STARTED || self.status == LobbyStatus::ACTIVE
     }
+
+    pub fn max_capacity(&self) -> usize {
+        6
+    }
+
+    pub fn get_owner_id(&self) -> &str {
+        &self.owner_id
+    }
 }
 
 impl PopulatedLobby {
-    pub fn from_lobby(lobby: Lobby, players: Vec<Player>) -> PopulatedLobby {
+    pub fn from_lobby(lobby: Lobby, players: Vec<Player>, owner: Player) -> PopulatedLobby {
         PopulatedLobby {
             id: lobby.id,
             status: lobby.status,
             public: lobby.public,
-            owner_id: lobby.owner_id,
+            owner_id: owner,
             player_list: players,
             max_players: 6,
             game: lobby.game,
@@ -148,5 +156,13 @@ impl PopulatedLobby {
             .position(|item| item.clone().get_id() == id)
             .unwrap();
         self.player_list.remove(index);
+    }
+
+    pub fn can_join(&self) -> bool {
+        self.status == LobbyStatus::STARTED || self.status == LobbyStatus::ACTIVE
+    }
+
+    pub fn max_capacity(&self) -> usize {
+        6
     }
 }

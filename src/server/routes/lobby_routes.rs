@@ -41,11 +41,22 @@ pub async fn route_create_lobby(
 
 pub async fn route_get_lobbies(
     State(state): State<Arc<AppState>>,
-) -> Result<Json<Vec<Lobby>>, (StatusCode, String)> {
+) -> Result<Json<Vec<PopulatedLobby>>, (StatusCode, String)> {
+    let lobbies = get_lobbies(&state.redis_pool)
+        .await
+        .map_err(error_msg_to_server_error)?;
+
+    let mut populated_lobbies = vec![];
+
+    for lobby in lobbies {
+        match get_populated_lobby(&state.redis_pool, lobby.get_id()).await {
+            Ok(result) => populated_lobbies.push(result),
+            Err(_) => ()
+        }
+    }
+
     Ok(Json(
-        get_lobbies(&state.redis_pool)
-            .await
-            .map_err(error_msg_to_server_error)?,
+        populated_lobbies
     ))
 }
 

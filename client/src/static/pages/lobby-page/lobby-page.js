@@ -1,7 +1,6 @@
 import {navigate} from "../../utils/index.js";
 import {disconnectWebsocket} from "../../websocket/index.js";
 import {wsCreateGame} from "../../websocket/handle-game.js";
-import {getLobby} from "../../state/lobby-handler.js";
 import {getUser} from "../../state/index.js";
 
 /**
@@ -59,8 +58,7 @@ export const LobbyPage = function () {
         <div class="game-info">
             ${window.lobbyData.owner_id === getUser() ? 
                 `<button class="create-game-button"> CREATE GAME </button>` : 
-                `<h2>Waiting for host to start a game...</h2>`
-            }
+                `<h2>Waiting for host to start a game...</h2>`}
         </div>
     </div>
 </div>`
