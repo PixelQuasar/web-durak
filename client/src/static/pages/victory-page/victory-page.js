@@ -53,7 +53,7 @@ export const VictoryPage = function () {
     <h2>Scores:</h2>
     <div class="score-container"></div>
     <button class="leave-button">LEAVE</button>
-    ${window.lobbyData.owner_id === getUser() ? 
+    ${window.lobbyData.owner_id.id === getUser() ? 
         `<button class="finish-game-button">RETURN TO LOBBY</button>` : 
         `<div>Waiting for host...</div>`
     }

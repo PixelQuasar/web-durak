@@ -2,7 +2,14 @@ import {templates} from "./table-templates.js"
 import {navigate, PAGE_RENDER_EVENT_ID, randomRange, triggerRenderPageId} from "../../utils/index.js";
 import {disconnectWebsocket} from "../../websocket/index.js";
 import {getUser} from "../../state/index.js";
-import {wsGameBeat, wsGameConfirmPass, wsGameInitTurn, wsGameTake, wsGameToss} from "../../websocket/handle-game.js";
+import {
+    wsGameBeat,
+    wsGameConfirmPass,
+    wsGameInitTurn,
+    wsGameTake,
+    wsGameToss,
+    wsGameTransfer
+} from "../../websocket/handle-game.js";
 
 /**
  * A playing card.
@@ -148,7 +155,7 @@ const fetchHandDataOnMount = function (hands, order, playerId) {
                     dir: dir,
                     id: `hand-container-${num}`,
                     playerId: order[num - 1],
-                    cards: hands[order[num - 1]].toSorted(x => x.s * 14 + x.r).reverse()
+                    cards: hands[order[num - 1]].toSorted(x => x.s * 4 + x.r).reverse()
                 };
             }
         }
@@ -600,7 +607,11 @@ export const GamePage = function () {
                     return;
                 }
                 if (gameData.status === "Turn") {
-                    wsGameToss(selectedCard, getUser());
+                    if (gameData.target_player_id === getUser()) {
+                        wsGameTransfer(selectedCard, getUser());
+                    } else {
+                        wsGameToss(selectedCard, getUser());
+                    }
                 } else {
                     wsGameInitTurn(selectedCard, getUser());
                 }
@@ -663,9 +674,9 @@ export const CardType = {
 const addCardToHand = function (playerId, card) {
     const index = handsData.indexOf(handsData.find(x => x.playerId === playerId));
     handsData[index].cards.push(card);
-    handsData[index].cards = handsData[index].cards.toSorted(x => x.s * 14 + x.r).reverse();
+    handsData[index].cards = handsData[index].cards.toSorted(x => x.s * 4 + x.r).reverse();
     gameData.deck_manager.hands[playerId].push(card);
-    gameData.deck_manager.hands[playerId] = gameData.deck_manager.hands[playerId].toSorted(x => x.s * 14 + x.r).reverse();
+    gameData.deck_manager.hands[playerId] = gameData.deck_manager.hands[playerId].toSorted(x => x.s * 4 + x.r).reverse();
 }
 
 /**

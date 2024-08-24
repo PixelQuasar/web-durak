@@ -8,6 +8,7 @@ export const ReqTypes = {
     GameTurnToss: "GameTurnToss",
     GameTurnBeat: "GameTurnBeat",
     GameTurnTake: "GameTurnTake",
+    GameTurnTransfer: "GameTurnTransfer",
     GameTurnDiscard: "GameTurnDiscard",
     GameTurnConfirmBeat: "GameTurnConfirmBeat",
     GameFinish: "GameFinish"

@@ -56,7 +56,7 @@ export const LobbyPage = function () {
         </div>
         
         <div class="game-info">
-            ${window.lobbyData.owner_id === getUser() ? 
+            ${window.lobbyData.owner_id.id === getUser() ? 
                 `<button class="create-game-button"> CREATE GAME </button>` : 
                 `<h2>Waiting for host to start a game...</h2>`}
         </div>

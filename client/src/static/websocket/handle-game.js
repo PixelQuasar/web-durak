@@ -41,10 +41,14 @@ export const wsGameToss = function (card, playerId) {
     }));
 }
 
-export const wsGameDiscard = function () {
-    window.websocket.send(buildWebsocketRequest(ReqTypes.GameTurnToss, window.lobbyData.id, {
-
+export const wsGameTransfer = function (card, playerId) {
+    window.websocket.send(buildWebsocketRequest(ReqTypes.GameTurnTransfer, window.lobbyData.id, {
+        card, player_id: playerId
     }));
+}
+
+export const wsGameDiscard = function () {
+    window.websocket.send(buildWebsocketRequest(ReqTypes.GameTurnToss, window.lobbyData.id, {}));
 }
 
 export const wsGameTake = function (playerId) {
