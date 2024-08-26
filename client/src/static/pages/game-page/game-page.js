@@ -68,7 +68,11 @@ import {
  */
 let cardRenderDataMap = new Map();
 
-let gameData = {};
+
+let gameData = JSON.parse("{\"id\":\"GAME4273841987\",\"status\":\"Start\",\"participant_ids\":[\"22233530764\",\"2404048658\",\"2734066259\",\"22483399774\"],\"attacker_player_id\":\"2734066259\",\"target_player_id\":\"2404048658\",\"next_player_id\":\"22233530764\",\"turn_queue\":[],\"deck_manager\":{\"full_deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":2,\"r\":1,\"id\":2},{\"s\":3,\"r\":1,\"id\":3},{\"s\":4,\"r\":1,\"id\":4},{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":2,\"id\":6},{\"s\":3,\"r\":2,\"id\":7},{\"s\":4,\"r\":2,\"id\":8},{\"s\":1,\"r\":3,\"id\":9},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":3,\"id\":11},{\"s\":4,\"r\":3,\"id\":12},{\"s\":1,\"r\":4,\"id\":13},{\"s\":2,\"r\":4,\"id\":14},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":4,\"id\":16},{\"s\":1,\"r\":5,\"id\":17},{\"s\":2,\"r\":5,\"id\":18},{\"s\":3,\"r\":5,\"id\":19},{\"s\":4,\"r\":5,\"id\":20},{\"s\":1,\"r\":6,\"id\":21},{\"s\":2,\"r\":6,\"id\":22},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":6,\"id\":24},{\"s\":1,\"r\":7,\"id\":25},{\"s\":2,\"r\":7,\"id\":26},{\"s\":3,\"r\":7,\"id\":27},{\"s\":4,\"r\":7,\"id\":28},{\"s\":1,\"r\":8,\"id\":29},{\"s\":2,\"r\":8,\"id\":30},{\"s\":3,\"r\":8,\"id\":31},{\"s\":4,\"r\":8,\"id\":32},{\"s\":1,\"r\":9,\"id\":33},{\"s\":2,\"r\":9,\"id\":34},{\"s\":3,\"r\":9,\"id\":35},{\"s\":4,\"r\":9,\"id\":36},{\"s\":1,\"r\":10,\"id\":37},{\"s\":2,\"r\":10,\"id\":38},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":11,\"id\":42},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":11,\"id\":44},{\"s\":1,\"r\":12,\"id\":45},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":12,\"id\":47},{\"s\":4,\"r\":12,\"id\":48},{\"s\":1,\"r\":13,\"id\":49},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":13,\"id\":52}],\"deck\":[{\"s\":1,\"r\":1,\"id\":1},{\"s\":4,\"r\":6,\"id\":24},{\"s\":2,\"r\":3,\"id\":10},{\"s\":3,\"r\":10,\"id\":39},{\"s\":4,\"r\":13,\"id\":52},{\"s\":3,\"r\":13,\"id\":51},{\"s\":4,\"r\":3,\"id\":12},{\"s\":2,\"r\":13,\"id\":50},{\"s\":3,\"r\":6,\"id\":23},{\"s\":4,\"r\":1,\"id\":4},{\"s\":2,\"r\":7,\"id\":26},{\"s\":2,\"r\":4,\"id\":14},{\"s\":2,\"r\":11,\"id\":42},{\"s\":1,\"r\":8,\"id\":29},{\"s\":4,\"r\":9,\"id\":36},{\"s\":2,\"r\":1,\"id\":2},{\"s\":1,\"r\":5,\"id\":17},{\"s\":4,\"r\":8,\"id\":32},{\"s\":3,\"r\":9,\"id\":35}],\"discard\":[{\"s\":3,\"r\":7,\"id\":27},{\"s\":2,\"r\":12,\"id\":46},{\"s\":3,\"r\":3,\"id\":11}],\"hands\":{\"2404048658\":[{\"s\":2,\"r\":8,\"id\":30},{\"s\":1,\"r\":12,\"id\":45},{\"s\":3,\"r\":1,\"id\":3},{\"s\":1,\"r\":11,\"id\":41},{\"s\":2,\"r\":5,\"id\":18},{\"s\":1,\"r\":10,\"id\":37}],\"2734066259\":[{\"s\":2,\"r\":9,\"id\":34},{\"s\":1,\"r\":7,\"id\":25},{\"s\":4,\"r\":7,\"id\":28},{\"s\":4,\"r\":10,\"id\":40},{\"s\":1,\"r\":4,\"id\":13},{\"s\":1,\"r\":13,\"id\":49}],\"22483399774\":[{\"s\":1,\"r\":6,\"id\":21},{\"s\":4,\"r\":11,\"id\":44},{\"s\":3,\"r\":4,\"id\":15},{\"s\":4,\"r\":5,\"id\":20},{\"s\":3,\"r\":11,\"id\":43},{\"s\":4,\"r\":2,\"id\":8}],\"22233530764\":[{\"s\":3,\"r\":2,\"id\":7},{\"s\":1,\"r\":3,\"id\":9},{\"s\":4,\"r\":4,\"id\":16},{\"s\":3,\"r\":8,\"id\":31},{\"s\":3,\"r\":5,\"id\":19},{\"s\":1,\"r\":9,\"id\":33}]},\"hands_amount\":4,\"hands_order\":[\"22233530764\",\"2734066259\",\"2404048658\",\"22483399774\"],\"beat_confirmations\":{\"2404048658\":false,\"2734066259\":false,\"22233530764\":false,\"22483399774\":false},\"hand_size\":6,\"trump_suit\":3,\"table\":[[{\"s\":1,\"r\":2,\"id\":5},{\"s\":2,\"r\":6,\"id\":22}],[{\"s\":3,\"r\":12,\"id\":47},{\"s\":2,\"r\":2,\"id\":6}],[{\"s\":2,\"r\":10,\"id\":38},{\"s\":4,\"r\":12,\"id\":48}]]}}");
+
+
+//let gameData = {};
 
 /**
  * @type {HandData[]}
@@ -563,86 +567,6 @@ ${gameData.deck_manager.hands_order.map(id => `<div class="player-nickname" id="
 <div class="msg"></div>`
 }
 
-/**
- * @returns {string}
- */
-export const GamePage = function () {
-    const lobbyData = window.lobbyData ?? {
-        id: "UNKNOWN",
-        status: "INACTIVE",
-        public: false,
-        player_list: [],
-        game: null
-    };
-
-    gameData = lobbyData.game;
-
-    const deckManager = getDeckManagerData(gameData);
-
-    handsData = fetchHandDataOnMount(
-        deckManager.hands,
-        deckManager.hands_order,
-        getUser()
-    );
-
-    const tableData = {
-        deck: deckManager.deck,
-        table: deckManager.table,
-        discard: deckManager.discard,
-        trumpSuit: deckManager.trump_suit
-    }
-
-    const render = () => {
-        if (document.querySelector(".table-container")) {
-            const table = document.querySelector(".table-container");
-            const w = 600;
-            const h = 400;
-            table.style.width = `${w}px`;
-            table.style.height = `${h}px`;
-            table.style.left = `${(ww - w) / 2}px`;
-            table.style.top = `${(wh - h) / 2 - 100}px`;
-
-            table.addEventListener("click", () => {
-                if (!selectedCard) {
-                    return;
-                }
-                if (gameData.status === "Turn") {
-                    if (gameData.target_player_id === getUser()) {
-                        wsGameTransfer(selectedCard, getUser());
-                    } else {
-                        wsGameToss(selectedCard, getUser());
-                    }
-                } else {
-                    wsGameInitTurn(selectedCard, getUser());
-                }
-            })
-
-            postRenderTable(tableData);
-            postRenderHands();
-            renderUi();
-            triggerRenderPageId();
-        }
-
-        if (document.querySelector(".card-container")) {
-            positionAllCards();
-        }
-    }
-
-    document.addEventListener(PAGE_RENDER_EVENT_ID, render);
-
-    return `
-<div class="game-page-wrapper page-wrapper">
-    <div class="lobby-header">
-        <div class="title"> WEB DURAK </div>
-        <button class="leave-button"> LEAVE </button>
-    </div>
-    <div class="game-container">
-        <div class="ui-container">${uiElements()}</div>
-        <div class="cards">${handsElements()} ${tableElements(tableData)}}</div>
-    </div>
-</div>`
-}
-
 document.querySelector("body").addEventListener("click", (event) => {
     const className = event.target.className
     switch (true) {
@@ -805,4 +729,84 @@ export const moveCard = function (card, whereTo, indexFrom = 0, indexTo = 0) {
             postRenderHands();
         }
     }
+}
+
+/**
+ * @returns {string}
+ */
+export const GamePage = function () {
+    const lobbyData = window.lobbyData ?? {
+        id: "UNKNOWN",
+        status: "INACTIVE",
+        public: false,
+        player_list: [],
+        game: null
+    };
+
+    // gameData = lobbyData.game;
+
+    const deckManager = getDeckManagerData(gameData);
+
+    handsData = fetchHandDataOnMount(
+        deckManager.hands,
+        deckManager.hands_order,
+        getUser()
+    );
+
+    const tableData = {
+        deck: deckManager.deck,
+        table: deckManager.table,
+        discard: deckManager.discard,
+        trumpSuit: deckManager.trump_suit
+    }
+
+    const render = () => {
+        if (document.querySelector(".table-container")) {
+            const table = document.querySelector(".table-container");
+            const w = 600;
+            const h = 400;
+            table.style.width = `${w}px`;
+            table.style.height = `${h}px`;
+            table.style.left = `${(ww - w) / 2}px`;
+            table.style.top = `${(wh - h) / 2 - 100}px`;
+
+            table.addEventListener("click", () => {
+                if (!selectedCard) {
+                    return;
+                }
+                if (gameData.status === "Turn") {
+                    if (gameData.target_player_id === getUser()) {
+                        wsGameTransfer(selectedCard, getUser());
+                    } else {
+                        wsGameToss(selectedCard, getUser());
+                    }
+                } else {
+                    wsGameInitTurn(selectedCard, getUser());
+                }
+            })
+
+            postRenderTable(tableData);
+            postRenderHands();
+            renderUi();
+            triggerRenderPageId();
+        }
+
+        if (document.querySelector(".card-container")) {
+            positionAllCards();
+        }
+    }
+
+    document.addEventListener(PAGE_RENDER_EVENT_ID, render);
+
+    return `
+<div class="game-page-wrapper page-wrapper">
+    <div class="lobby-header">
+        <div class="title"> WEB DURAK </div>
+        <button class="leave-button"> LEAVE </button>
+    </div>
+    <div class="game-container">
+        <div class="ui-container">${uiElements()}</div>
+        <div class="cards">${handsElements()} ${tableElements(tableData)}}</div>
+    </div>
+</div>`
 }
