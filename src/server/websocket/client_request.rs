@@ -1,4 +1,3 @@
-use axum::extract::ws::Message;
 use serde::Serialize;
 use serde_json::to_string;
 
@@ -9,8 +8,7 @@ pub enum ClientRequestType {
     GameUpdate,
     GameFinish,
     GameDelete,
-    Error,
-    LobbyJoinError,
+    Error
 }
 
 #[derive(Clone, Serialize, Debug)]
@@ -29,10 +27,6 @@ impl ClientRequest {
             req_type: ClientRequestType::Error,
             content: msg,
         }
-    }
-
-    pub fn to_msg(&self) -> Message {
-        Message::Text(self.to_string())
     }
 
     pub fn to_string(&self) -> String {

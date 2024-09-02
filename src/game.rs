@@ -5,7 +5,6 @@ use crate::utils::gen_special_id;
 use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
 use std::collections::HashMap;
-use std::ops::Deref;
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum GameLoopState {
@@ -124,7 +123,7 @@ impl Game {
     }
 
     pub fn toss(&mut self, attacker_id: &str, card: Card) -> Result<i32, ()> {
-        if (self.can_toss(attacker_id)) {
+        if self.can_toss(attacker_id) {
             Ok(self.deck_manager.toss(attacker_id, card)?)
         } else {
             Err(())
@@ -248,10 +247,6 @@ impl Game {
 
     pub fn finish_game(&mut self) {
         self.status = GameLoopState::Finish;
-    }
-
-    pub fn get_players(&self) -> Vec<String> {
-        self.participant_ids.clone()
     }
 
     pub fn table_size(&self) -> usize {

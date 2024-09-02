@@ -8,11 +8,8 @@ use crate::lobby::PopulatedLobby;
 use crate::server::websocket::handle_socket::handle_socket;
 use crate::server::AppState;
 use axum::extract::connect_info::ConnectInfo;
-use axum::extract::ws::{Message, WebSocket};
 use axum::{extract, extract::ws::WebSocketUpgrade, response::IntoResponse};
 use axum_extra::TypedHeader;
-use futures_util::stream::SplitSink;
-use futures_util::SinkExt;
 use serde::{Deserialize, Serialize};
 use serde_json::to_string;
 use std::net::SocketAddr;
@@ -73,9 +70,9 @@ pub struct WSError {
 }
 
 impl WSError {
-    pub fn new(message: String, err_type: WSErrorType) -> WSError {
-        WSError { message, err_type }
-    }
+    // pub fn new(message: String, err_type: WSErrorType) -> WSError {
+    //    WSError { message, err_type }
+    //}
 
     pub fn conn_error(msg: String) -> WSError {
         WSError {
@@ -155,11 +152,4 @@ pub async fn websocket_handler(
     };
     println!("`{user_agent}` at {addr} connected.");
     ws.on_upgrade(move |socket| handle_socket(socket, addr, state))
-}
-
-pub async fn handle_error(ws_sender: &mut SplitSink<WebSocket, Message>, msg: &str) {
-    println!("Websocket error: {}", msg);
-    let _ = ws_sender
-        .send(Message::Text("Websocket error".to_string()))
-        .await;
 }

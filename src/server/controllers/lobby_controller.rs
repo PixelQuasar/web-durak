@@ -6,7 +6,6 @@ use crate::server::redis_service::{
 };
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
-use futures_util::future::join_all;
 use serde::Deserialize;
 
 #[derive(Deserialize)]
@@ -69,7 +68,7 @@ pub async fn add_player_to_lobby(
         return Err("Lobby is closed".to_string());
     }
 
-    let player = get_struct_from_redis::<Player>(redis_pool, player_id).await?;
+    let _ = get_struct_from_redis::<Player>(redis_pool, player_id).await?;
 
     // check if player exists
     get_struct_from_redis::<Player>(redis_pool, player_id).await?;
@@ -111,22 +110,6 @@ pub async fn get_populated_lobby(
     let owner = get_player_by_id(redis_pool, lobby.get_owner_id().to_string()).await?;
 
     Ok(PopulatedLobby::from_lobby(lobby, players, owner))
-}
-
-pub async fn add_player_to_populated_lobby(
-    redis_pool: &Pool<RedisConnectionManager>,
-    lobby_id: &str,
-    player_id: &str,
-) -> Result<PopulatedLobby, String> {
-    let lobby = get_struct_from_redis::<Lobby>(redis_pool, lobby_id).await?;
-
-    let lobby = add_player_to_lobby(&redis_pool, lobby_id, player_id).await?;
-
-    set_struct_to_redis::<Lobby>(redis_pool, lobby_id, lobby.clone()).await?;
-
-    let populated_lobby = get_populated_lobby(&redis_pool, lobby_id).await?;
-
-    Ok(populated_lobby)
 }
 
 pub async fn get_lobby_score_board(

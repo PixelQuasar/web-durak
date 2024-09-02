@@ -12,12 +12,10 @@ use crate::server::routes::player_routes::{route_create_player, route_get_player
 use crate::server::websocket::websocket_handler;
 use axum::http::header::CONTENT_TYPE;
 use axum::http::Method;
-use axum::routing::MethodRouter;
-use axum::{routing::get, routing::patch, routing::post, Router};
+use axum::{routing::get, routing::post, Router};
 use bb8::Pool;
 use bb8_redis::RedisConnectionManager;
 use dotenv;
-use redis::AsyncCommands;
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::Arc;

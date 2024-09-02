@@ -1,15 +1,4 @@
-use crate::game::deck_manager::CardIdType;
 use rand::Rng;
-
-pub fn generate_id() -> u64 {
-    let mut rng = rand::thread_rng();
-    rng.gen::<u64>()
-}
-
-pub fn generate_card_id() -> CardIdType {
-    let mut rng = rand::thread_rng();
-    rng.gen::<CardIdType>()
-}
 
 pub fn gen_special_id(prefix: &str) -> String {
     let mut rng = rand::thread_rng();

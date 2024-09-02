@@ -4,7 +4,6 @@ use bb8_redis::RedisConnectionManager;
 use redis::AsyncCommands;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
-use std::fmt::Debug;
 
 pub async fn get_struct_from_redis<T: DeserializeOwned>(
     pool: &Pool<RedisConnectionManager>,

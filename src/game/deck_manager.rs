@@ -1,7 +1,7 @@
 use rand::rngs::StdRng;
 use rand::seq::SliceRandom;
 use rand::{random, SeedableRng};
-use serde::{Deserialize, Serialize, Serializer};
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fmt;
 
@@ -132,7 +132,7 @@ impl DeckManager {
 
         let is_victory = self.victory_check_and_handle();
 
-        if (is_victory) {
+        if is_victory {
             self.confirm_beat(player_id.to_string())?;
         }
 
@@ -150,7 +150,7 @@ impl DeckManager {
 
         let is_victory = self.victory_check_and_handle();
 
-        if (is_victory) {
+        if is_victory {
             self.confirm_beat(player_id.to_string())?;
         }
 
@@ -165,7 +165,7 @@ impl DeckManager {
             return Err(());
         }
 
-        let mut table_element_id = 0;
+        let table_element_id = 0;
 
         for i in 0..self.table.len() {
             let (bottom, _) = self.table[i];
@@ -176,7 +176,7 @@ impl DeckManager {
 
                 let is_victory = self.victory_check_and_handle();
 
-                if (is_victory) {
+                if is_victory {
                     self.confirm_beat_all()?;
                 }
 
@@ -216,7 +216,7 @@ impl DeckManager {
 
         let is_victory = self.victory_check_and_handle();
 
-        if (is_victory) {
+        if is_victory {
             self.confirm_beat(player_id.to_string())?;
         }
 
@@ -329,7 +329,7 @@ impl DeckManager {
     }
 
     pub fn player_before(&self, player_id: &str) -> Option<String> {
-        let mut result = self.player_after(player_id);
+        let result = self.player_after(player_id);
 
         if result.is_none() {
             return None;
@@ -337,7 +337,7 @@ impl DeckManager {
 
         let mut result = result.unwrap();
 
-        for i in 0..self.hands.len() - 2 {
+        for _ in 0..self.hands.len() - 2 {
             result = self.player_after(&result).unwrap();
         }
 
@@ -373,7 +373,7 @@ impl DeckManager {
     pub fn is_all_confirmed(&self, target_player: &str) -> bool {
         let mut result = true;
         for key in self.beat_confirmations.keys() {
-            if (key != target_player) {
+            if key != target_player {
                 result = result && *self.beat_confirmations.get(key).unwrap();
             }
         }
@@ -387,7 +387,7 @@ impl DeckManager {
     pub fn get_table_element_cards(&self, element_id: usize) -> Vec<Card> {
         let mut result = vec![self.table[element_id].0];
 
-        if (self.table[element_id].1.is_some()) {
+        if self.table[element_id].1.is_some() {
             result.push(self.table[element_id].1.unwrap());
         }
 
@@ -395,10 +395,9 @@ impl DeckManager {
     }
 
     pub fn victory_check_and_handle(&mut self) -> bool {
-        let mut winner_counter = 0;
         for i in 0..self.hands_order.len() {
             let hand = self.hands.get(&self.hands_order[i]).unwrap();
-            if (hand.len() == 0) {
+            if hand.len() == 0 {
                 self.hands_statuses[i] = HandStatus::Winner(self.get_amount_of_winners() as i32);
                 return true;
             }
@@ -408,7 +407,7 @@ impl DeckManager {
 
     pub fn get_leaderboard(&self) -> Vec<String> {
         let mut result: Vec<String> = Vec::with_capacity(self.hands_order.len());
-        for i in 0..self.hands_order.len() {
+        for _ in 0..self.hands_order.len() {
             result.push(String::new());
         }
 
@@ -423,10 +422,6 @@ impl DeckManager {
         }
 
         return result;
-    }
-
-    pub fn kick_player(&mut self, player_id: &str) -> Result<(), ()> {
-        Ok(())
     }
 
     pub fn can_be_finished(&self) -> bool {
@@ -462,7 +457,7 @@ impl DeckManager {
 
         self.hands_statuses = hands_in_order
             .iter()
-            .map(|item| HandStatus::Active)
+            .map(|_| HandStatus::Active)
             .collect::<Vec<HandStatus>>();
 
         self.hands_order = hands_in_order;
@@ -481,19 +476,6 @@ impl DeckManager {
         }
 
         Ok(hand.clone())
-    }
-
-    fn flatten_table(&self) -> Vec<Card> {
-        let mut result = Vec::<Card>::new();
-
-        for pair in &self.table {
-            result.push(pair.0);
-            if pair.1.is_some() {
-                result.push(pair.1.unwrap());
-            }
-        }
-
-        result
     }
 
     fn player_has_card(&self, player_id: &str, card: Card) -> bool {
@@ -530,18 +512,6 @@ impl DeckManager {
     }
 
     fn can_toss(&self, card: Card) -> bool {
-        let opened_cards =
-            self.table.iter().fold(
-                0,
-                |result, item| {
-                    if item.1.is_none() {
-                        result + 1
-                    } else {
-                        result
-                    }
-                },
-            );
-
         for (bottom, top) in &self.table {
             if bottom.r == card.r {
                 return true;
@@ -560,7 +530,7 @@ impl DeckManager {
             if top.is_some() {
                 return false;
             }
-            if (bottom.r != card.r) {
+            if bottom.r != card.r {
                 return false;
             }
         }

@@ -3,7 +3,6 @@ use crate::player::Player;
 use crate::utils::gen_special_id;
 use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
-use std::ops::Deref;
 
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
 pub enum LobbyStatus {
@@ -46,11 +45,6 @@ impl Lobby {
             max_players: 6,
             game: None,
         }
-    }
-
-    pub fn new_private() -> Lobby {
-        dotenv::dotenv().ok();
-        Lobby::new(false)
     }
 
     pub fn get_id(&self) -> &str {
@@ -111,10 +105,6 @@ impl Lobby {
         self.status == LobbyStatus::STARTED || self.status == LobbyStatus::ACTIVE
     }
 
-    pub fn max_capacity(&self) -> usize {
-        6
-    }
-
     pub fn get_owner_id(&self) -> &str {
         &self.owner_id
     }
@@ -141,21 +131,8 @@ impl PopulatedLobby {
         self.player_list.len()
     }
 
-    pub fn player_add(&mut self, player: Player) {
-        self.player_list.push(player);
-    }
-
     pub fn player_list(&self) -> Vec<Player> {
         self.player_list.clone()
-    }
-
-    pub fn player_remove(&mut self, id: &str) {
-        let index = self
-            .player_list
-            .iter()
-            .position(|item| item.clone().get_id() == id)
-            .unwrap();
-        self.player_list.remove(index);
     }
 
     pub fn can_join(&self) -> bool {

@@ -4,11 +4,8 @@ mod player;
 mod server;
 mod utils;
 
-use crate::game::deck_manager::{Card, DeckManager};
-use crate::player::Player;
 use crate::server::create_app;
 use bb8_redis::{bb8, RedisConnectionManager};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() {

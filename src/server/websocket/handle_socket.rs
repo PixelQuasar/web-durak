@@ -12,7 +12,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::sync::broadcast;
 
-pub async fn handle_socket(mut socket: WebSocket, who: SocketAddr, app_state: Arc<AppState>) {
+pub async fn handle_socket(socket: WebSocket, who: SocketAddr, app_state: Arc<AppState>) {
     // start connection handler (join or create lobby)
     let (mut sender, mut receiver) = socket.split();
 

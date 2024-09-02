@@ -316,7 +316,7 @@ pub async fn handle_message(
 
                     let scoreboard = game.get_leaderboard(populated_lobby.player_list());
 
-                    for (mut player, score) in scoreboard {
+                    for (player, score) in scoreboard {
                         add_player_score(&app_state.redis_pool, player.get_id().to_string(), score)
                             .await?;
                     }
