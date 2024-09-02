@@ -43,3 +43,7 @@ window.addEventListener(PAGE_CHANGE_EVENT_ID, () => {
 window.addEventListener(WEBSOCKET_UPDATE_ID, () => {
    router.render();
 });
+
+window.addEventListener("popstate", () => {
+    router.render();
+})

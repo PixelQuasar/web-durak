@@ -54,6 +54,18 @@ services:
       - redis:/data
 
 
+  ##################
+  #     NGINX      #
+  ##################
+  nginx:
+    image: nginx:latest
+    ports:
+      - "9999:80"
+    volumes:
+      - /var/www/html:/usr/share/nginx/html
+    restart: always
+
+
 volumes:
   redis:
     driver: local
