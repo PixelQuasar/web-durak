@@ -1,19 +1,49 @@
 version: '3.8'
 
 services:
+  ##################
+  #     SERVER     #
+  ##################
+  server:
+    build:
+      context: ./
+      dockerfile: server.Dockerfile
+    environment:
+      - SERVER_HOST=${SERVER_HOST}
+      - SERVER_PORT=${SERVER_PORT}
+      - REDIS_CONNECTION_URL=${REDIS_CONNECTION_URL}
+      - PREFIX_LOBBY=${PREFIX_LOBBY}
+      - PREFIX_PLAYER=${PREFIX_PLAYER}
+      - API_PREFIX=${API_PREFIX}
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+    depends_on:
+      - redis
+    volumes:
+      - ./:/src
+
+
+  ##################
+  #     CLIENT     #
+  ##################
   client:
     build:
-      context: ./client
-      dockerfile: Dockerfile.client
+      context: ./
+      dockerfile: client.Dockerfile
     environment:
       - CLIENT_PORT=${CLIENT_PORT}
       - SERVER_URL=${SERVER_URL}
       - WEBSOCKET_URL=${WEBSOCKET_URL}
     ports:
-      - "${PORT}:${PORT}"
+      - "${CLIENT_PORT}:${CLIENT_PORT}"
     depends_on:
       - server
       - redis
+
+
+  ##################
+  #     REDIS      #
+  ##################
   redis:
     image: redis:6.2-alpine
     restart: always
@@ -21,4 +51,9 @@ services:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning
     volumes:
-      - cache:/data
+      - redis:/data
+
+
+volumes:
+  redis:
+    driver: local
