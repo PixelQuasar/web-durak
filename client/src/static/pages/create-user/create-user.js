@@ -1,14 +1,21 @@
 import {createUserQuery, setUser} from "../../state/index.js";
 import {navigate} from "../../utils/index.js";
 
-const createUserAction = async function () {
+let lobbyId = "";
+
+/**
+ * Creates user and navigates them to specific page.
+ * @param {string} returnTo
+ * @return {Promise<void>}
+ */
+const createUserAction = async function (returnTo = "/") {
     const userName = document.querySelector("#user-name-input").value;
 
     const userData = await createUserQuery(userName);
 
     setUser(userData.id);
 
-    navigate("/");
+    navigate(returnTo);
 }
 
 /**
@@ -16,6 +23,8 @@ const createUserAction = async function () {
  * @returns {string}
  */
 export const CreateUser = function () {
+    lobbyId = this.params.lobbyid;
+
     return `
 <div class="create-lobby-wrapper page-wrapper">
     <h1 class="page-title">WEB DUR<span>A</span>K</h1>
@@ -26,12 +35,12 @@ export const CreateUser = function () {
 
 document.querySelector("body").addEventListener("click",  (event) => {
     switch (event.target.className) {
-        case "create-user-button": createUserAction(); break;
+        case "create-user-button": createUserAction(lobbyId ? `/join-lobby/${lobbyId}` : "/"); break;
     }
 });
 
 document.querySelector("body").addEventListener("keypress", (event) => {
     if (event.target.id === "user-name-input" && event.key === "Enter") {
-        createUserAction();
+        createUserAction(lobbyId ? `/join-lobby/${lobbyId}` : "/");
     }
 });

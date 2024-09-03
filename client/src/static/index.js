@@ -25,6 +25,10 @@ const router = createRouter([
         page: CreateUser
     },
     {
+        name: "/create-user/:lobbyid",
+        page: CreateUser
+    },
+    {
         name: "/lobby",
         page: LobbyPage
     },

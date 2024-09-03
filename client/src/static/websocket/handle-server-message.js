@@ -41,9 +41,9 @@ export const handleServerMessage = async function (data) {
             let firstLobbyMsg = false;
             if (!window.lobbyData) firstLobbyMsg = true;
             window.lobbyData = JSON.parse(data.content);
+            if (firstLobbyMsg) navigate("/lobby");
             const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);
             window.dispatchEvent(websocketEvent);
-            if (firstLobbyMsg) navigate("/lobby");
         } else if (data.req_type === "GameCreate") {
             window.lobbyData = JSON.parse(data.content);
             const websocketEvent = new Event(WEBSOCKET_UPDATE_ID);

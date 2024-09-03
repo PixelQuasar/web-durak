@@ -23,14 +23,6 @@ const createGameAction = function () {
  * @returns {string}
  */
 export const LobbyPage = function () {
-    const lobbyData = window.lobbyData ?? {
-        id: "UNKNOWN",
-        status: "INACTIVE",
-        public: false,
-            player_list: [],
-            game: null
-    };
-
     return `
 <div class="lobby-page-wrapper page-wrapper">
     <div class="lobby-header">
@@ -41,7 +33,7 @@ export const LobbyPage = function () {
     </div>
     
     <div class="lobby-title">
-        LOBBY ${lobbyData.id} (public: ${lobbyData.public})
+        LOBBY ${window.lobbyData.id} (public: ${window.lobbyData.public})
     </div>
     
     
@@ -50,7 +42,7 @@ export const LobbyPage = function () {
             <div class="title">
                 Players (${window.lobbyData.player_list.length}):
             </div>
-            ${lobbyData.player_list.map(item => `
+            ${window.lobbyData.player_list.map(item => `
                 <div class="player-list-item"> ${item.name} </div>
             `).join("")}
         </div>

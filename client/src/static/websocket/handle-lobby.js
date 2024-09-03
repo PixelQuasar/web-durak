@@ -9,7 +9,7 @@ import {navigate} from "../utils/index.js";
  */
 export const wsJoinLobby = function (lobbyId) {
     if (!window.websocket) return initWebsocketConnection();
-    if (!getUser()) return navigate("/create-user");
+    if (!getUser()) return navigate(`/create-user/${lobbyId}`);
 
     window.lobbyData = null;
     window.websocket.send(buildWebsocketRequest(ReqTypes.LobbyJoin, lobbyId, {}));

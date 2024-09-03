@@ -1,6 +1,7 @@
 import {initWebsocketConnection, wsJoinLobby} from "../../websocket/index.js";
 import {getLobbiesListQuery} from "../../state/lobby-handler.js";
-import {PAGE_RENDER_EVENT_ID} from "../../utils/index.js";
+import {navigate, PAGE_RENDER_EVENT_ID} from "../../utils/index.js";
+import {getUser} from "../../state/index.js";
 
 /**
  * Join lobby
@@ -47,6 +48,7 @@ export const JoinLobby = function () {
     initWebsocketConnection(() => {
         handleParams(this.params);
     });
+
     return `
 <div class="join-lobby-wrapper page-wrapper">
     <h1 class="page-title">WEB DUR<span>A</span>K</h1>

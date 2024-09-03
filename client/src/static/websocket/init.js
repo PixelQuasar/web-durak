@@ -5,7 +5,10 @@ import {handleServerMessage} from "./handle-server-message.js";
  * @param {Function} callback
  */
 export const initWebsocketConnection = function (callback = () => {}) {
-    if (window.websocket) return;
+    if (window.websocket) {
+        return callback();
+    }
+
     window.websocket = new WebSocket(`${process.env.WEBSOCKET_URL}/ws`);
 
     window.websocket.addEventListener("open", (event) => {
