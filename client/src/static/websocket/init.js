@@ -1,12 +1,17 @@
 import {handleServerMessage} from "./handle-server-message.js";
 
-export const initWebsocketConnection = function () {
+/**
+ * Initiates websocket connection for further game.
+ * @param {Function} callback
+ */
+export const initWebsocketConnection = function (callback = () => {}) {
     if (window.websocket) return;
     window.websocket = new WebSocket(`${process.env.WEBSOCKET_URL}/ws`);
 
     window.websocket.addEventListener("open", (event) => {
         // handle connection open
         console.log("Connection opened.");
+        callback();
     });
 
     window.websocket.addEventListener("message", async (event) => {

@@ -33,15 +33,23 @@ const renderLobbies = async function () {
     });
 }
 
+const handleParams = function (params) {
+    if (params.lobbyid) {
+        wsJoinLobby(params.lobbyid);
+    }
+}
+
 /**
  * Returns joining lobby page.
  * @returns {string}
  */
 export const JoinLobby = function () {
-    initWebsocketConnection();
+    initWebsocketConnection(() => {
+        handleParams(this.params);
+    });
     return `
 <div class="join-lobby-wrapper page-wrapper">
-   <div class="title">WEB DURAK</div>
+    <h1 class="page-title">WEB DUR<span>A</span>K</h1>
     <div class="subtitle">The layout is not final.</div>
     <input type="text" id="join-lobby-input" class="large-textbox" placeholder="enter lobby code"/>
    <button class="join-button">JOIN LOBBY</button>

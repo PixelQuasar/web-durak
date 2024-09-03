@@ -7,7 +7,7 @@ import {navigate} from "../../utils/index.js";
 export const Homepage = function () {
     return `
 <div class="homepage-wrapper page-wrapper">
-    Homepage
+    <h1 class="page-title">WEB DUR<span>A</span>K</h1>
     <div class="button-wrapper">
         <button class="menu-button join-lobby-button">JOIN LOBBY</button>
         <button class="menu-button create-lobby-button">CREATE LOBBY</button>

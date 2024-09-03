@@ -46,7 +46,10 @@ export const createRouter = function (routesTree) {
         }
 
         const root = document.querySelector("#root");
-        root.innerHTML = match.route.page.bind(globalProps).call(getParams(match));
+        root.innerHTML = match.route.page.bind({
+            globalProps: globalProps,
+            params: getParams(match)
+        }).call();
 
         const changeEvent = new Event(PAGE_RENDER_EVENT_ID);
         document.dispatchEvent(changeEvent);

@@ -1,8 +1,35 @@
 .homepage-wrapper {
-
+  margin-top: 128px;
+  box-sizing: content-box;
 }
 
 .button-wrapper {
   display: flex;
+  flex-direction: column;
   gap: 32px;
+
+  .menu-button {
+    padding: 16px 48px;
+    outline: none;
+    border: none;
+    transition: 0.2s all;
+    font-size: 1.5em;
+
+    &hover {
+      transform: scale(1.05);
+      opacity: 0.95;
+    }
+  }
+}
+
+.page-title {
+  font-family: "Courier New";
+  font-size: 128px;
+  font-weight: 300;
+  text-align: center;
+  letter-spacing: -4px;
+  color: #d7d7d7;
+  span {
+    color: #cc1b51;
+  }
 }

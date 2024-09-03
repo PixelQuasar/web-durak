@@ -13,6 +13,10 @@ const router = createRouter([
         page: JoinLobby
     },
     {
+        name: "/join-lobby/:lobbyid",
+        page: JoinLobby
+    },
+    {
         name: "/create-lobby",
         page: CreateLobby
     },

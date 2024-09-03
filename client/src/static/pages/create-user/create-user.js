@@ -18,20 +18,20 @@ const createUserAction = async function () {
 export const CreateUser = function () {
     return `
 <div class="create-lobby-wrapper page-wrapper">
-   <div class="title">
-        WEB DURAK
-    </div>
-    <div class="subtitle">
-        The layout is not final.
-    </div>
-    
+    <h1 class="page-title">WEB DUR<span>A</span>K</h1>
     <input type="text" id="user-name-input" class="large-textbox" placeholder="Type your name here">
     <button class="create-user-button">CREATE USER</button>
 </div>`
 }
 
-document.querySelector("body").addEventListener("click", async (event) => {
+document.querySelector("body").addEventListener("click",  (event) => {
     switch (event.target.className) {
-        case "create-user-button": await createUserAction(); break;
+        case "create-user-button": createUserAction(); break;
+    }
+});
+
+document.querySelector("body").addEventListener("keypress", (event) => {
+    if (event.target.id === "user-name-input" && event.key === "Enter") {
+        createUserAction();
     }
 });
