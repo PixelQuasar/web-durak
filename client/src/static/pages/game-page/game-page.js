@@ -60,7 +60,7 @@ import {
  * @property {Card[]} deck
  * @property {number} trumpSuit
  * @property {Card[]} discard
- * @property {[Card, Card][]} table
+ * @property {$ReadOnly [Card, Card][]} table
  */
 
 /**
@@ -352,7 +352,7 @@ const renderDeck = function (deck) {
 
 /**
  * Renders table cards
- * @param {[Card, Card][]} table
+ * @param {$ReadOnly [Card, Card][]} table
  */
 const renderTable = function (table) {
     for (let i = 0; i < table.length; i++) {
