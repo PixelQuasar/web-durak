@@ -21,6 +21,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use tokio::sync::{broadcast, Mutex};
 use tower_http::cors::{Any, CorsLayer};
+use crate::server::websocket::joint::build_joint;
 
 #[derive(Clone)]
 pub struct LobbyConnection {
@@ -54,7 +55,7 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
     let api_prefix =
         dotenv::var("API_PREFIX").expect("SERVER_PORT environment variable not defined.");
 
-    let routes = Router::new()
+    let routes: Router = axum::routing::Router::new()
         .fallback(fallback)
         // WEBSOCKET
         .route("/ws", get(websocket_handler))
@@ -70,6 +71,10 @@ pub async fn create_app(redis_pool: Pool<RedisConnectionManager>) {
         .route("/player/:id", get(route_get_player_by_id))
         .with_state(state)
         .layer(cors);
+
+    // let joint = build_joint().await;
+
+    //let joint_routes = joint.attach_router("/joint", Router::new());
 
     let app = Router::new().nest(&api_prefix, routes);
 

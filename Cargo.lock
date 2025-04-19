@@ -57,13 +57,13 @@ checksum = "0c4b4d0bd25bd0b74681c0ad21497610ce1b7c91b1022cd21c80c6fbdd9476b0"
 
 [[package]]
 name = "axum"
-version = "0.7.5"
+version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3a6c9af12842a67734c9a2e355436e5d03b22383ed60cf13cd0c18fbfe3dcbcf"
+checksum = "edca88bc138befd0323b20752846e6587272d3b03b0343c8ea28a6f819e6e71f"
 dependencies = [
  "async-trait",
- "axum-core 0.4.3",
- "base64 0.21.7",
+ "axum-core 0.4.5",
+ "base64 0.22.1",
  "bytes",
  "futures-util",
  "http",
@@ -83,10 +83,10 @@ dependencies = [
  "serde_path_to_error",
  "serde_urlencoded",
  "sha1",
- "sync_wrapper 1.0.1",
+ "sync_wrapper",
  "tokio",
- "tokio-tungstenite 0.21.0",
- "tower 0.4.13",
+ "tokio-tungstenite 0.24.0",
+ "tower 0.5.2",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -120,7 +120,7 @@ dependencies = [
  "serde_path_to_error",
  "serde_urlencoded",
  "sha1",
- "sync_wrapper 1.0.1",
+ "sync_wrapper",
  "tokio",
  "tokio-tungstenite 0.26.2",
  "tower 0.5.2",
@@ -131,9 +131,9 @@ dependencies = [
 
 [[package]]
 name = "axum-core"
-version = "0.4.3"
+version = "0.4.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a15c63fd72d41492dc4f497196f5da1fb04fb7529e631d73630d1b491e47a2e3"
+checksum = "09f2bd6146b97ae3359fa0cc6d6b376d9539582c7b4220f041a33ec24c226199"
 dependencies = [
  "async-trait",
  "bytes",
@@ -144,7 +144,7 @@ dependencies = [
  "mime",
  "pin-project-lite",
  "rustversion",
- "sync_wrapper 0.1.2",
+ "sync_wrapper",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -164,7 +164,7 @@ dependencies = [
  "mime",
  "pin-project-lite",
  "rustversion",
- "sync_wrapper 1.0.1",
+ "sync_wrapper",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -176,8 +176,8 @@ version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0be6ea09c9b96cb5076af0de2e383bd2bc0c18f827cf1967bdd353e0b910d733"
 dependencies = [
- "axum 0.7.5",
- "axum-core 0.4.3",
+ "axum 0.7.9",
+ "axum-core 0.4.5",
  "bytes",
  "futures-util",
  "headers",
@@ -1496,12 +1496,6 @@ dependencies = [
 
 [[package]]
 name = "sync_wrapper"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2047c6ded9c721764247e62cd3b03c09ffc529b2ba5b10ec482ae507a4a70160"
-
-[[package]]
-name = "sync_wrapper"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7065abeca94b6a8a577f9bd45aa0867a2238b74e8eb67cf10d492bc39351394"
@@ -1519,11 +1513,11 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.61"
+version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c546c80d6be4bc6a00c0f01730c08df82eaa7a7a61f11d656526506112cc1709"
+checksum = "b6aaf5339b578ea85b50e080feb250a3e8ae8cfcdff9a461c9ec2904bc923f52"
 dependencies = [
- "thiserror-impl 1.0.61",
+ "thiserror-impl 1.0.69",
 ]
 
 [[package]]
@@ -1537,9 +1531,9 @@ dependencies = [
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.61"
+version = "1.0.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46c3384250002a6d5af4d114f2845d37b57521033f30d5c3f46c4d70e1197533"
+checksum = "4fee6c4efc90059e10f81e6d42c60a18f76588c3d74cb83a0b242a2b6c7504c1"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1609,14 +1603,14 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite"
-version = "0.21.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c83b561d025642014097b66e6c1bb422783339e0909e4429cde4749d1990bc38"
+checksum = "edc5f74e248dc973e0dbb7b74c7e0d6fcc301c694ff50049504004ef4d0cdcd9"
 dependencies = [
  "futures-util",
  "log",
  "tokio",
- "tungstenite 0.21.0",
+ "tungstenite 0.24.0",
 ]
 
 [[package]]
@@ -1669,7 +1663,7 @@ dependencies = [
  "futures-core",
  "futures-util",
  "pin-project-lite",
- "sync_wrapper 1.0.1",
+ "sync_wrapper",
  "tokio",
  "tower-layer",
  "tower-service",
@@ -1727,9 +1721,9 @@ dependencies = [
 
 [[package]]
 name = "tungstenite"
-version = "0.21.0"
+version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ef1a641ea34f399a848dea702823bbecfb4c486f911735368f1f137cb8257e1"
+checksum = "18e5b8366ee7a95b16d32197d0b2604b43a0be89dc5fac9f8e96ccafbaedda8a"
 dependencies = [
  "byteorder",
  "bytes",
@@ -1739,8 +1733,7 @@ dependencies = [
  "log",
  "rand 0.8.5",
  "sha1",
- "thiserror 1.0.61",
- "url",
+ "thiserror 1.0.69",
  "utf-8",
 ]
 
@@ -1895,7 +1888,7 @@ dependencies = [
 name = "web-durak"
 version = "0.1.0"
 dependencies = [
- "axum 0.7.5",
+ "axum 0.7.9",
  "axum-extra",
  "bb8",
  "bb8-redis",
