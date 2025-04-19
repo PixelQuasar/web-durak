@@ -2,6 +2,7 @@ pub mod client_request;
 pub mod handle_socket;
 pub mod process_message;
 pub mod websocket_service;
+mod joint;
 
 use crate::game::deck_manager::Card;
 use crate::lobby::PopulatedLobby;

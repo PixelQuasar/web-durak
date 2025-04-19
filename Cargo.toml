@@ -5,25 +5,17 @@ edition = "2021"
 
 [dependencies]
 axum = { version = "0.7.5", features = ["ws"] }
-bstr = "1.9.1"
-futures-util = "0.3.30"
-parking_lot = "0.12.3"
 rand = "0.8.5"
-regex = "1.10.5"
 tokio = { version = "1.4.0", features = ["rt", "rt-multi-thread", "macros"] }
-tokio-tungstenite = "0.23.1"
 serde_json = "1.0.120"
 tower = "0.4.13"
 serde = { version = "1.0.203", features = ["derive"] }
 tower-http = { version = "0.5.2", features = ["add-extension", "trace", "cors"] }
 dotenv = "0.15.0"
 redis = "0.25.4"
-redis-async = "0.17.2"
 bb8 = "0.8.5"
 bb8-redis = "0.15.0"
-tracing-subscriber = { version = "0.3", features = ["env-filter"] }
-tracing = "0.1.40"
-log = "0.4.22"
 headers = "0.4.0"
 futures = "0.3.30"
 axum-extra = { version = "0.9.3", features = ["typed-header"] }
+injoint = "0.1.1"

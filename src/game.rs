@@ -6,8 +6,9 @@ use serde::{Deserialize, Serialize};
 use std::cmp::PartialEq;
 use std::collections::HashMap;
 
-#[derive(Debug, Clone, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Default)]
 pub enum GameLoopState {
+    #[default]
     Start,
     Pause,
     Finish,
@@ -15,7 +16,7 @@ pub enum GameLoopState {
     Turn,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone, Deserialize, Serialize, Default)]
 pub struct Game {
     id: String,
     status: GameLoopState,

@@ -63,7 +63,7 @@ pub enum HandStatus {
     Left,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct DeckManager {
     full_deck: Vec<Card>,
     deck: Vec<Card>,
